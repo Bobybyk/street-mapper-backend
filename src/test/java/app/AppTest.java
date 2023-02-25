@@ -3,8 +3,6 @@
  */
 package app;
 
-import gla.calcul.itineraire.App;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
