@@ -1,6 +1,7 @@
 package app.map;
 
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * Classe représentant une portion de trajet entre deux stations
@@ -49,13 +50,37 @@ public final class Section {
         this.line = line;
     }
 
+    public void addTimes(int hour, int minute) {
+        departures.add(new Time(hour, minute, 0));
+    }
+
     /**
      * Ajoute des horaires de départ
      * 
-     * @param times une liste
+     * @param times une liste d'horaire
      */
-    public void addTimes(HashSet<Time> times) {
+    public void addTimes(List<Time> times) {
         departures.addAll(times);
+    }
+
+    public String getStartStationName() {
+        return start.getName();
+    }
+
+    public Station getStart() {
+        return start;
+    }
+
+    public Station getArrival() {
+        return arrival;
+    }
+
+    public HashSet<Time> getDepartures() {
+        return departures;
+    }
+
+    public int getDuration() {
+        return duration;
     }
 
     @Override
