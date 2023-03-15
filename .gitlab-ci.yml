@@ -1,11 +1,11 @@
 # Spécification de l'image (pour une éventuelle utilisation de Docker et les jobs)
-image: openjdk:17
+image: gradle:8.0.2-jdk17
 
 # Spécification des étapes du pipeline
 stages:
   - build
   - test
-  - deploy
+#  - deploy
 
 # Job de build
 build:
@@ -20,8 +20,10 @@ test:
     - ./gradlew test
 
 # Job de déploiement
-deploy:
-  stage: deploy
-  script:
-    - ./gradlew assemble
-    - scp build/libs/my-project.jar user@server:/path/to/deploy
+#deploy:
+#  stage: deploy
+#  script:
+#    - ./gradlew assemble
+#    - scp build/libs/my-project.jar root@runner-76y9mq6j-project-6325-concurrent-0:/path/to/deploy
+#  only:
+#    - master
