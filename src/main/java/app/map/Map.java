@@ -3,10 +3,14 @@ package app.map;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.Scanner;
+import java.util.function.Function;
 
 /**
  * Classe représentant la carte
@@ -195,4 +199,74 @@ public final class Map {
         }
     }
 
+    public class PathNotFoundException extends Exception {
+        public PathNotFoundException(Station start, Station arrival) {
+            super(String.format("Pas de chemin trouvé entre %s et %s", start.getName(), arrival.getName()));
+        }
+    }
+
+    /**
+     * Calcule un trajet entre 2 stations et renvoie la liste des sections du trajet
+     *
+     * @param start   la station de départ
+     * @param arrival la station d'arrivée
+     * @return la liste des sections du trajet
+     * @throws PathNotFoundException si il n'existe pas de trajet les deux stations
+     */
+    public ArrayList<Section> findPathDistOpt(Station start, Station arrival) throws PathNotFoundException {
+        HashMap<Station, Section> path = dijkstra(start, arrival, Section::getDistance);
+        ArrayList<Section> orderedPath = new ArrayList<>();
+        Station previous = arrival;
+        while (previous != start) {
+            Section section = path.get(previous);
+            orderedPath.add(section);
+            previous = section.getStart();
+        }
+        Collections.reverse(orderedPath);
+        return orderedPath;
+    }
+
+    /**
+     * Recherche un chemin entre 2 stations en appliquant l'algorithme de
+     * dijkstra et renvoie les sections du trajet
+     *
+     * @param start   la station (sommet) de départ
+     * @param arrival la station (sommet) d'arrivée
+     * @param f       la fonction qui associe à une section (arête) son poids
+     * @return map associant une station à la section prendre pour aller à cette
+     *         station
+     * @throws PathNotFoundException si il n'existe pas de trajet les deux stations
+     */
+    private HashMap<Station, Section> dijkstra(Station start, Station arrival, Function<Section, Double> f)
+            throws PathNotFoundException {
+        HashMap<Station, Double> distance = new HashMap<>();
+        HashMap<Station, Section> previous = new HashMap<>();
+        for (java.util.Map.Entry<Station, ArrayList<Section>> entry : map.entrySet()) {
+            Station station = entry.getKey();
+            distance.put(station, Double.MAX_VALUE);
+            previous.put(station, null);
+        }
+
+        distance.put(start, 0.);
+        PriorityQueue<Station> queue = new PriorityQueue<>(map.size(),
+                Comparator.comparingDouble(x -> distance.get(x)));
+        queue.addAll(map.keySet());
+
+        Station u = null;
+        while (!queue.isEmpty() && (u = queue.poll()) != arrival) {
+            for (Section section : map.get(u)) {
+                Station v = section.getArrival();
+                double w = distance.get(u) + f.apply(section);
+                if (distance.get(v) > w) {
+                    distance.put(v, w);
+                    previous.put(v, section);
+                    queue.remove(v);
+                    queue.add(v);
+                }
+            }
+        }
+        if (queue.isEmpty())
+            throw new PathNotFoundException(start, arrival);
+        return previous;
+    }
 }

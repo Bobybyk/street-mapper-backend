@@ -83,6 +83,10 @@ public final class Section {
         return duration;
     }
 
+    public double getDistance() {
+        return distance;
+    }
+
     @Override
     public String toString() {
         return String.format("%s --%s(%f, %d)--> %s", start.getName(), line, distance, duration, arrival.getName());
