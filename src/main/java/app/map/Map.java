@@ -175,7 +175,7 @@ public final class Map {
                 while (!sections.isEmpty()) {
                     // recherche de la section suivante
                     Station nextDepart = current.getArrival();
-                    Optional<Section> next = sections.stream().filter(s -> s.getStart() == nextDepart)
+                    Optional<Section> next = sections.stream().filter(s -> s.getStart().equals(nextDepart))
                             .findAny();
                     if (!next.isPresent()) {
                         throw new UndefinedTime(line);
