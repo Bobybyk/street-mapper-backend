@@ -34,7 +34,7 @@ public final class Map {
      * Map où chaque station est associée aux sections dont le départ est cette
      * station
      */
-    private final HashMap<Station, ArrayList<Section>> map = new HashMap<>();
+    private final HashMap<Station, Connection> map = new HashMap<>();
     /**
      * Map où chaque nom (avec variant) de ligne est associée sa ligne
      */
@@ -98,7 +98,8 @@ public final class Map {
     }
 
     /**
-     * Créer une station à partir de son nom et de ses coordonnées.
+     * Retourne la station correspondant au nom et aux coordonnées. La créer si elle
+     * n'existe pas.
      * 
      * @param station le nom de la station
      * @param coord   les coordonnées de la station séparées par une virgule
@@ -112,7 +113,13 @@ public final class Map {
         String[] coords = coord.trim().split(",");
         double x = Double.parseDouble(coords[0]);
         double y = Double.parseDouble(coords[1]);
-        return new Station(station, x, y);
+        Station s = new Station(station, x, y);
+        Connection connection = map.get(s);
+        if (connection == null) {
+            connection = new Connection(s);
+            map.put(s, connection);
+        }
+        return connection.getStation();
     }
 
     /**
@@ -135,8 +142,7 @@ public final class Map {
         int variant = Integer.parseInt(lineVariant[2]);
         Section section = new Section(start, arrival, distance, duration);
         // ajout dans map
-        ArrayList<Section> sections = map.getOrDefault(start, new ArrayList<>());
-        sections.add(section);
+        map.get(start).addSection(section);
         // ajout dans lines
         Line line = lines.getOrDefault(name, new Line(name, variant));
         line.addSection(section);
@@ -215,6 +221,10 @@ public final class Map {
         l.addDepartureTime(hour, minute);
     }
 
+    public HashMap<Station, Connection> getMap() {
+        return map;
+    }
+
     public class PathNotFoundException extends Exception {
         public PathNotFoundException(Station start, Station arrival) {
             super(String.format("Pas de chemin trouvé entre %s et %s", start.getName(), arrival.getName()));
@@ -257,8 +267,7 @@ public final class Map {
             throws PathNotFoundException {
         HashMap<Station, Double> distance = new HashMap<>();
         HashMap<Station, Section> previous = new HashMap<>();
-        for (java.util.Map.Entry<Station, ArrayList<Section>> entry : map.entrySet()) {
-            Station station = entry.getKey();
+        for (Station station : map.keySet()) {
             distance.put(station, Double.MAX_VALUE);
             previous.put(station, null);
         }
@@ -270,7 +279,7 @@ public final class Map {
 
         Station u = null;
         while (!queue.isEmpty() && (u = queue.poll()) != arrival) {
-            for (Section section : map.get(u)) {
+            for (Section section : map.get(u).getSections()) {
                 Station v = section.getArrival();
                 double w = distance.get(u) + f.apply(section);
                 if (distance.get(v) > w) {

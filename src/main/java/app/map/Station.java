@@ -1,5 +1,7 @@
 package app.map;
 
+import java.util.Objects;
+
 /**
  * Classe représentant une station, avec un nom et ses coordonnées
  */
@@ -48,5 +50,10 @@ public final class Station {
             return name.equals(o.name) && coordinateX == o.coordinateX && coordinateY == o.coordinateY;
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, coordinateX, coordinateY);
     }
 }
