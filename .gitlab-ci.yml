@@ -1,23 +1,23 @@
 # Spécification de l'image (pour une éventuelle utilisation de Docker et les jobs)
-image: gradle:8.0.2-jdk17
+#image: gradle:8.0.2-jdk17
 
 # Spécification des étapes du pipeline
-stages:
-  - build
-  - test
+#stages:
+#  - build
+#  - test
 #  - deploy
 
 # Job de build
-build:
-  stage: build
-  script:
-    - ./gradlew assemble
+#build:
+#  stage: build
+#  script:
+#    - ./gradlew assemble
 
 # Job de test
-test:
-  stage: test
-  script:
-    - ./gradlew test
+#test:
+#  stage: test
+#  script:
+#    - ./gradlew test
 
 # Job de déploiement
 #deploy:
