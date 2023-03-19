@@ -17,7 +17,7 @@ public final class Section {
      */
     private final double distance;
     /**
-     * La durée en seconde du trajet les 2 stations
+     * La durée en seconde du trajet entre les 2 stations
      */
     private final int duration;
 

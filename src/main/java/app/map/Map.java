@@ -41,20 +41,29 @@ public final class Map {
     private final HashMap<String, Line> lines = new HashMap<>();
 
     /**
+     * Créer une map à partir d'un fichier CSV contenant les sections des lignes du
+     * réseau.
      * 
-     * @param mapFileName
-     * @throws IncorrectFileFormatException
-     * @throws FileNotFoundException
-     * @throws IllegalArgumentException
+     * @param mapFileName le nom du fichier
+     * @throws FileNotFoundException        si le fichier n'a pas été trouvé
+     * @throws IncorrectFileFormatException si le format du fichier est incorrect
+     * @throws IllegalArgumentException     si `mapFileName` est `null`
      */
     public Map(String mapFileName)
-            throws IncorrectFileFormatException, FileNotFoundException, IllegalArgumentException {
+            throws FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
         if (mapFileName == null)
             throw new IllegalArgumentException();
         parseMap(mapFileName);
     }
 
-    private void parseMap(String fileName) throws IncorrectFileFormatException, FileNotFoundException {
+    /**
+     * Parse un fichier CSV contenant les sections de trajet du réseau.
+     * 
+     * @param fileName le nom du fichier à parser
+     * @throws FileNotFoundException        si le fichier n'a pas été trouvé
+     * @throws IncorrectFileFormatException si le format du fichier est incorrect
+     */
+    private void parseMap(String fileName) throws FileNotFoundException, IncorrectFileFormatException {
         File file = new File(fileName);
         Scanner sc = new Scanner(file);
         try {
@@ -68,7 +77,15 @@ public final class Map {
         }
     }
 
-    private void handleMapLine(String s) {
+    /**
+     * Parse une ligne d'un fichier CSV contenant une section de trajet du réseau.
+     * 
+     * @param s la ligne à parser
+     * @throws IndexOutOfBoundsException si la ligne est mal formé
+     * @throws NumberFormatException     si une des données qui doit être un nombre
+     *                                   ne l'est pas
+     */
+    private void handleMapLine(String s) throws IndexOutOfBoundsException, NumberFormatException {
         String[] data = s.split(";");
         Station start = parseStation(data[0], data[1]);
         Station arrival = parseStation(data[2], data[3]);
@@ -80,7 +97,17 @@ public final class Map {
         addSection(start, arrival, distance, duration, line);
     }
 
-    private Station parseStation(String station, String coord) {
+    /**
+     * Créer une station à partir de son nom et de ses coordonnées.
+     * 
+     * @param station le nom de la station
+     * @param coord   les coordonnées de la station séparées par une virgule
+     * @return une station correspondant aux paramètres
+     * @throws IndexOutOfBoundsException si les coordonnées sont mal formées
+     * @throws NumberFormatException     si l'une des coordonnées n'est pas un
+     *                                   nombre
+     */
+    private Station parseStation(String station, String coord) throws IndexOutOfBoundsException, NumberFormatException {
         station = station.trim();
         String[] coords = coord.trim().split(",");
         double x = Double.parseDouble(coords[0]);
@@ -88,7 +115,20 @@ public final class Map {
         return new Station(station, x, y);
     }
 
-    private void addSection(Station start, Station arrival, double distance, int duration, String lineName) {
+    /**
+     * Créer une section entre les stations `start`et `arrival`, et l'ajoute dans
+     * `map` et `lines`
+     * 
+     * @param start    la station de départ
+     * @param arrival  la station d'arrivé
+     * @param distance la distance entre les deux stations
+     * @param duration la durée du trajet entre les deux stations
+     * @param line     le nom et le variant de la ligne
+     * @throws IndexOutOfBoundsException si le nom de la ligne est mal formé
+     * @throws NumberFormatException     si le variant n'est pas un nombre
+     */
+    private void addSection(Station start, Station arrival, double distance, int duration, String lineName)
+            throws IndexOutOfBoundsException, NumberFormatException {
         // création de la section
         String[] lineVariant = lineName.split(" ");
         String name = lineVariant[0];
@@ -102,8 +142,19 @@ public final class Map {
         line.addSection(section);
     }
 
+    /**
+     * Parse un fichier CSV contenant les horaires de départ des lignes du réseau.
+     * 
+     * @param fileName le nom du fichier à parser
+     * @throws FileNotFoundException        si le fichier n'a pas été trouvé
+     * @throws IncorrectFileFormatException si le format du fichier est incorrect
+     * @throws UndefinedLine                si la ligne n'existe pas dans la map
+     * @throws StartStationNotFound         si la ligne n'existe pas sur la ligne
+     * @throws DifferentStartException      s'il y a plusieurs station de départ
+     *                                      pour une même ligne
+     */
     public void addTime(String fileName)
-            throws IncorrectFileFormatException, FileNotFoundException, UndefinedLine, StartStationNotFound,
+            throws FileNotFoundException, IncorrectFileFormatException, UndefinedLine, StartStationNotFound,
             DifferentStartException {
         File file = new File(fileName);
         Scanner sc = new Scanner(file);
@@ -118,7 +169,20 @@ public final class Map {
         }
     }
 
-    private void handleTimeLine(String s) throws UndefinedLine, StartStationNotFound, DifferentStartException {
+    /**
+     * Parse une ligne d'un fichier CSV contenant un horaire de départ d'une ligne
+     * du réseau.
+     * 
+     * @param s la ligne à parser
+     * @throws IndexOutOfBoundsException si la ligne est mal formé
+     * @throws NumberFormatException     si l'horaire est mal formé
+     * @throws UndefinedLine             si la ligne n'existe pas dans la map
+     * @throws StartStationNotFound      si la ligne n'existe pas sur la ligne
+     * @throws DifferentStartException   s'il y a plusieurs station de départ pour
+     *                                   une même ligne
+     */
+    private void handleTimeLine(String s) throws IndexOutOfBoundsException, NumberFormatException, UndefinedLine,
+            StartStationNotFound, DifferentStartException {
         String[] data = s.split(";");
         String line = data[0].trim();
         String stationName = data[1].trim();
@@ -128,6 +192,19 @@ public final class Map {
         addDepartureTime(line, stationName, hour, minute);
     }
 
+    /**
+     * Ajoute l'horaire de départ et le section de départ à la ligne si elle n'a pas
+     * été déjà déterminée
+     * 
+     * @param line        le nom et le variant de la ligne
+     * @param stationName le nom de la sation de départ
+     * @param hour        l'heure de l'horaire de départ
+     * @param minute      les minutes de l'horaire de départ
+     * @throws UndefinedLine           si la ligne n'existe pas dans la map
+     * @throws StartStationNotFound    si la ligne n'existe pas sur la ligne
+     * @throws DifferentStartException s'il y a plusieurs station de départ pour une
+     *                                 même ligne
+     */
     private void addDepartureTime(String line, String stationName, int hour, int minute)
             throws UndefinedLine, StartStationNotFound, DifferentStartException {
         Line l = lines.get(line);

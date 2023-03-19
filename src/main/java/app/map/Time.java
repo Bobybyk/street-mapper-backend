@@ -18,7 +18,7 @@ public final class Time {
     private final int second;
 
     /**
-     * Créer un nouveau Time
+     * Créer un nouveau temps
      * 
      * @param hour   le nombre des heures entre 0 et 23
      * @param minute le nombre des minutes entre 0 et 59
@@ -34,6 +34,8 @@ public final class Time {
     }
 
     /**
+     * Ajoute des secondes au temps et renvoie le nouveau temps.
+     * 
      * @param second le nombre de secondes à ajouter
      * @return un nouveau Time avec les secondes en plus
      */
