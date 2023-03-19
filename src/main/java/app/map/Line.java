@@ -8,6 +8,20 @@ import java.util.Optional;
  * Classe représentant une ligne
  */
 public final class Line {
+
+    public static class StartStationNotFound extends Exception {
+        public StartStationNotFound(String station, String line, int variant) {
+            super(String.format("La station %s n'est pas sur la ligne %s variant %d", station, line, variant));
+        }
+    }
+
+    public static class DifferentStartException extends Exception {
+        public DifferentStartException(String line, int variant, String s1, String s2) {
+            super(String.format("Il y plusieurs stations de départ pour la ligne %s variant %d : %s et %s", line,
+                    variant, s1, s2));
+        }
+    }
+
     /**
      * Le nom de la ligne
      */
@@ -52,16 +66,23 @@ public final class Line {
      * modifie l'attribut associé `start`.
      * 
      * @param stationName le nom de la station de départ de la ligne
-     * @throws IllegalArgumentException s'il n'y a pas de section commencant à une
-     *                                  station à ce nom
+     * @throws StartStationNotFound    s'il n'y a pas de section commencant à une
+     *                                 station à ce nom
+     * @throws DifferentStartException s'il y a déjà une section de départ qui ne
+     *                                 commence pas par à la même station
      */
-    public void setStart(String stationName) {
-        Optional<Section> start = sections.keySet().stream().filter(s -> s.getStart().getName().equals(stationName))
-                .findAny();
-        if (start.isEmpty())
-            throw new IllegalArgumentException(
-                    String.format("La station %s n'est pas sur la ligne %s variant %d", stationName, name, variant));
-        this.start = start.get();
+    public void setStart(String stationName) throws StartStationNotFound, DifferentStartException {
+        if (start == null) {
+            Optional<Section> start = sections.keySet().stream().filter(s -> s.getStart().getName().equals(stationName))
+                    .findAny();
+            if (start.isEmpty())
+                throw new StartStationNotFound(stationName, name, variant);
+            this.start = start.get();
+        } else {
+            String actual = start.getStart().getName();
+            if (!actual.equals(stationName))
+                throw new DifferentStartException(name, variant, actual, stationName);
+        }
     }
 
     /**
@@ -71,10 +92,6 @@ public final class Line {
      */
     public Section getStart() {
         return start;
-    }
-
-    public boolean isStartingAt(String stationName) {
-        return start != null && start.getStart().getName().equals(stationName);
     }
 
     /**

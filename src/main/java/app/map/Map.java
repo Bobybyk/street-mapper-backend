@@ -10,6 +10,9 @@ import java.util.PriorityQueue;
 import java.util.Scanner;
 import java.util.function.Function;
 
+import app.map.Line.DifferentStartException;
+import app.map.Line.StartStationNotFound;
+
 /**
  * Classe représentant la carte
  */
@@ -24,18 +27,6 @@ public final class Map {
     public class UndefinedLine extends Exception {
         public UndefinedLine(String line) {
             super(String.format("La line %s n'existe pas dans la carte", line));
-        }
-    }
-
-    public static class StartStationNotFound extends Exception {
-        public StartStationNotFound(String station, String line) {
-            super(String.format("La station %s n'est pas sur la ligne %s", station, line));
-        }
-    }
-
-    public static class DifferentStartException extends Exception {
-        public DifferentStartException(String line) {
-            super(String.format("Il y plusieurs stations de départ pour la ligne %s", line));
         }
     }
 
@@ -142,14 +133,8 @@ public final class Map {
         Line l = lines.get(line);
         if (l == null)
             throw new UndefinedLine(line);
-        if (l.getStart() == null)
-            try {
-                l.setStart(stationName);
-            } catch (IllegalArgumentException e) {
-                throw new StartStationNotFound(line, stationName);
-            }
-        else if (!l.isStartingAt(stationName))
-            throw new DifferentStartException(line);
+        // ajoute la section de départ si nécessaire
+        l.setStart(stationName);
         l.addDepartureTime(hour, minute);
     }
 
