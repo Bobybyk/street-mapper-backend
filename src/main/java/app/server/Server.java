@@ -18,6 +18,7 @@ public class Server {
     private String charSplitter = ";";
 
     private static final String ROUTE_KEY = "ROUTE";
+    private static final String KILL_KEY = "kill";
 
     private ServerSocket serverSocket;
     private boolean isRunning;
@@ -44,12 +45,13 @@ public class Server {
             serverSocket.close();
 
         } catch (IOException e) {
-            System.err.println( String.format("Erreur : %s\nServer STOP", e.getMessage()) );
+            System.err.println( String.format("Erreur : %s\n", e.getMessage()) );
         }    
     }
 
     private void setupServerAction() {
         this.serverActions.put(ROUTE_KEY, this::handleRouteRequest);
+        this.serverActions.put(KILL_KEY, this::handleKillRequest);
     }
 
     private void handleClient(Socket clientSocket) throws IOException {
@@ -74,7 +76,13 @@ public class Server {
     }
 
     private void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
+        /// Todo
+        System.out.println( String.format("read Line = %s", inputLine) );
 
+    }
+
+    private void handleKillRequest(String inputLine, Socket clientSocket) {
+        isRunning = false;
     }
 }
 
