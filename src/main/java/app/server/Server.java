@@ -1,93 +1,61 @@
 package app.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Server {
-
-
-    private HashMap<String, ServerActionCallback> serverActions = new HashMap<>();
-    private String charSplitter = ";";
-
-    private static final String ROUTE_KEY = "ROUTE";
-    private static final String KILL_KEY = "kill";
+    private static final int DEFAULT_POOL_SIZE = 10; // Totalement abitraire pour l'instant
+    private static final long AWAIT_TIME_BEFORE_DYING = 5;
 
     private ServerSocket serverSocket;
     private boolean isRunning;
-    // private String host;
-    // private int port;
+    private final ExecutorService threadPool;
 
-    public Server(String host, int port, int maxIncommingConnection) throws UnknownHostException, IOException {
-        // this.host = host;
-        // this.port = port;
+    public Server(String host, int port, int maxIncommingConnection, int poolSize) throws UnknownHostException, IOException {
         this.isRunning = false;
         this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection), InetAddress.getByName(host));
-        this.setupServerAction();
+        this.threadPool = Executors.newFixedThreadPool(poolSize);
+    }
+
+    public Server(String host, int port, int maxIncommingConnection) throws UnknownHostException, IOException {
+        this(host, port, maxIncommingConnection, DEFAULT_POOL_SIZE);
     }
 
     public void start() {
         isRunning = true;
-
-        try {
-            while (isRunning) {
+        while (isRunning) {
+            try {
                 Socket clientSocket = serverSocket.accept();
-                handleClient(clientSocket);
+                RequestHandler requestHandler = new RequestHandler(this, clientSocket);
+                threadPool.execute(requestHandler);
+            } catch (IOException e) {
+                System.err.println( String.format("Erreur : %s\n", e.getMessage()) );
             }
-
-            serverSocket.close();
-
-        } catch (IOException e) {
-            System.err.println( String.format("Erreur : %s\n", e.getMessage()) );
-        }    
-    }
-
-    private void setupServerAction() {
-        this.serverActions.put(ROUTE_KEY, this::handleRouteRequest);
-        this.serverActions.put(KILL_KEY, this::handleKillRequest);
-    }
-
-    private void handleClient(Socket clientSocket) throws IOException {
-        String inputLine = null;
-        InputStream inputStream = clientSocket.getInputStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-        while ( (inputLine = in.readLine() ) != null) {
-            handleLine(inputLine, clientSocket);
         }
+
+        tearDown();
+
     }
 
-    private void handleLine(String clientLine, Socket clientSocket) throws IOException {
-        String[] splittedLine = clientLine.split(charSplitter);
-        // Pour l'instant assumer que tout va bien niveau formattage
-        String clientRequest = splittedLine[0];
-        ServerActionCallback callback = serverActions.get(clientRequest);
-        if (callback == null) {
-            System.err.println(String.format("Unknown action for %s", clientRequest));
-        } else {
-            callback.execute(clientRequest, clientSocket);
+    synchronized void stop() {
+        this.isRunning = false;
+    }
+
+    synchronized void tearDown() {
+        try {
+            if (threadPool.awaitTermination(AWAIT_TIME_BEFORE_DYING, TimeUnit.SECONDS) ) {
+                threadPool.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            threadPool.shutdownNow();
         }
-    }
-
-    private void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
-        /// Todo
-        System.out.println( String.format("read Line = %s", inputLine) );
-
-    }
-
-    private void handleKillRequest(String inputLine, Socket clientSocket) {
-        isRunning = false;
     }
 }
 
 
-@FunctionalInterface
-interface ServerActionCallback {
-    void execute(String s, Socket socket) throws IOException ;
-}
