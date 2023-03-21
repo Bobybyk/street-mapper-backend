@@ -54,13 +54,13 @@ class RequestHandler implements Runnable {
         }
     }
 
-    synchronized private void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
+    private synchronized void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
         /// Todo: Waiting the disjkra merge
         System.out.println( String.format("read Line = %s", inputLine) );
 
     }
 
-    synchronized private void handleKillRequest(String inputLine, Socket clientSocket) throws IOException {
+    private synchronized void handleKillRequest(String inputLine, Socket clientSocket) throws IOException {
         server.stop();
     }
 

@@ -10,7 +10,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Server {
+
+    /**
+     * Nombres de threads par default utilsés par le server
+     */
     private static final int DEFAULT_POOL_SIZE = 10; // Totalement abitraire pour l'instant
+
+    /**
+     * Nombres de secondes laissées aux threads lancés pour se terminer avant la fermeture de tous les threads
+     */
     private static final long AWAIT_TIME_BEFORE_DYING = 5;
 
     private ServerSocket serverSocket;
@@ -47,9 +55,9 @@ public class Server {
         this.isRunning = false;
     }
 
-    synchronized void tearDown() {
+    private synchronized void tearDown() {
         try {
-            if (threadPool.awaitTermination(AWAIT_TIME_BEFORE_DYING, TimeUnit.SECONDS) ) {
+            if (!threadPool.awaitTermination(AWAIT_TIME_BEFORE_DYING, TimeUnit.SECONDS) ) {
                 threadPool.shutdownNow();
             }
         } catch (InterruptedException e) {
