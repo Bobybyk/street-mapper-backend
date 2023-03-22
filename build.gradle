@@ -28,6 +28,12 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
 repositories {
     // Use jcenter for resolving dependencies.
     // You can declare any Maven/Ivy/file repository here.
@@ -36,7 +42,7 @@ repositories {
 
 dependencies {
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:29.0-jre'
+    implementation 'com.google.guava:guava:30.0-android'
 
     // Use JUnit test framework
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
