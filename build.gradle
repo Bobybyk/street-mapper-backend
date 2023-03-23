@@ -63,6 +63,10 @@ tasks.named('test') {
     finalizedBy jacocoTestReport
 }
 
+jacoco {
+    toolVersion = "0.8.7"
+}
+
 jacocoTestReport {
     dependsOn test
     sourceDirectories.from files(sourceSets.main.allJava.srcDirs)
