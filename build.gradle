@@ -27,8 +27,8 @@ plugins {
     // Create executable
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 
+    // Generates files that are used by IntelliJ IDEA
     id 'idea'
-    id 'jacoco'
 }
 
 java {
@@ -60,14 +60,4 @@ application {
 
 tasks.named('test') {
     useJUnitPlatform()
-    finalizedBy jacocoTestReport
-}
-
-jacoco {
-    toolVersion = "0.8.7"
-}
-
-jacocoTestReport {
-    dependsOn test
-    sourceDirectories.from files(sourceSets.main.allJava.srcDirs)
 }
