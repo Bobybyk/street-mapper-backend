@@ -108,7 +108,7 @@ public final class Map {
      * @throws NumberFormatException     si l'une des coordonnées n'est pas un
      *                                   nombre
      */
-    private Station parseStation(String station, String coord) throws IndexOutOfBoundsException, NumberFormatException {
+    public Station parseStation(String station, String coord) throws IndexOutOfBoundsException, NumberFormatException {
         station = station.trim();
         String[] coords = coord.trim().split(",");
         double x = Double.parseDouble(coords[0]);
