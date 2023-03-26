@@ -69,7 +69,7 @@ public class Server {
         this.isRunning = false;
         this.threadPool = Executors.newFixedThreadPool(poolSize);
         this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection), InetAddress.getByName(host));
-        this.serverSocket.setSoTimeout(timeout);
+        // this.serverSocket.setSoTimeout(timeout);
     }
 
     /**

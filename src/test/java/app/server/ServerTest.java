@@ -4,33 +4,63 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.net.UnknownHostException;
 
 import org.junit.jupiter.api.Test;
 
+import app.server.data.Route;
+
 public class ServerTest {
 
-    private static final String host = "localhost";
-    private static final int port = 12345;
+    private static final String HOST = "localhost";
+    private static final String ROUTE_REQUEST = "ROUTE;GARE1;GARE2";
+    private static final int PORT = 12345;
     private static final int incommingConnection = 3;
-    private static final int sleepTime = 1_000;
+    private static final int SLEEP_TIME = 1_000;
 
     @Test
     public void test_CreateandStopServer() throws UnknownHostException, IOException, InterruptedException {
-        Server s = new Server(host, port, incommingConnection);
+        Server s = new Server(HOST, PORT, incommingConnection);
         assertFalse(s.isRunning());
 
-        Thread killServer = new Thread(() -> {
+        Thread threadServer = new Thread(() -> {
             s.start();
         });
-        killServer.start();
+        threadServer.start();
 
-        Thread.sleep(sleepTime);
+        Thread.sleep(SLEEP_TIME);
         assertTrue(s.isRunning());
         
         s.stop();
-        Thread.sleep(sleepTime);
+        Thread.sleep(SLEEP_TIME);
         assertFalse(s.isRunning());
     }
     
+    @Test
+    public void test_QueryRoute() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
+        Server server = new Server(HOST, PORT, incommingConnection);
+        Thread threadServer = new Thread(() -> {
+            server.start();
+        });
+        threadServer.start();
+
+        Thread.sleep(SLEEP_TIME);
+        Socket clientSocket = new Socket(HOST, PORT);
+
+ 
+        ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+        out.writeUTF(ROUTE_REQUEST);
+        out.flush();
+
+        ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+        Object serializableRoute = in.readObject();
+        assertTrue(serializableRoute instanceof Route);
+
+        clientSocket.close();
+        server.stop();
+ 
+    }
 }

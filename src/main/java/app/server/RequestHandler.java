@@ -1,9 +1,8 @@
 package app.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
@@ -61,15 +60,10 @@ class RequestHandler implements Runnable {
      * 
      */
     private void handleClient(Socket clientSocket) throws IOException {
-        String inputLine = null;
         InputStream inputStream = clientSocket.getInputStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-
-        do {
-            inputLine = in.readLine();
-            handleLine(inputLine, clientSocket);
-        } while (inputLine != null);
-
+        ObjectInputStream in = new ObjectInputStream(inputStream);
+        String s = in.readUTF();
+        handleLine(s, clientSocket);
     }
 
     /**
