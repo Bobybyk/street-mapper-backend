@@ -99,6 +99,7 @@ class RequestHandler implements Runnable {
      */
     private synchronized void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
         /// Todo: Waiting the disjkra merge
+        // Question pour plus tard: C'est quand que l'on cree la map ?? 
         System.out.println( String.format("read Line = %s", inputLine) );
 
         // Dummy route

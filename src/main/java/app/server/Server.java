@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,6 +20,12 @@ public class Server {
      * Nombres de threads par default utilsés par le server
      */
     private static final int DEFAULT_POOL_SIZE = 10; // Totalement abitraire pour l'instant
+
+    
+    /**
+     * Nombres de milisecondes par default que le server attend pour accepter une connexion
+     */
+    private static final int DEFAULT_TIMEOUT = 5_000;
 
     /**
      * Nombres de secondes laissées aux threads lancés pour se terminer avant la fermeture de tous les threads
@@ -40,6 +47,11 @@ public class Server {
      */
     private final ExecutorService threadPool;
 
+    /**
+     * Nombres de milisecondes que le server attend pour accepter une connexion
+     */
+    private int timeout;
+
 
     /**
      * 
@@ -47,13 +59,17 @@ public class Server {
      * @param port                   Numero du port sur lequel le server doit etre lié
      * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer 
      * @param poolSize               Nombre de threads que le server peut utiliser
+     * @param timeout                Nombre de milisecondes que le server attend pour accepter une connexion
      * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public Server(String host, int port, int maxIncommingConnection, int poolSize) throws UnknownHostException, IOException {
+    public Server(String host, int port, int maxIncommingConnection, int poolSize, int timeout) throws UnknownHostException, IOException {
+
+        this.timeout = timeout;
         this.isRunning = false;
-        this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection), InetAddress.getByName(host));
         this.threadPool = Executors.newFixedThreadPool(poolSize);
+        this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection), InetAddress.getByName(host));
+        this.serverSocket.setSoTimeout(timeout);
     }
 
     /**
@@ -65,7 +81,7 @@ public class Server {
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     public Server(String host, int port, int maxIncommingConnection) throws UnknownHostException, IOException {
-        this(host, port, maxIncommingConnection, DEFAULT_POOL_SIZE);
+        this(host, port, maxIncommingConnection, DEFAULT_POOL_SIZE, DEFAULT_TIMEOUT);
     }
 
     /**
@@ -78,6 +94,8 @@ public class Server {
                 Socket clientSocket = serverSocket.accept();
                 RequestHandler requestHandler = new RequestHandler(clientSocket);
                 threadPool.execute(requestHandler);
+            } catch (SocketTimeoutException e) {
+                
             } catch (IOException e) {
                 System.err.println( String.format("Erreur : %s\n", e.getMessage()) );
             }
@@ -89,8 +107,25 @@ public class Server {
     /**
      * Arrete le server
      */
-    synchronized void stop() {
-        this.isRunning = false;
+    void stop() throws IOException {
+        serverSocket.close();
+        isRunning = false;
+    }
+
+    /**
+     * 
+     * @return si the server est en train de tourner
+     */
+    synchronized public boolean isRunning() {
+        return isRunning;
+    }
+
+    /**
+     * 
+     * @return Nombres de milimilisecondes que le server attend pour accepter une connexion
+     */
+    public int getTimeout() {
+        return timeout;
     }
 
     /**
