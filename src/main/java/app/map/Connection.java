@@ -9,15 +9,15 @@ public final class Connection {
     /**
      * Une station
      */
-    private Station station;
+    private final Station station;
     /**
      * Les correspondances de la station
      */
-    private ArrayList<Section> sections;
+    private final ArrayList<Section> sections;
 
     /**
      * Créer une correspondance
-     * 
+     *
      * @param station la station de la correspondance
      */
     public Connection(Station station) {
@@ -30,12 +30,12 @@ public final class Connection {
     }
 
     public ArrayList<Section> getSections() {
-        return sections;
+        return new ArrayList<>(sections);
     }
 
     /**
-     * Ajoute une section à la correspondances
-     * 
+     * Ajoute une section à la correspondance si elle n'y est pas déjà
+     *
      * @param section la section à ajouter
      * @throws IllegalArgumentException si la section ne commence pas à cette
      *                                  station
@@ -43,6 +43,7 @@ public final class Connection {
     public void addSection(Section section) throws IllegalArgumentException {
         if (section.getStart() != station)
             throw new IllegalArgumentException();
-        sections.add(section);
+        if (!sections.contains(section))
+            sections.add(section);
     }
 }
