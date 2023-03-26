@@ -23,13 +23,16 @@ public final class Section {
 
     /**
      * Crée une section
-     * 
+     *
      * @param start    la station de départ
      * @param arrival  la station d'arrivée
      * @param distance la longueur section
      * @param duration la durée en seconde de la section
+     * @throws IllegalArgumentException si start ou arrival est `null`
      */
-    public Section(Station start, Station arrival, double distance, int duration) {
+    public Section(Station start, Station arrival, double distance, int duration) throws IllegalArgumentException {
+        if (start == null || arrival == null)
+            throw new IllegalArgumentException();
         this.start = start;
         this.arrival = arrival;
         this.distance = distance;

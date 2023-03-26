@@ -12,6 +12,12 @@ public class ConnectionTest {
     private final Station station = new Station("test", 100, 200);
     private final Connection connection = new Connection(station);
 
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void nullStation() {
+        assertThrows(IllegalArgumentException.class, () -> new Connection(null), "null station");
+    }
+
     private Section makeSection(String name, double x, double y) {
         Station start = new Station(name, x, y);
         Station arrival = new Station("", 0, 0);
@@ -66,5 +72,11 @@ public class ConnectionTest {
         connection.addSection(section);
         connection.addSection(section);
         assertEquals(1, connection.getSections().size(), "Add the same section twice");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void addNullSection() {
+        assertThrows(IllegalArgumentException.class, () -> connection.addSection(null), "Add null section");
     }
 }
