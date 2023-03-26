@@ -4,8 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashMap;
+
+import app.server.data.Route;
 
 /**
  * Classe réprésentant les réponses du server.
@@ -97,6 +100,12 @@ class RequestHandler implements Runnable {
     private synchronized void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
         /// Todo: Waiting the disjkra merge
         System.out.println( String.format("read Line = %s", inputLine) );
+
+        // Dummy route
+        Route trajet = new Route();
+        
+        ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
+        outStream.writeObject(trajet);
 
     }
 
