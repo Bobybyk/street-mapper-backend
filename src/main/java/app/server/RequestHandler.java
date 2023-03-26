@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.HashMap;
 
 import app.server.data.Route;
+import app.server.data.UnknownRequestException;
 
 /**
  * Classe réprésentant les réponses du server.
@@ -78,10 +79,9 @@ class RequestHandler implements Runnable {
         String clientRequest = splittedLine[0];
         ServerActionCallback callback = requestActions.get(clientRequest);
         if (callback == null) {
-            // TODO : Error handling here
-            System.err.println(String.format("Unknown action for %s", clientRequest));
+            new UnknownRequestException(clientRequest).execute(clientLine, clientSocket);
         } else {
-            callback.execute(clientRequest, clientSocket);
+            callback.execute(clientLine, clientSocket);
         }
     }
 
@@ -115,21 +115,5 @@ class RequestHandler implements Runnable {
         }
     }
     
-}
-
-/**
- * l'Interface {@code ServerActionCallback} doit etre implémenté par l'importe quel objet dont la volonté 
- * est de communiqué avec le client
- */
-@FunctionalInterface
-interface ServerActionCallback {
-
-    /**
-     * 
-     * @param s            Ligne (chaine de caractere) lue dans le sockets 
-     * @param socket       Socket sur lequel la réponse sera envoyée
-     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
-     */
-    void execute(String s, Socket socket) throws IOException;
 }
 
