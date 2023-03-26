@@ -12,22 +12,18 @@ class RequestHandler implements Runnable {
     private HashMap<String, ServerActionCallback> requestActions = new HashMap<>();
 
     private static final String ROUTE_KEY = "ROUTE";
-    private static final String KILL_KEY = "kill";
     private String charSplitter = ";";
 
     private Socket clientSocket;
-    private Server server;
 
 
-    RequestHandler(Server server, Socket clientSocket) {
+    RequestHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
-        this.server = server;
         this.setupRequestAction();
     }
 
     private void setupRequestAction() {
         this.requestActions.put(ROUTE_KEY, this::handleRouteRequest);
-        this.requestActions.put(KILL_KEY, this::handleKillRequest);
     }
 
     private void handleClient(Socket clientSocket) throws IOException {
@@ -58,10 +54,6 @@ class RequestHandler implements Runnable {
         /// Todo: Waiting the disjkra merge
         System.out.println( String.format("read Line = %s", inputLine) );
 
-    }
-
-    private synchronized void handleKillRequest(String inputLine, Socket clientSocket) throws IOException {
-        server.stop();
     }
 
     @Override
