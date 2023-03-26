@@ -43,12 +43,12 @@ public class Server {
 
     /**
      * 
-     * @param host Nom de l'adresse sur laquelle le server doit etre lié
-     * @param port Numero du port sur lequel le server doit etre lié
+     * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
+     * @param port                   Numero du port sur lequel le server doit etre lié
      * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer 
-     * @param poolSize Nombre de threads que le server peut utiliser
-     * @throws UnknownHostException si aucune adresse le port (port) ne pouvait etre trouvée
-     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     * @param poolSize               Nombre de threads que le server peut utiliser
+     * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
+     * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     public Server(String host, int port, int maxIncommingConnection, int poolSize) throws UnknownHostException, IOException {
         this.isRunning = false;
@@ -58,11 +58,11 @@ public class Server {
 
     /**
      * 
-     * @param host Nom de l'adresse sur laquelle le server doit etre lié
-     * @param port Numero du port sur lequel le server doit etre lié
+     * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
+     * @param port                   Numero du port sur lequel le server doit etre lié
      * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer 
-     * @throws UnknownHostException si aucune adresse le port (port) ne pouvait etre trouvée
-     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
+     * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     public Server(String host, int port, int maxIncommingConnection) throws UnknownHostException, IOException {
         this(host, port, maxIncommingConnection, DEFAULT_POOL_SIZE);
