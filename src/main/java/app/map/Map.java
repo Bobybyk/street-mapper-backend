@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 import java.util.function.Function;
@@ -43,7 +44,7 @@ public final class Map {
     /**
      * Créer une map à partir d'un fichier CSV contenant les sections des lignes du
      * réseau.
-     * 
+     *
      * @param mapFileName le nom du fichier
      * @throws FileNotFoundException        si le fichier n'a pas été trouvé
      * @throws IncorrectFileFormatException si le format du fichier est incorrect
@@ -58,7 +59,7 @@ public final class Map {
 
     /**
      * Parse un fichier CSV contenant les sections de trajet du réseau.
-     * 
+     *
      * @param fileName le nom du fichier à parser
      * @throws FileNotFoundException        si le fichier n'a pas été trouvé
      * @throws IncorrectFileFormatException si le format du fichier est incorrect
@@ -79,7 +80,7 @@ public final class Map {
 
     /**
      * Parse une ligne d'un fichier CSV contenant une section de trajet du réseau.
-     * 
+     *
      * @param s la ligne à parser
      * @throws IndexOutOfBoundsException si la ligne est mal formé
      * @throws NumberFormatException     si une des données qui doit être un nombre
@@ -100,7 +101,7 @@ public final class Map {
     /**
      * Retourne la station correspondant au nom et aux coordonnées. La créer si elle
      * n'existe pas.
-     * 
+     *
      * @param station le nom de la station
      * @param coord   les coordonnées de la station séparées par une virgule
      * @return une station correspondant aux paramètres
@@ -125,7 +126,7 @@ public final class Map {
     /**
      * Créer une section entre les stations `start`et `arrival`, et l'ajoute dans
      * `map` et `lines`
-     * 
+     *
      * @param start    la station de départ
      * @param arrival  la station d'arrivé
      * @param distance la distance entre les deux stations
@@ -150,7 +151,7 @@ public final class Map {
 
     /**
      * Parse un fichier CSV contenant les horaires de départ des lignes du réseau.
-     * 
+     *
      * @param fileName le nom du fichier à parser
      * @throws FileNotFoundException        si le fichier n'a pas été trouvé
      * @throws IncorrectFileFormatException si le format du fichier est incorrect
@@ -178,7 +179,7 @@ public final class Map {
     /**
      * Parse une ligne d'un fichier CSV contenant un horaire de départ d'une ligne
      * du réseau.
-     * 
+     *
      * @param s la ligne à parser
      * @throws IndexOutOfBoundsException si la ligne est mal formé
      * @throws NumberFormatException     si l'horaire est mal formé
@@ -201,7 +202,7 @@ public final class Map {
     /**
      * Ajoute l'horaire de départ et le section de départ à la ligne si elle n'a pas
      * été déjà déterminée
-     * 
+     *
      * @param line        le nom et le variant de la ligne
      * @param stationName le nom de la sation de départ
      * @param hour        l'heure de l'horaire de départ
@@ -226,44 +227,72 @@ public final class Map {
     }
 
     public class PathNotFoundException extends Exception {
-        public PathNotFoundException(Station start, Station arrival) {
-            super(String.format("Pas de chemin trouvé entre %s et %s", start.getName(), arrival.getName()));
+        public PathNotFoundException(String start, String arrival) {
+            super(String.format("Pas de chemin trouvé entre %s et %s", start, arrival));
         }
+
+        public PathNotFoundException() {
+            super();
+        }
+    }
+
+    /**
+     * @param station un nom de station
+     * @return l'ensemble des stations ayant ce nom
+     */
+    private ArrayList<Station> getStationFromName(String station) {
+        ArrayList<Station> stations = new ArrayList<>();
+        for (Station s : map.keySet()) {
+            if (s.getName().equals(station))
+                stations.add(s);
+        }
+        return stations;
     }
 
     /**
      * Calcule un trajet entre 2 stations et renvoie la liste des sections du trajet
      *
-     * @param start   la station de départ
-     * @param arrival la station d'arrivée
+     * @param start   le nom de la station de départ
+     * @param arrival le nom de la station d'arrivé
      * @return la liste des sections du trajet
      * @throws PathNotFoundException si il n'existe pas de trajet les deux stations
      */
-    public ArrayList<Section> findPathDistOpt(Station start, Station arrival) throws PathNotFoundException {
-        HashMap<Station, Section> path = dijkstra(start, arrival, Section::getDistance);
-        ArrayList<Section> orderedPath = new ArrayList<>();
-        Station previous = arrival;
-        while (previous != start) {
-            Section section = path.get(previous);
-            orderedPath.add(section);
-            previous = section.getStart();
+    public LinkedList<Section> findPathDistOpt(String startStation, String arrivalStation)
+            throws PathNotFoundException {
+        ArrayList<Station> arrivals = getStationFromName(arrivalStation);
+        if (arrivals.isEmpty())
+            throw new PathNotFoundException(startStation, arrivalStation);
+        for (Station start : getStationFromName(startStation)) {
+            try {
+                HashMap<Station, Section> path = dijkstra(start, arrivals, Section::getDistance);
+                LinkedList<Section> orderedPath = new LinkedList<>();
+                Station previous = arrivals.get(0);
+                while (previous != start) {
+                    Section section = path.get(previous);
+                    orderedPath.add(section);
+                    previous = section.getStart();
+                }
+                Collections.reverse(orderedPath);
+                return orderedPath;
+            } catch (PathNotFoundException e) {
+            }
         }
-        Collections.reverse(orderedPath);
-        return orderedPath;
+        throw new PathNotFoundException(startStation, arrivalStation);
     }
 
     /**
      * Recherche un chemin entre 2 stations en appliquant l'algorithme de
-     * dijkstra et renvoie les sections du trajet
+     * dijkstra et renvoie les sections du trajet laissant que la station d'arrivé
+     * dans arrivals
      *
      * @param start   la station (sommet) de départ
-     * @param arrival la station (sommet) d'arrivée
+     * @param arrival la liste des stations (sommet) d'arrivé possible
      * @param f       la fonction qui associe à une section (arête) son poids
      * @return map associant une station à la section prendre pour aller à cette
      *         station
      * @throws PathNotFoundException si il n'existe pas de trajet les deux stations
      */
-    private HashMap<Station, Section> dijkstra(Station start, Station arrival, Function<Section, Double> f)
+    private HashMap<Station, Section> dijkstra(Station start, ArrayList<Station> arrivals, Function<Section, Double> f)
             throws PathNotFoundException {
         HashMap<Station, Double> distance = new HashMap<>();
         HashMap<Station, Section> previous = new HashMap<>();
@@ -278,7 +307,7 @@ public final class Map {
         queue.addAll(map.keySet());
 
         Station u = null;
-        while (!queue.isEmpty() && (u = queue.poll()) != arrival) {
+        while (!queue.isEmpty() && (!arrivals.contains(u = queue.poll()))) {
             for (Section section : map.get(u).getSections()) {
                 Station v = section.getArrival();
                 double w = distance.get(u) + f.apply(section);
@@ -290,8 +319,10 @@ public final class Map {
                 }
             }
         }
-        if (queue.isEmpty())
-            throw new PathNotFoundException(start, arrival);
+        if (!arrivals.contains(u))
+            throw new PathNotFoundException();
+        arrivals.clear();
+        arrivals.add(u);
         return previous;
     }
 }
