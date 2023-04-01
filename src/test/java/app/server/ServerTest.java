@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import app.server.data.Route;
 import app.server.data.UnknownRequestException;
@@ -22,9 +24,11 @@ public class ServerTest {
     private static final int PORT = 12345;
     private static final int incommingConnection = 3;
     private static final int SLEEP_TIME = 1_000;
+    private static final long TIMEOUT = 10;
 
     @Test
-    public void test_CreateandStopServer() throws UnknownHostException, IOException, InterruptedException {
+    @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
+    public void testCreateandStopServer() throws UnknownHostException, IOException, InterruptedException {
         Server s = new Server(HOST, PORT, incommingConnection);
         assertFalse(s.isRunning());
 
@@ -42,7 +46,8 @@ public class ServerTest {
     }
     
     @Test
-    public void test_QueryRoute() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
+    @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
+    public void testQueryRoute() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
         Server server = new Server(HOST, PORT, incommingConnection);
         Thread threadServer = new Thread(() -> {
             server.start();
@@ -53,8 +58,8 @@ public class ServerTest {
         Socket clientSocket = new Socket(HOST, PORT);
 
  
-        ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
-        out.writeUTF(ROUTE_REQUEST);
+        PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
+        out.println(ROUTE_REQUEST);
         out.flush();
 
         ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
@@ -67,7 +72,8 @@ public class ServerTest {
     }
 
     @Test
-    public void test_WrongQuery() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
+    @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
+    public void testWrongQuery() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
         Server server = new Server(HOST, PORT, incommingConnection);
         Thread threadServer = new Thread(() -> {
             server.start();
@@ -77,8 +83,8 @@ public class ServerTest {
         Thread.sleep(SLEEP_TIME);
         Socket clientSocket = new Socket(HOST, PORT);
 
-        ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
-        out.writeUTF(WRONG_REQUEST);
+        PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
+        out.println(WRONG_REQUEST);
         out.flush();
 
         ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());

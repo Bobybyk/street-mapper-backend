@@ -89,7 +89,7 @@ public class Server {
      */
     public void start() {
         isRunning = true;
-        while (isRunning) {
+        while ( isRunning() ) {
             try {
                 Socket clientSocket = serverSocket.accept();
                 RequestHandler requestHandler = new RequestHandler(clientSocket);
@@ -116,14 +116,14 @@ public class Server {
      * 
      * @return si the server est en train de tourner
      */
-    synchronized public boolean isRunning() {
+    public boolean isRunning() {
         return isRunning;
     }
 
     /**
      * Termine tous les threads en cours
      */
-    private synchronized void tearDown() {
+    private void tearDown() {
         try {
             if (!threadPool.awaitTermination(AWAIT_TIME_BEFORE_DYING, TimeUnit.SECONDS) ) {
                 threadPool.shutdownNow();

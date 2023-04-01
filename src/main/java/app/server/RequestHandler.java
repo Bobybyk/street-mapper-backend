@@ -1,12 +1,11 @@
 package app.server;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.HashMap;
-
 import app.server.data.Route;
 import app.server.data.UnknownRequestException;
 
@@ -17,16 +16,20 @@ import app.server.data.UnknownRequestException;
  */
 class RequestHandler implements Runnable {
 
-    /**
-     * Ensemble des couples mot-clef actions a exécuter
-     * @see ServerActionCallback
-     */
-    private HashMap<String, ServerActionCallback> requestActions = new HashMap<>();
+
 
     /**
      * Nom de la commande correspondant la requête pour un chemin
      */
     private static final String ROUTE_KEY = "ROUTE";
+
+    /**
+     * Ensemble des couples mot-clef actions a exécuter
+     * @see ServerActionCallback
+    */
+    private static java.util.Map<String, ServerActionCallback> requestActions = java.util.Map.of(
+        ROUTE_KEY, RequestHandler::handleRouteRequest
+    );
 
     /**
      * Caractère utilisé pour sépérarer les arguments de la requête 
@@ -44,14 +47,6 @@ class RequestHandler implements Runnable {
      */
     RequestHandler(Socket clientSocket) {
         this.clientSocket = clientSocket;
-        this.setupRequestAction();
-    }
-
-    /**
-     * Ajoute les mots-clefs à leur action respective 
-     */
-    private void setupRequestAction() {
-        this.requestActions.put(ROUTE_KEY, this::handleRouteRequest);
     }
 
     /**
@@ -62,9 +57,13 @@ class RequestHandler implements Runnable {
      */
     private void handleClient(Socket clientSocket) throws IOException {
         InputStream inputStream = clientSocket.getInputStream();
-        ObjectInputStream in = new ObjectInputStream(inputStream);
-        String s = in.readUTF();
-        handleLine(s, clientSocket);
+        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+
+        while (true) {
+            String message = in.readLine();
+            handleLine(message, clientSocket);
+        }
+        
     }
 
     /**
@@ -91,7 +90,7 @@ class RequestHandler implements Runnable {
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private synchronized void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
+    private static void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
         /// Todo: Waiting the disjkra merge
         // Question pour plus tard: C'est quand que l'on cree la map ?? 
 
