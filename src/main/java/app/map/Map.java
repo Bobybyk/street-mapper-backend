@@ -12,7 +12,7 @@ import java.util.Scanner;
 import java.util.function.Function;
 
 import app.map.Line.DifferentStartException;
-import app.map.Line.StartStationNotFound;
+import app.map.Line.StartStationNotFoundException;
 
 /**
  * Classe représentant la carte
@@ -25,8 +25,8 @@ public final class Map {
         }
     }
 
-    public class UndefinedLine extends Exception {
-        public UndefinedLine(String line) {
+    public class UndefinedLineException extends Exception {
+        public UndefinedLineException(String line) {
             super(String.format("La line %s n'existe pas dans la carte", line));
         }
     }
@@ -157,17 +157,18 @@ public final class Map {
      * Parse un fichier CSV contenant les horaires de départ des lignes du réseau.
      *
      * @param fileName le nom du fichier à parser
-     * @throws IllegalArgumentException     si fileName est `null`
-     * @throws FileNotFoundException        si le fichier n'a pas été trouvé
-     * @throws IncorrectFileFormatException si le format du fichier est incorrect
-     * @throws UndefinedLine                si la ligne n'existe pas dans la map
-     * @throws StartStationNotFound         si la ligne n'existe pas sur la ligne
-     * @throws DifferentStartException      s'il y a plusieurs station de départ
-     *                                      pour une même ligne
+     * @throws IllegalArgumentException      si fileName est `null`
+     * @throws FileNotFoundException         si le fichier n'a pas été trouvé
+     * @throws IncorrectFileFormatException  si le format du fichier est incorrect
+     * @throws UndefinedLineException        si la ligne n'existe pas dans la map
+     * @throws StartStationNotFoundException si la ligne n'existe pas sur la ligne
+     * @throws DifferentStartException       s'il y a plusieurs station de départ
+     *                                       pour une même ligne
      */
     // public void addTime(String fileName) throws IllegalArgumentException,
     // FileNotFoundException,
-    // IncorrectFileFormatException, UndefinedLine, StartStationNotFound,
+    // IncorrectFileFormatException, UndefinedLineException,
+    // StartStationNotFoundException,
     // DifferentStartException {
     // if (fileName == null)
     // throw new IllegalArgumentException();
@@ -189,16 +190,16 @@ public final class Map {
      * du réseau.
      *
      * @param s la ligne à parser
-     * @throws IndexOutOfBoundsException si la ligne est mal formé
-     * @throws NumberFormatException     si l'horaire est mal formé
-     * @throws UndefinedLine             si la ligne n'existe pas dans la map
-     * @throws StartStationNotFound      si la ligne n'existe pas sur la ligne
-     * @throws DifferentStartException   s'il y a plusieurs station de départ pour
-     *                                   une même ligne
+     * @throws IndexOutOfBoundsException     si la ligne est mal formé
+     * @throws NumberFormatException         si l'horaire est mal formé
+     * @throws UndefinedLineException        si la ligne n'existe pas dans la map
+     * @throws StartStationNotFoundException si la ligne n'existe pas sur la ligne
+     * @throws DifferentStartException       s'il y a plusieurs station de départ
+     *                                       pour une même ligne
      */
     // private void handleTimeLine(String s) throws IndexOutOfBoundsException,
-    // NumberFormatException, UndefinedLine,
-    // StartStationNotFound, DifferentStartException {
+    // NumberFormatException, UndefinedLineException,
+    // StartStationNotFoundException, DifferentStartException {
     // String[] data = s.split(";");
     // String line = data[0].trim();
     // String stationName = data[1].trim();
@@ -213,20 +214,21 @@ public final class Map {
      * été déjà déterminée
      *
      * @param line        le nom et le variant de la ligne
-     * @param stationName le nom de la sation de départ
+     * @param stationName le nom de la station de départ
      * @param hour        l'heure de l'horaire de départ
      * @param minute      les minutes de l'horaire de départ
-     * @throws UndefinedLine           si la ligne n'existe pas dans la map
-     * @throws StartStationNotFound    si la ligne n'existe pas sur la ligne
-     * @throws DifferentStartException s'il y a plusieurs station de départ pour une
-     *                                 même ligne
+     * @throws UndefinedLineException        si la ligne n'existe pas dans la map
+     * @throws StartStationNotFoundException si la ligne n'existe pas sur la ligne
+     * @throws DifferentStartException       s'il y a plusieurs station de départ
+     *                                       pour une même ligne
      */
     // private void addDepartureTime(String line, String stationName, int hour, int
     // minute)
-    // throws UndefinedLine, StartStationNotFound, DifferentStartException {
+    // throws UndefinedLineException, StartStationNotFoundException,
+    // DifferentStartException {
     // Line l = lines.get(line);
     // if (l == null)
-    // throw new UndefinedLine(line);
+    // throw new UndefinedLineException(line);
     // // ajoute la section de départ si nécessaire
     // l.setStart(stationName);
     // l.addDepartureTime(hour, minute);

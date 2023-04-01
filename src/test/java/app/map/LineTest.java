@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import app.map.Line.DifferentStartException;
-import app.map.Line.StartStationNotFound;
+import app.map.Line.StartStationNotFoundException;
 
 public class LineTest {
 
@@ -36,7 +36,7 @@ public class LineTest {
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void setStartWithNotExistingStation() {
-        assertThrows(StartStationNotFound.class, () -> line.setStart("test"), "Start station not in line");
+        assertThrows(StartStationNotFoundException.class, () -> line.setStart("test"), "Start station not in line");
     }
 
     private void initLine() {
@@ -59,7 +59,8 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setStartNotNull() throws IllegalArgumentException, StartStationNotFound, DifferentStartException {
+    public void setStartNotNull()
+            throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
         initLine();
         Section section = line.getSections().get(1);
         String stationName = section.getStart().getName();
@@ -69,7 +70,8 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setStartNotNullTwice() throws IllegalArgumentException, StartStationNotFound, DifferentStartException {
+    public void setStartNotNullTwice()
+            throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
         initLine();
         Section section = line.getSections().get(1);
         String stationName = section.getStart().getName();
