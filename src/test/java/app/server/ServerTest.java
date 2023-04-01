@@ -27,9 +27,21 @@ public class ServerTest {
     private static final long TIMEOUT = 10;
 
 
-    private static void sendRequest(PrintWriter out, String request) {
+    /**
+     * Envoye une requete au server et retourne l'objet qui coorspond à la reponse du server
+     * 
+     * @param clientSocket socket de communication
+     * @param out stream où le client écrit la requete
+     * @param request la requete a envoyé
+     * @return objet renvoyé par le server
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private static Object sendRequest(Socket clientSocket, PrintWriter out, String request) throws IOException, ClassNotFoundException {
         out.println(request);
         out.flush();
+        ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+        return in.readObject();
     }
 
     /**
@@ -76,17 +88,13 @@ public class ServerTest {
  
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
 
-        sendRequest(out, ROUTE_REQUEST);
-
-        ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-        Object serializableRoute = in.readObject();
+        Object serializableRoute = sendRequest(clientSocket, out, ROUTE_REQUEST);
         assertTrue(serializableRoute instanceof Route);
 
         // Cleanup
         out.close();
         clientSocket.close();
         server.stop();
- 
     }
 
     @Test
@@ -101,14 +109,11 @@ public class ServerTest {
 
 
         // Once
-        sendRequest(out, ROUTE_REQUEST);
-        ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-        Object serializableRoute = in.readObject();
+        Object serializableRoute = sendRequest(clientSocket, out, ROUTE_REQUEST);
         assertTrue(serializableRoute instanceof Route);
 
         // Twice
-        sendRequest(out, ROUTE_REQUEST);
-        Object serializableRoute2 = in.readObject();
+        Object serializableRoute2 = sendRequest(clientSocket, out, ROUTE_REQUEST);
         assertTrue(serializableRoute2 instanceof Route);
 
         // Cleanup
@@ -126,15 +131,14 @@ public class ServerTest {
         Socket clientSocket = new Socket(HOST, PORT);
 
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
-        sendRequest(out, WRONG_REQUEST);
+        
 
-        ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-        Object exception = in.readObject();
+        Object exception = sendRequest(clientSocket, out, WRONG_REQUEST);;
         assertTrue(exception instanceof UnknownRequestException);
 
 
         // Cleanup
-        // out.close();
+        out.close();
         clientSocket.close();
         server.stop();
     }
