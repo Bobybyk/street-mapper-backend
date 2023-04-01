@@ -26,6 +26,27 @@ public class ServerTest {
     private static final int SLEEP_TIME = 1_000;
     private static final long TIMEOUT = 10;
 
+
+    private static void sendRequest(PrintWriter out, String request) {
+        out.println(request);
+        out.flush();
+    }
+
+    /**
+     * Cree un Server, le lance lance dans un nouveau server et retourne cette instance
+     * @return le server creer
+     * @throws UnknownHostException
+     * @throws IOException
+     */
+    private static Server initServer() throws UnknownHostException, IOException {
+        Server server = new Server(HOST, PORT, incommingConnection);
+        Thread threadServer = new Thread(() -> {
+            server.start();
+        });
+        threadServer.start();
+        return server;
+    }
+
     @Test
     @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
     public void testCreateandStopServer() throws UnknownHostException, IOException, InterruptedException {
@@ -48,24 +69,21 @@ public class ServerTest {
     @Test
     @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
     public void testQueryRoute() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
-        Server server = new Server(HOST, PORT, incommingConnection);
-        Thread threadServer = new Thread(() -> {
-            server.start();
-        });
-        threadServer.start();
+        Server server = initServer();
 
         Thread.sleep(SLEEP_TIME);
         Socket clientSocket = new Socket(HOST, PORT);
-
  
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
-        out.println(ROUTE_REQUEST);
-        out.flush();
+
+        sendRequest(out, ROUTE_REQUEST);
 
         ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
         Object serializableRoute = in.readObject();
         assertTrue(serializableRoute instanceof Route);
 
+        // Cleanup
+        out.close();
         clientSocket.close();
         server.stop();
  
@@ -73,24 +91,50 @@ public class ServerTest {
 
     @Test
     @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
-    public void testWrongQuery() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
-        Server server = new Server(HOST, PORT, incommingConnection);
-        Thread threadServer = new Thread(() -> {
-            server.start();
-        });
-        threadServer.start();
+    public void testQueryRouteTwice() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
+        Server server = initServer();
 
         Thread.sleep(SLEEP_TIME);
         Socket clientSocket = new Socket(HOST, PORT);
 
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
-        out.println(WRONG_REQUEST);
-        out.flush();
+
+
+        // Once
+        sendRequest(out, ROUTE_REQUEST);
+        ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
+        Object serializableRoute = in.readObject();
+        assertTrue(serializableRoute instanceof Route);
+
+        // Twice
+        sendRequest(out, ROUTE_REQUEST);
+        Object serializableRoute2 = in.readObject();
+        assertTrue(serializableRoute2 instanceof Route);
+
+        // Cleanup
+        out.close();
+        clientSocket.close();
+        server.stop();
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
+    public void testWrongQuery() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
+        Server server = initServer();
+
+        Thread.sleep(SLEEP_TIME);
+        Socket clientSocket = new Socket(HOST, PORT);
+
+        PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
+        sendRequest(out, WRONG_REQUEST);
 
         ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
         Object exception = in.readObject();
         assertTrue(exception instanceof UnknownRequestException);
 
+
+        // Cleanup
+        // out.close();
         clientSocket.close();
         server.stop();
     }

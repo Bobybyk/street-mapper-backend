@@ -58,11 +58,10 @@ class RequestHandler implements Runnable {
     private void handleClient(Socket clientSocket) throws IOException {
         InputStream inputStream = clientSocket.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+        String message = in.readLine();
 
-        while (true) {
-            String message = in.readLine();
+        if (message != null)
             handleLine(message, clientSocket);
-        }
         
     }
 
@@ -106,7 +105,9 @@ class RequestHandler implements Runnable {
     @Override
     public void run() {
         try {
-            handleClient(clientSocket);
+            while (true) {
+                handleClient(clientSocket);
+            }
         } catch (IOException e) {
             // Maybe logging ??
         }
