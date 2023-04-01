@@ -124,6 +124,28 @@ public class ServerTest {
 
     @Test
     @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
+    public void testQueryOneGoodOneWrong() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
+        Server server = initServer();
+
+        Thread.sleep(SLEEP_TIME);
+        Socket clientSocket = new Socket(HOST, PORT);
+
+        PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
+
+        Object serializableRoute = sendRequest(clientSocket, out, ROUTE_REQUEST);
+        assertTrue(serializableRoute instanceof Route);
+
+        Object exception = sendRequest(clientSocket, out, WRONG_REQUEST);;
+        assertTrue(exception instanceof UnknownRequestException);
+
+        // Cleanup
+        out.close();
+        clientSocket.close();
+        server.stop();
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
     public void testWrongQuery() throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException {
         Server server = initServer();
 
