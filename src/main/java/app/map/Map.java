@@ -259,7 +259,7 @@ public final class Map {
     private ArrayList<Station> getStationFromName(String station) {
         ArrayList<Station> stations = new ArrayList<>();
         for (Station s : map.keySet()) {
-            if (s.getName().equals(station))
+            if (s.name().equals(station))
                 stations.add(s);
         }
         return stations;
@@ -284,13 +284,13 @@ public final class Map {
             throw new PathNotFoundException(startStation, arrivalStation);
         for (Station start : getStationFromName(startStation)) {
             try {
-                HashMap<Station, Section> path = dijkstra(start, arrivals, Section::getDistance);
+                HashMap<Station, Section> path = dijkstra(start, arrivals, Section::distance);
                 LinkedList<Section> orderedPath = new LinkedList<>();
                 Station previous = arrivals.get(0);
                 while (previous != start) {
                     Section section = path.get(previous);
                     orderedPath.add(section);
-                    previous = section.getStart();
+                    previous = section.start();
                 }
                 Collections.reverse(orderedPath);
                 return orderedPath;
@@ -330,7 +330,7 @@ public final class Map {
         Station u = null;
         while (!queue.isEmpty() && (!arrivals.contains(u = queue.poll()))) {
             for (Section section : map.get(u).getSections()) {
-                Station v = section.getArrival();
+                Station v = section.arrival();
                 double w = distance.get(u) + f.apply(section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);

@@ -44,7 +44,7 @@ public final class Connection {
      *                                  à cette station
      */
     public void addSection(Section section) throws IllegalArgumentException {
-        if (section == null || section.getStart() != station)
+        if (section == null || section.start() != station)
             throw new IllegalArgumentException();
         if (!sections.contains(section))
             sections.add(section);

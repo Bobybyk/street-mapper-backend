@@ -63,7 +63,7 @@ public class LineTest {
             throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
         initLine();
         Section section = line.getSections().get(1);
-        String stationName = section.getStart().getName();
+        String stationName = section.start().name();
         line.setStart(stationName);
         assertEquals(section, line.getStart(), "Set start");
     }
@@ -74,7 +74,7 @@ public class LineTest {
             throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
         initLine();
         Section section = line.getSections().get(1);
-        String stationName = section.getStart().getName();
+        String stationName = section.start().name();
         line.setStart(stationName);
         line.setStart(stationName);
         assertEquals(section, line.getStart(), "Set the same start twice");

@@ -3,23 +3,23 @@ package app.map;
 /**
  * Classe représentant une portion de trajet entre deux stations
  */
-public final class Section {
-    /**
-     * La station de départ
-     */
-    private final Station start;
-    /**
-     * La station d'arrivée
-     */
-    private final Station arrival;
-    /**
-     * La distance entre les 2 stations
-     */
-    private final double distance;
-    /**
-     * La durée en seconde du trajet entre les 2 stations
-     */
-    private final int duration;
+public record Section(
+        /**
+         * La station de départ
+         */
+        Station start,
+        /**
+         * La station d'arrivée
+         */
+        Station arrival,
+        /**
+         * La distance entre les 2 stations
+         */
+        double distance,
+        /**
+         * La durée en seconde du trajet entre les 2 stations
+         */
+        int duration) {
 
     /**
      * Crée une section
@@ -30,7 +30,7 @@ public final class Section {
      * @param duration la durée en seconde de la section
      * @throws IllegalArgumentException si start ou arrival est `null`
      */
-    public Section(Station start, Station arrival, double distance, int duration) throws IllegalArgumentException {
+    public Section(Station start, Station arrival, double distance, int duration) {
         if (start == null || arrival == null)
             throw new IllegalArgumentException();
         this.start = start;
@@ -39,24 +39,8 @@ public final class Section {
         this.duration = duration;
     }
 
-    public Station getStart() {
-        return start;
-    }
-
-    public Station getArrival() {
-        return arrival;
-    }
-
-    public int getDuration() {
-        return duration;
-    }
-
-    public double getDistance() {
-        return distance;
-    }
-
     @Override
     public String toString() {
-        return String.format("%s --> %s (%f, %d)", start.getName(), distance, duration, arrival.getName());
+        return String.format("%s --> %s (%f, %d)", start.name(), distance, duration, arrival.name());
     }
 }

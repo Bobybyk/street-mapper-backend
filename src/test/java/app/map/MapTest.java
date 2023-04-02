@@ -54,7 +54,7 @@ public class MapTest {
         Map map = new Map(getPath("same_station"));
         Station station = new Station("Lourmel", 2.2822419598550767, 48.83866086365992);
         ArrayList<Section> sections = map.getMap().get(station).getSections();
-        assertSame(sections.get(0).getStart(), sections.get(1).getStart(), "Same station has same reference");
+        assertSame(sections.get(0).start(), sections.get(1).start(), "Same station has same reference");
     }
 
     @Test
