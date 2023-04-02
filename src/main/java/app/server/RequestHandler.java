@@ -109,7 +109,11 @@ class RequestHandler implements Runnable {
                 handleClient(clientSocket);
             }
         } catch (IOException e) {
-            // Maybe logging ??
+            try {
+                clientSocket.close();
+            } catch (IOException _exception) {
+
+            }
         }
     }
     

@@ -28,7 +28,7 @@ public class ServerTest {
 
 
     /**
-     * Envoye une requete au server et retourne l'objet qui coorspond à la reponse du server
+     * Envoye une requete au server et retourne l'objet qui correspond à la reponse du server
      * 
      * @param clientSocket socket de communication
      * @param out stream où le client écrit la requete
@@ -45,7 +45,7 @@ public class ServerTest {
     }
 
     /**
-     * Cree un Server, le lance lance dans un nouveau server et retourne cette instance
+     * Cree un Server, le lance dans un nouveau thread et retourne cette instance
      * @return le server creer
      * @throws UnknownHostException
      * @throws IOException
