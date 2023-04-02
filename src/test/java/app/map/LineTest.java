@@ -49,10 +49,11 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setTwoDifferentStart() {
+    public void setTwoDifferentStart()
+            throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
         initLine();
+        line.setStart("1");
         assertThrows(DifferentStartException.class, () -> {
-            line.setStart("1");
             line.setStart("2");
         }, "Set two different start");
     }

@@ -41,6 +41,6 @@ public record Section(
 
     @Override
     public String toString() {
-        return String.format("%s --> %s (%f, %d)", start.name(), distance, duration, arrival.name());
+        return String.format("%s --> %s (%f, %d)", start.name(), arrival.name(), distance, duration);
     }
 }

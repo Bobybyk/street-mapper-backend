@@ -76,11 +76,11 @@ public final class Line {
         if (stationName == null)
             throw new IllegalArgumentException();
         if (start == null) {
-            Optional<Section> start = sections.keySet().stream().filter(s -> s.start().name().equals(stationName))
+            Optional<Section> station = sections.keySet().stream().filter(s -> s.start().name().equals(stationName))
                     .findAny();
-            if (start.isEmpty())
+            if (station.isEmpty())
                 throw new StartStationNotFoundException(stationName, name, variant);
-            this.start = start.get();
+            start = station.get();
         } else {
             String actual = start.start().name();
             if (!actual.equals(stationName))

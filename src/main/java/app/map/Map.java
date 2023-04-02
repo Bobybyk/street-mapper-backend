@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
-import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
@@ -19,13 +19,13 @@ import app.map.Line.StartStationNotFoundException;
  */
 public final class Map {
 
-    public class IncorrectFileFormatException extends Exception {
+    public static class IncorrectFileFormatException extends Exception {
         public IncorrectFileFormatException(String filename) {
             super(String.format("Le fichier %s n'est pas bien formé", filename));
         }
     }
 
-    public class UndefinedLineException extends Exception {
+    public static class UndefinedLineException extends Exception {
         public UndefinedLineException(String line) {
             super(String.format("La line %s n'existe pas dans la carte", line));
         }
@@ -66,15 +66,12 @@ public final class Map {
      */
     private void parseMap(String fileName) throws FileNotFoundException, IncorrectFileFormatException {
         File file = new File(fileName);
-        Scanner sc = new Scanner(file);
-        try {
+        try (Scanner sc = new Scanner(file)) {
             while (sc.hasNextLine()) {
                 handleMapLine(sc.nextLine());
             }
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
             throw new IncorrectFileFormatException(file.getName());
-        } finally {
-            sc.close();
         }
     }
 
@@ -115,11 +112,7 @@ public final class Map {
         double x = Double.parseDouble(coords[0]);
         double y = Double.parseDouble(coords[1]);
         Station s = new Station(station, x, y);
-        Connection connection = map.get(s);
-        if (connection == null) {
-            connection = new Connection(s);
-            map.put(s, connection);
-        }
+        Connection connection = map.computeIfAbsent(s, Connection::new);
         return connection.getStation();
     }
 
@@ -145,11 +138,7 @@ public final class Map {
         // ajout dans map
         map.get(start).addSection(section);
         // ajout dans lines
-        Line line = lines.get(name);
-        if (line == null) {
-            line = new Line(name, variant);
-            lines.put(name, line);
-        }
+        Line line = lines.computeIfAbsent(name, n -> new Line(n, variant));
         line.addSection(section);
     }
 
@@ -284,17 +273,8 @@ public final class Map {
             throw new PathNotFoundException(startStation, arrivalStation);
         for (Station start : getStationFromName(startStation)) {
             try {
-                HashMap<Station, Section> path = dijkstra(start, arrivals, Section::distance);
-                LinkedList<Section> orderedPath = new LinkedList<>();
-                Station previous = arrivals.get(0);
-                while (previous != start) {
-                    Section section = path.get(previous);
-                    orderedPath.add(section);
-                    previous = section.start();
-                }
-                Collections.reverse(orderedPath);
-                return orderedPath;
-            } catch (PathNotFoundException | NullPointerException e) {
+                return dijkstra(start, arrivals, Section::distance);
+            } catch (PathNotFoundException ignored) {
             }
         }
         throw new PathNotFoundException(startStation, arrivalStation);
@@ -313,7 +293,7 @@ public final class Map {
      * @throws PathNotFoundException si il n'existe pas de trajet entre les deux
      *                               stations
      */
-    private HashMap<Station, Section> dijkstra(Station start, ArrayList<Station> arrivals, Function<Section, Double> f)
+    private LinkedList<Section> dijkstra(Station start, ArrayList<Station> arrivals, ToDoubleFunction<Section> f)
             throws PathNotFoundException {
         HashMap<Station, Double> distance = new HashMap<>();
         HashMap<Station, Section> previous = new HashMap<>();
@@ -324,14 +304,14 @@ public final class Map {
 
         distance.put(start, 0.);
         PriorityQueue<Station> queue = new PriorityQueue<>(map.size(),
-                Comparator.comparingDouble(x -> distance.get(x)));
+                Comparator.comparingDouble(distance::get));
         queue.addAll(map.keySet());
 
         Station u = null;
         while (!queue.isEmpty() && (!arrivals.contains(u = queue.poll()))) {
             for (Section section : map.get(u).getSections()) {
                 Station v = section.arrival();
-                double w = distance.get(u) + f.apply(section);
+                double w = distance.get(u) + f.applyAsDouble(section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
                     previous.put(v, section);
@@ -342,8 +322,21 @@ public final class Map {
         }
         if (!arrivals.contains(u))
             throw new PathNotFoundException();
-        arrivals.clear();
-        arrivals.add(u);
-        return previous;
+        return dijkstraResultToList(previous, start, u);
+    }
+
+    private LinkedList<Section> dijkstraResultToList(HashMap<Station, Section> path, Station start, Station arrival)
+            throws PathNotFoundException {
+        LinkedList<Section> orderedPath = new LinkedList<>();
+        Station previous = arrival;
+        while (previous != start) {
+            Section section = path.get(previous);
+            if (section == null)
+                throw new PathNotFoundException();
+            orderedPath.add(section);
+            previous = section.start();
+        }
+        Collections.reverse(orderedPath);
+        return orderedPath;
     }
 }
