@@ -1,25 +1,31 @@
 package app.map;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Classe représentant une portion de trajet entre deux stations
  */
 public record Section(
-        /**
+        /*
          * La station de départ
          */
         Station start,
-        /**
+        /*
          * La station d'arrivée
          */
         Station arrival,
-        /**
+        /*
          * La distance entre les 2 stations
          */
         double distance,
-        /**
+        /*
          * La durée en seconde du trajet entre les 2 stations
          */
-        int duration) {
+        int duration) implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
      * Crée une section

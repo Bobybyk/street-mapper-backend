@@ -27,10 +27,9 @@ public class App {
      * Cette fonction permet de recup l'instance de map
      * @return L'object Map
      */
-    public Map getInstanceOfMap(){
+    public static Map getInstanceOfMap(){
         return map;
     }
-
 
     public static void main(String[] args) {
        if(argsIsOk(args)) {

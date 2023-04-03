@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+
+import app.App;
+import app.map.Map;
 import app.server.data.Route;
 import app.server.data.UnknownRequestException;
 
@@ -27,7 +30,7 @@ class RequestHandler implements Runnable {
      * Ensemble des couples mot-clef actions a exécuter
      * @see ServerActionCallback
     */
-    private static java.util.Map<String, ServerActionCallback> requestActions = java.util.Map.of(
+    private static final java.util.Map<String, ServerActionCallback> requestActions = java.util.Map.of(
         ROUTE_KEY, RequestHandler::handleRouteRequest
     );
 
@@ -39,7 +42,7 @@ class RequestHandler implements Runnable {
     /**
      * Socket du client permettant de lui envoyé la réponse
      */
-    private Socket clientSocket;
+    private final Socket clientSocket;
 
     /**
      * 
@@ -85,19 +88,23 @@ class RequestHandler implements Runnable {
 
     /**
      * Gere la reponse du renvoie d'un trajet au client
-     * @param clientLine   Ligne (chaine de caractere) lue dans le sockets
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     private static void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
         /// Todo: Waiting the disjkra merge
-        // Question pour plus tard: C'est quand que l'on cree la map ?? 
-
-        // Dummy route
-        Route trajet = new Route();
-        
-        ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
-        outStream.writeObject(trajet);
+        // Question pour plus tard: C'est quand que l'on cree la map ??
+        String[] tabLine = inputLine.split(charSplitter);
+        try {
+            Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
+            // Dummy route
+            ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
+            outStream.writeObject(trajet);
+            outStream.flush();
+        } catch (Map.PathNotFoundException e) {
+            System.out.println("Erreur: Trajet inexistant");
+            //TODO envoyer à l'utilisateur un message
+        }
 
     }
 
@@ -112,7 +119,7 @@ class RequestHandler implements Runnable {
             try {
                 clientSocket.close();
             } catch (IOException _exception) {
-
+                System.out.println("Erreur @run REQQUESTHANDLER");
             }
         }
     }
