@@ -31,14 +31,8 @@ public class ServerTest {
     static void init() {
         try {
             server = initServer();
-            System.out.println("################### 1 --debug");
             clientSocket = new Socket(HOST, PORT);
-            System.out.println("################### 1");
             out = new PrintWriter(clientSocket.getOutputStream());
-            System.out.println("################### 1");
-            in = new ObjectInputStream(clientSocket.getInputStream());
-            in.reset();
-            System.out.println("################### 1");
         } catch (IOException e) {
             System.out.println("Erreur Test init socket / serveur ");
         }
@@ -67,6 +61,7 @@ public class ServerTest {
     private static Object sendRequest(String request) throws IOException, ClassNotFoundException {
         out.println(request);
         out.flush();
+        in = new ObjectInputStream(clientSocket.getInputStream());
         return in.readObject();
     }
 
@@ -92,63 +87,40 @@ public class ServerTest {
     @Test
     @Timeout(value = TIMEOUT)
     public void testWrongQueryRoute() throws IOException, ClassNotFoundException {
-        System.out.println("testWrongQueryRoute() avant ");
         Object serializableRoute = sendRequest(ROUTE_REQUEST_WRONG);
         assertTrue(serializableRoute instanceof ErrorServer);
-        System.out.println("testWrongQueryRoute() apres");
-
     }
 
     @Test
     @Timeout(value = TIMEOUT)
     public void testQueryRoute() throws IOException, ClassNotFoundException {
-        System.out.println("testQueryRoute() avant ");
-
         Object serializableRoute = sendRequest(ROUTE_REQUEST_RIGHT);
         assertTrue(serializableRoute instanceof Route);
-        System.out.println("testQueryRoute() apres ");
-
     }
 
     @Test
     @Timeout(value = TIMEOUT)
     public void testQueryRouteTwice() throws IOException, ClassNotFoundException {
-
-        System.out.println("testQueryRouteTwice() avant ");
-
-        // Once
         Object serializableRoute = sendRequest(ROUTE_REQUEST_RIGHT);
         assertTrue(serializableRoute instanceof Route);
-
-        // Twice
         Object serializableRoute2 = sendRequest(ROUTE_REQUEST_RIGHT);
         assertTrue(serializableRoute2 instanceof Route);
-        System.out.println("testQueryRouteTwice() apres ");
-
     }
 
     @Test
     @Timeout(value = TIMEOUT)
     public void testQueryOneGoodOneWrong() throws Exception {
-        System.out.println("testQueryOneGoodOneWrong() avant ");
-
         Object serializableRoute = sendRequest(ROUTE_REQUEST_RIGHT);
         assertTrue(serializableRoute instanceof Route);
         Object exception = sendRequest(ROUTE_REQUEST_WRONG);
         assertTrue(exception instanceof ErrorServer);
-        System.out.println("testQueryOneGoodOneWrong() ap ");
-
     }
 
     @Test
     @Timeout(value = TIMEOUT)
     public void testWrongQuery() throws Exception {
-        System.out.println("testWrongQuery() avant ");
-
         Object exception = sendRequest(ROUTE_REQUEST_WRONG);
         assertTrue(exception instanceof ErrorServer);
-        System.out.println("testWrongQuery() ap ");
-
     }
 
 }

@@ -105,7 +105,6 @@ class RequestHandler implements Runnable {
         } else {
             try {
                 Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
-                System.out.println("testttttttttttttttttt");
                 outStream.writeObject(trajet);
                 outStream.flush();
             } catch (Map.PathNotFoundException e) {
@@ -115,7 +114,6 @@ class RequestHandler implements Runnable {
                 outStream.flush();
             }
         }
-        outStream.close();
     }
 
     // Implement Runnable
