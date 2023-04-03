@@ -13,37 +13,62 @@ public class App {
         return "Hello world.";
     }
 
-
+    /**
+     * Commentaire d'erreur en static pour la gestion de fichier
+     */
     private final static String errorArgumentMissing = "[Erreur] Argument invalide. Argument Attendue : java App <file>";
     private final static String errorFileNotExist = "[Erreur] Fichier introuvable ou est un repertoire";
     private final static String errorTooManyArg = "[Erreur] il y'a trop d'arguments. Argument Attendue : java App <file> ";
     private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
 
-    public static Map map;
+    private static Map map;
+
+    /**
+     * Cette fonction permet de recup l'instance de map
+     * @return L'object Map
+     */
+    public Map getInstanceOfMap(){
+        return map;
+    }
+
 
     public static void main(String[] args) {
+       if(argsIsOk(args)) {
+           final File file = new File(args[0]);
+           if (!file.exists() || file.isDirectory()) print(errorFileNotExist);
+           else {
+               try {
+                   map = new Map(file.getPath());
+               } catch (FileNotFoundException e) {
+                   print(errorFileNotExist);
+               } catch (Map.IncorrectFileFormatException e) {
+                   print(errorIncorrectFile);
+               }
+           }
+       }
+    }
 
+    /**
+     * Cette fonction renvoie un boolean si les arguments
+     * respect le formatage
+     * @param args l'ensemble des arguments
+     * @return boolean
+     */
+    private static boolean argsIsOk(String[] args) {
         if (args.length <= 1) {
             print(errorArgumentMissing);
+            return false;
         } else if (args.length > 2) {
             print(errorTooManyArg);
-        }else{
-            final File file = new File(args[0]);
-            if(!file.exists() || file.isDirectory()) print(errorFileNotExist);
-            else{
-                try {
-                   map = new Map(file.getPath());
-                } catch (FileNotFoundException e) {
-                    print(errorFileNotExist);
-                } catch (Map.IncorrectFileFormatException e) {
-                    print(errorIncorrectFile);
-                }
-            }
+            return false;
         }
+            return true;
         }
 
-
-
+    /**
+     * Fonction d'affichage
+     * @param msg le tableau des messages pour les faire afficher
+     */
     private static void print(String... msg){
         for (String line: msg) System.out.println(line);
     }
