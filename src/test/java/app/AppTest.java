@@ -19,7 +19,7 @@ public class AppTest {
     @Test
     @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
     public void testArgOk(){
-        String[] strings = {"ROUTE", "JAURES", "PARIS"};
+        String[] strings = {"ROUTE", "JAURES", "OURQ"};
         assertTrue(App.argsIsOk(strings));
     }
 

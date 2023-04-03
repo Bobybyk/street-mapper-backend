@@ -17,6 +17,9 @@ public class App {
     private final static String errorFileNotExist = "[Erreur] Fichier introuvable ou est un repertoire";
     private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
 
+
+    private final static String succesMapCreate = "Object Map crée avec succes ";
+
     private static Map map;
 
     /**
@@ -34,6 +37,7 @@ public class App {
            else {
                try {
                    map = new Map(file.getPath());
+                   System.out.println(succesMapCreate);
                } catch (FileNotFoundException e) {
                    print(errorFileNotExist);
                } catch (Map.IncorrectFileFormatException e) {
@@ -53,7 +57,7 @@ public class App {
         if (args.length <= 1) {
             print(errorIllegalArgument);
             return false;
-        } else if (args.length > 2) {
+        } else if (args.length > 3) {
             print(errorIllegalArgument);
             return false;
         }
