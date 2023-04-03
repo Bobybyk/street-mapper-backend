@@ -20,13 +20,20 @@ public class App {
 
     private final static String succesMapCreate = "Object Map crée avec succes ";
 
-    private static Map map;
+    private static Map map = null;
 
     /**
      * Cette fonction permet de recup l'instance de map
      * @return L'object Map
      */
     public static Map getInstanceOfMap(){
+        if(map == null) {
+            try {
+                return new Map("dev_ressources/map_data_client.csv");
+            } catch (FileNotFoundException | Map.IncorrectFileFormatException e) {
+                System.out.println("Erreur map introuvable");
+            }
+        }
         return map;
     }
 

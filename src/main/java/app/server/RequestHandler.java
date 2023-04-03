@@ -11,7 +11,6 @@ import app.App;
 import app.map.Map;
 import app.server.data.ErrorServer;
 import app.server.data.Route;
-import app.server.data.UnknownRequestException;
 
 /**
  * Classe réprésentant les réponses du server.
@@ -81,7 +80,7 @@ class RequestHandler implements Runnable {
         String clientRequest = splittedLine[0];
         ServerActionCallback callback = requestActions.get(clientRequest);
         if (callback == null) {
-            new UnknownRequestException(clientRequest).execute(clientLine, clientSocket);
+            new ErrorServer("Serveur erreur");
         } else {
             callback.execute(clientLine, clientSocket);
         }
@@ -106,6 +105,7 @@ class RequestHandler implements Runnable {
         } else {
             try {
                 Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
+                System.out.println("testttttttttttttttttt");
                 outStream.writeObject(trajet);
                 outStream.flush();
             } catch (Map.PathNotFoundException e) {
