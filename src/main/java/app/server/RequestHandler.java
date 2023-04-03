@@ -9,6 +9,7 @@ import java.net.Socket;
 
 import app.App;
 import app.map.Map;
+import app.server.data.ErrorServer;
 import app.server.data.Route;
 import app.server.data.UnknownRequestException;
 
@@ -94,15 +95,25 @@ class RequestHandler implements Runnable {
     private static void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
         String[] tabLine = inputLine.split(charSplitter);
         ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
-        try {
-            Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
-            outStream.writeObject(trajet);
+
+        if(tabLine.length != 3){
+            final String errorTrajetManquant = "[Erreur-serveur] Trajet manquant";
+            System.out.println(errorTrajetManquant);
+            outStream.writeObject(new ErrorServer(errorTrajetManquant));
             outStream.flush();
-        } catch (Map.PathNotFoundException e) {
-            System.out.println("Erreur: Trajet inexistant");
-            outStream.writeObject(new Error("[Erreur-serveur] Trajet incorrect"));
-            outStream.flush();
+        }else{
+            try {
+                Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
+                outStream.writeObject(trajet);
+                outStream.flush();
+            } catch (Map.PathNotFoundException e) {
+                final String errorTrajetInexistant = "[Erreur-serveur] Trajet inexistant";
+                System.out.println(errorTrajetInexistant);
+                outStream.writeObject(new ErrorServer(errorTrajetInexistant));
+                outStream.flush();
+            }
         }
+        outStream.close();
     }
 
     // Implement Runnable

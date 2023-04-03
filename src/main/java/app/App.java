@@ -9,9 +9,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class App {
-    public String getGreeting() {
-        return "Hello world.";
-    }
 
     /**
      * Commentaire d'erreur en static pour la gestion de fichier
@@ -48,7 +45,7 @@ public class App {
     }
 
     /**
-     * Cette fonction renvoie un boolean si les arguments
+     * Cette fonction renvoie un vrai ou faux si les arguments
      * respect le formatage
      * @param args l'ensemble des arguments
      * @return boolean
