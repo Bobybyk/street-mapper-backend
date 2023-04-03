@@ -1,25 +1,15 @@
 package app.map;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Classe représentant une portion de trajet entre deux stations
  */
-public record Section(
-        /**
-         * La station de départ
-         */
-        Station start,
-        /**
-         * La station d'arrivée
-         */
-        Station arrival,
-        /**
-         * La distance entre les 2 stations
-         */
-        double distance,
-        /**
-         * La durée en seconde du trajet entre les 2 stations
-         */
-        int duration) {
+public record Section(Station start, Station arrival, double distance, int duration) implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
      * Crée une section
@@ -30,13 +20,9 @@ public record Section(
      * @param duration la durée en seconde de la section
      * @throws IllegalArgumentException si start ou arrival est `null`
      */
-    public Section(Station start, Station arrival, double distance, int duration) {
+    public Section {
         if (start == null || arrival == null)
             throw new IllegalArgumentException();
-        this.start = start;
-        this.arrival = arrival;
-        this.distance = distance;
-        this.duration = duration;
     }
 
     @Override

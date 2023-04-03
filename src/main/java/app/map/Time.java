@@ -3,19 +3,7 @@ package app.map;
 /**
  * Classe représentant un temps
  */
-public record Time(
-        /**
-         * Le nombre des heures
-         */
-        int hour,
-        /**
-         * Le nombre des minutes
-         */
-        int minute,
-        /**
-         * Le nombre des secondes
-         */
-        int second) {
+public record Time(int hour, int minute, int second) {
 
     /**
      * Créer un nouveau temps
@@ -25,12 +13,9 @@ public record Time(
      * @param second le nombre des secondes entre 0 et 59
      * @throws IllegalArgumentException si les valeurs sont incorrectes
      */
-    public Time(int hour, int minute, int second) {
+    public Time{
         if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59)
             throw new IllegalArgumentException();
-        this.hour = hour;
-        this.minute = minute;
-        this.second = second;
     }
 
     /**
