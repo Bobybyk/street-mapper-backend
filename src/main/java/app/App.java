@@ -54,7 +54,7 @@ public class App {
      * @return boolean
      */
     public static boolean argsIsOk(String[] args) {
-        if (args.length <= 1) {
+        if (args.length < 1) {
             print(errorIllegalArgument);
             return false;
         } else if (args.length > 3) {

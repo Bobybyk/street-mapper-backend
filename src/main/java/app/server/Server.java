@@ -95,9 +95,9 @@ public class Server {
                 RequestHandler requestHandler = new RequestHandler(clientSocket);
                 threadPool.execute(requestHandler);
             } catch (SocketTimeoutException e) {
-                
+                System.out.println("Erreur timeout");
             } catch (IOException e) {
-                // Peut-etre faire du logging ??
+                System.out.println("Erreur ioexception");
             }
         }
 

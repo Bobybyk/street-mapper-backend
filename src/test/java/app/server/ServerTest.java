@@ -24,7 +24,7 @@ public class ServerTest {
     private static final int PORT = 12345;
     private static final int incommingConnection = 3;
     private static final int SLEEP_TIME = 1_000;
-    private static final long TIMEOUT = 10;
+    private static final long TIMEOUT = 2;
 
 
     /**
@@ -52,9 +52,7 @@ public class ServerTest {
      */
     private static Server initServer() throws UnknownHostException, IOException {
         Server server = new Server(HOST, PORT, incommingConnection);
-        Thread threadServer = new Thread(() -> {
-            server.start();
-        });
+        Thread threadServer = new Thread(server::start);
         threadServer.start();
         return server;
     }

@@ -30,4 +30,12 @@ public class AppTest {
         assertFalse(App.argsIsOk(strings));
     }
 
+    @Test
+    @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
+    public void testNotArgOkNoArgument(){
+        String[] strings = {};
+        assertFalse(App.argsIsOk(strings));
+    }
+
+
 }
