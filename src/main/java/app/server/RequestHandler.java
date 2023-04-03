@@ -92,20 +92,17 @@ class RequestHandler implements Runnable {
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     private static void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
-        /// Todo: Waiting the disjkra merge
-        // Question pour plus tard: C'est quand que l'on cree la map ??
         String[] tabLine = inputLine.split(charSplitter);
+        ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
         try {
             Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
-            // Dummy route
-            ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
             outStream.writeObject(trajet);
             outStream.flush();
         } catch (Map.PathNotFoundException e) {
             System.out.println("Erreur: Trajet inexistant");
-            //TODO envoyer à l'utilisateur un message
+            outStream.writeObject(new Error("[Erreur-serveur] Trajet incorrect"));
+            outStream.flush();
         }
-
     }
 
     // Implement Runnable

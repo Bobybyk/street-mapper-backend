@@ -7,7 +7,7 @@ import java.net.Socket;
 import app.server.ServerActionCallback;
 
 /**
- * Class representant une erreur en cas de command non reconnue 
+ * Class representant une erreur en cas de command non reconnue
  */
 public class UnknownRequestException extends Exception implements ServerActionCallback {
 
