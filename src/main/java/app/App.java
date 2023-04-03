@@ -3,12 +3,48 @@
  */
 package app;
 
+import app.map.Map;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+
 public class App {
     public String getGreeting() {
         return "Hello world.";
     }
 
+
+    private final static String errorArgumentMissing = "[Erreur] Argument invalide. Argument Attendue : java App <file>";
+    private final static String errorFileNotExist = "[Erreur] Fichier introuvable ou est un repertoire";
+    private final static String errorTooManyArg = "[Erreur] il y'a trop d'arguments. Argument Attendue : java App <file> ";
+    private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
+
+    public static Map map;
+
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+
+        if (args.length <= 1) {
+            print(errorArgumentMissing);
+        } else if (args.length > 2) {
+            print(errorTooManyArg);
+        }else{
+            final File file = new File(args[0]);
+            if(!file.exists() || file.isDirectory()) print(errorFileNotExist);
+            else{
+                try {
+                   map = new Map(file.getPath());
+                } catch (FileNotFoundException e) {
+                    print(errorFileNotExist);
+                } catch (Map.IncorrectFileFormatException e) {
+                    print(errorIncorrectFile);
+                }
+            }
+        }
+        }
+
+
+
+    private static void print(String... msg){
+        for (String line: msg) System.out.println(line);
     }
 }
