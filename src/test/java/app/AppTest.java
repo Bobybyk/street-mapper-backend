@@ -14,5 +14,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AppTest {
 
+    private static final long TIMEOUT = 2;
+
+    @Test
+    @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
+    public void testArgOk(){
+        String[] strings = {"ROUTE", "JAURES", "PARIS"};
+        assertTrue(App.argsIsOk(strings));
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT, unit = TimeUnit.SECONDS)
+    public void testNotArgOk(){
+        String[] strings = {"ROUTE", "JAURES", "PARIS", "MARSEILLE"};
+        assertFalse(App.argsIsOk(strings));
+    }
 
 }
