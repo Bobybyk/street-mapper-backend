@@ -6,32 +6,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
-import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
+
+import app.map.Line.DifferentStartException;
+import app.map.Line.StartStationNotFoundException;
 
 /**
  * Classe représentant la carte
  */
 public final class Map {
 
-    public class IncorrectFileFormatException extends Exception {
+    public static class IncorrectFileFormatException extends Exception {
         public IncorrectFileFormatException(String filename) {
             super(String.format("Le fichier %s n'est pas bien formé", filename));
         }
     }
 
-    public class UndefinedStation extends Exception {
-        public UndefinedStation(String station) {
-            super(String.format("La station %s n'existe pas dans la carte", station));
-        }
-    }
-
-    public class UndefinedTime extends Exception {
-        public UndefinedTime(String line) {
-            super(String.format("Il y a des sections sans horaires sur la ligne %s", line));
+    public static class UndefinedLineException extends Exception {
+        public UndefinedLineException(String line) {
+            super(String.format("La line %s n'existe pas dans la carte", line));
         }
     }
 
@@ -39,44 +35,55 @@ public final class Map {
      * Map où chaque station est associée aux sections dont le départ est cette
      * station
      */
-    private final HashMap<Station, ArrayList<Section>> map = new HashMap<>();
+    private final HashMap<Station, Connection> map = new HashMap<>();
     /**
-     * Map où chaque ligne est associée aux sections de la ligne
+     * Map où chaque nom (avec variant) de ligne est associée sa ligne
      */
-    private final HashMap<String, ArrayList<Section>> lines = new HashMap<>();
+    private final HashMap<String, Line> lines = new HashMap<>();
 
     /**
-     * 
-     * @param mapFileName
-     * @param timeFileName
-     * @throws IncorrectFileFormatException
-     * @throws FileNotFoundException
-     * @throws IllegalArgumentException
+     * Créer une map à partir d'un fichier CSV contenant les sections des lignes du
+     * réseau.
+     *
+     * @param mapFileName le nom du fichier
+     * @throws FileNotFoundException        si le fichier n'a pas été trouvé
+     * @throws IncorrectFileFormatException si le format du fichier est incorrect
+     * @throws IllegalArgumentException     si `mapFileName` est `null`
      */
-    public Map(String mapFileName, String timeFileName)
-            throws IncorrectFileFormatException, FileNotFoundException, IllegalArgumentException, UndefinedStation,
-            UndefinedTime {
-        if (mapFileName == null || timeFileName == null)
+    public Map(String mapFileName)
+            throws FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
+        if (mapFileName == null)
             throw new IllegalArgumentException();
         parseMap(mapFileName);
-        parseTime(timeFileName);
     }
 
-    private void parseMap(String fileName) throws IncorrectFileFormatException, FileNotFoundException {
+    /**
+     * Parse un fichier CSV contenant les sections de trajet du réseau.
+     *
+     * @param fileName le nom du fichier à parser
+     * @throws FileNotFoundException        si le fichier n'a pas été trouvé
+     * @throws IncorrectFileFormatException si le format du fichier est incorrect
+     */
+    private void parseMap(String fileName) throws FileNotFoundException, IncorrectFileFormatException {
         File file = new File(fileName);
-        Scanner sc = new Scanner(file);
-        try {
+        try (Scanner sc = new Scanner(file)) {
             while (sc.hasNextLine()) {
                 handleMapLine(sc.nextLine());
             }
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
             throw new IncorrectFileFormatException(file.getName());
-        } finally {
-            sc.close();
         }
     }
 
-    private void handleMapLine(String s) {
+    /**
+     * Parse une ligne d'un fichier CSV contenant une section de trajet du réseau.
+     *
+     * @param s la ligne à parser
+     * @throws IndexOutOfBoundsException si la ligne est mal formé
+     * @throws NumberFormatException     si une des données qui doit être un nombre
+     *                                   ne l'est pas
+     */
+    private void handleMapLine(String s) throws IndexOutOfBoundsException, NumberFormatException {
         String[] data = s.split(";");
         Station start = parseStation(data[0], data[1]);
         Station arrival = parseStation(data[2], data[3]);
@@ -88,175 +95,223 @@ public final class Map {
         addSection(start, arrival, distance, duration, line);
     }
 
-    private Station parseStation(String station, String coord) {
+    /**
+     * Retourne la station correspondant au nom et aux coordonnées. La créer si elle
+     * n'existe pas.
+     *
+     * @param station le nom de la station
+     * @param coord   les coordonnées de la station séparées par une virgule
+     * @return une station correspondant aux paramètres
+     * @throws IndexOutOfBoundsException si les coordonnées sont mal formées
+     * @throws NumberFormatException     si l'une des coordonnées n'est pas un
+     *                                   nombre
+     */
+    private Station parseStation(String station, String coord) throws IndexOutOfBoundsException, NumberFormatException {
         station = station.trim();
         String[] coords = coord.trim().split(",");
         double x = Double.parseDouble(coords[0]);
         double y = Double.parseDouble(coords[1]);
-        return new Station(station, x, y);
+        Station s = new Station(station, x, y);
+        Connection connection = map.computeIfAbsent(s, Connection::new);
+        return connection.getStation();
     }
 
-    private void addSection(Station start, Station arrival, double distance, int duration, String line) {
-        Section section = new Section(start, arrival, distance, duration, line);
-        // add to map
-        ArrayList<Section> sections = map.getOrDefault(start, new ArrayList<>());
-        sections.add(section);
-        map.put(start, sections);
-        // add to lines
-        sections = lines.getOrDefault(line, new ArrayList<>());
-        sections.add(section);
-        lines.put(line, sections);
+    /**
+     * Créer une section entre les stations `start`et `arrival`, et l'ajoute dans
+     * `map` et `lines`
+     *
+     * @param start    la station de départ
+     * @param arrival  la station d'arrivé
+     * @param distance la distance entre les deux stations
+     * @param duration la durée du trajet entre les deux stations
+     * @param line     le nom et le variant de la ligne
+     * @throws IndexOutOfBoundsException si le nom de la ligne est mal formé
+     * @throws NumberFormatException     si le variant n'est pas un nombre
+     */
+    private void addSection(Station start, Station arrival, double distance, int duration, String lineName)
+            throws IndexOutOfBoundsException, NumberFormatException {
+        // création de la section
+        String[] lineVariant = lineName.split(" ");
+        String name = lineVariant[0];
+        int variant = Integer.parseInt(lineVariant[2]);
+        Section section = new Section(start, arrival, distance, duration);
+        // ajout dans map
+        map.get(start).addSection(section);
+        // ajout dans lines
+        Line line = lines.computeIfAbsent(name, n -> new Line(n, variant));
+        line.addSection(section);
     }
 
-    private void parseTime(String fileName)
-            throws IncorrectFileFormatException, FileNotFoundException, UndefinedStation, UndefinedTime {
-        File file = new File(fileName);
-        Scanner sc = new Scanner(file);
-        /**
-         * Map où chaque ligne est associée à la liste des sections partant d'un
-         * terminus
-         */
-        HashMap<String, ArrayList<Section>> departTimes = new HashMap<>();
-        try {
-            while (sc.hasNextLine()) {
-                handleTimeLine(departTimes, sc.nextLine());
-            }
-            timeSpread(departTimes);
-        } catch (IndexOutOfBoundsException | NumberFormatException e) {
-            throw new IncorrectFileFormatException(file.getName());
-        } finally {
-            sc.close();
-        }
+    /**
+     * Parse un fichier CSV contenant les horaires de départ des lignes du réseau.
+     *
+     * @param fileName le nom du fichier à parser
+     * @throws IllegalArgumentException      si fileName est `null`
+     * @throws FileNotFoundException         si le fichier n'a pas été trouvé
+     * @throws IncorrectFileFormatException  si le format du fichier est incorrect
+     * @throws UndefinedLineException        si la ligne n'existe pas dans la map
+     * @throws StartStationNotFoundException si la ligne n'existe pas sur la ligne
+     * @throws DifferentStartException       s'il y a plusieurs station de départ
+     *                                       pour une même ligne
+     */
+    // public void addTime(String fileName) throws IllegalArgumentException,
+    // FileNotFoundException,
+    // IncorrectFileFormatException, UndefinedLineException,
+    // StartStationNotFoundException,
+    // DifferentStartException {
+    // if (fileName == null)
+    // throw new IllegalArgumentException();
+    // File file = new File(fileName);
+    // Scanner sc = new Scanner(file);
+    // try {
+    // while (sc.hasNextLine()) {
+    // handleTimeLine(sc.nextLine());
+    // }
+    // } catch (IndexOutOfBoundsException | NumberFormatException e) {
+    // throw new IncorrectFileFormatException(file.getName());
+    // } finally {
+    // sc.close();
+    // }
+    // }
+
+    /**
+     * Parse une ligne d'un fichier CSV contenant un horaire de départ d'une ligne
+     * du réseau.
+     *
+     * @param s la ligne à parser
+     * @throws IndexOutOfBoundsException     si la ligne est mal formé
+     * @throws NumberFormatException         si l'horaire est mal formé
+     * @throws UndefinedLineException        si la ligne n'existe pas dans la map
+     * @throws StartStationNotFoundException si la ligne n'existe pas sur la ligne
+     * @throws DifferentStartException       s'il y a plusieurs station de départ
+     *                                       pour une même ligne
+     */
+    // private void handleTimeLine(String s) throws IndexOutOfBoundsException,
+    // NumberFormatException, UndefinedLineException,
+    // StartStationNotFoundException, DifferentStartException {
+    // String[] data = s.split(";");
+    // String line = data[0].trim();
+    // String stationName = data[1].trim();
+    // String[] time = data[2].trim().split(":");
+    // int hour = Integer.parseInt(time[0]);
+    // int minute = Integer.parseInt(time[1]);
+    // addDepartureTime(line, stationName, hour, minute);
+    // }
+
+    /**
+     * Ajoute l'horaire de départ et le section de départ à la ligne si elle n'a pas
+     * été déjà déterminée
+     *
+     * @param line        le nom et le variant de la ligne
+     * @param stationName le nom de la station de départ
+     * @param hour        l'heure de l'horaire de départ
+     * @param minute      les minutes de l'horaire de départ
+     * @throws UndefinedLineException        si la ligne n'existe pas dans la map
+     * @throws StartStationNotFoundException si la ligne n'existe pas sur la ligne
+     * @throws DifferentStartException       s'il y a plusieurs station de départ
+     *                                       pour une même ligne
+     */
+    // private void addDepartureTime(String line, String stationName, int hour, int
+    // minute)
+    // throws UndefinedLineException, StartStationNotFoundException,
+    // DifferentStartException {
+    // Line l = lines.get(line);
+    // if (l == null)
+    // throw new UndefinedLineException(line);
+    // // ajoute la section de départ si nécessaire
+    // l.setStart(stationName);
+    // l.addDepartureTime(hour, minute);
+    // }
+
+    public HashMap<Station, Connection> getMap() {
+        return new HashMap<>(map);
     }
 
-    private void handleTimeLine(HashMap<String, ArrayList<Section>> departTimes, String s) throws UndefinedStation {
-        String[] data = s.split(";");
-        String line = data[0].trim();
-        String stationName = data[1].trim();
-        String[] time = data[2].trim().split(":");
-        int hour = Integer.parseInt(time[0]);
-        int minute = Integer.parseInt(time[1]);
-        addDepartureTime(departTimes, line, stationName, hour, minute);
-    }
-
-    private void addDepartureTime(HashMap<String, ArrayList<Section>> departTimes, String line, String stationName,
-            int hour, int minute) throws UndefinedStation {
-        // recherche les terminus de line qui ont déjà été vu
-        ArrayList<Section> sections = departTimes.get(line);
-        if (sections != null) {
-            // recherche la section au départ du terminus stationName
-            Optional<Section> terminus = sections.stream()
-                    .filter(section -> section.getStartStationName().equals(stationName))
-                    .findAny();
-            if (terminus.isPresent()) {
-                terminus.get().addTimes(hour, minute);
-                return;
-            }
-        } // on a jamais vu line ou on a pas vu le terminus
-          // on cherche les sections de line
-        sections = lines.getOrDefault(line, new ArrayList<>());
-        // on cherche la section partant de stationName
-        Optional<Section> terminus = sections.stream()
-                .filter(section -> section.getStartStationName().equals(stationName))
-                .findAny();
-        if (terminus.isPresent()) {
-            terminus.get().addTimes(hour, minute);
-        } else
-            throw new UndefinedStation(stationName);
-    }
-
-    private void timeSpread(HashMap<String, ArrayList<Section>> departTimes) throws UndefinedTime {
-        for (java.util.Map.Entry<String, ArrayList<Section>> entry : lines.entrySet()) {
-            String line = entry.getKey();
-            // liste des sections dont les horaires sont a définir
-            ArrayList<Section> sections = new ArrayList<>(entry.getValue());
-            // parcourir les terminus de la ligne
-            for (Section terminus : departTimes.getOrDefault(line, new ArrayList<>())) {
-                // retire la section du terminus dont les horaires ont été définies précédemment
-                // par addDepartureTime
-                sections.remove(terminus);
-                Section current = terminus;
-                while (!sections.isEmpty()) {
-                    // recherche de la section suivante
-                    Station nextDepart = current.getArrival();
-                    Optional<Section> next = sections.stream().filter(s -> s.getStart().equals(nextDepart))
-                            .findAny();
-                    if (!next.isPresent()) {
-                        throw new UndefinedTime(line);
-                    }
-                    int previousDuration = current.getDuration();
-                    // calcule les horaires pour la section next
-                    List<Time> times = current.getDepartures().stream().map(t -> t.addDuration(previousDuration))
-                            .toList();
-                    // ajoute les horaires à la section next
-                    current = next.get();
-                    current.addTimes(times);
-                    sections.remove(current);
-                }
-            }
-            if (!sections.isEmpty())
-                throw new UndefinedTime(line);
-        }
+    public HashMap<String, Line> getLines() {
+        return new HashMap<>(lines);
     }
 
     public class PathNotFoundException extends Exception {
-        public PathNotFoundException(Station start, Station arrival) {
-            super(String.format("Pas de chemin trouvé entre %s et %s", start.getName(), arrival.getName()));
+        public PathNotFoundException(String start, String arrival) {
+            super(String.format("Pas de chemin trouvé entre %s et %s", start, arrival));
         }
+
+        public PathNotFoundException() {
+            super();
+        }
+    }
+
+    /**
+     * @param station un nom de station
+     * @return l'ensemble des stations ayant ce nom
+     */
+    private ArrayList<Station> getStationFromName(String station) {
+        ArrayList<Station> stations = new ArrayList<>();
+        for (Station s : map.keySet()) {
+            if (s.name().equals(station))
+                stations.add(s);
+        }
+        return stations;
     }
 
     /**
      * Calcule un trajet entre 2 stations et renvoie la liste des sections du trajet
      *
-     * @param start   la station de départ
-     * @param arrival la station d'arrivée
+     * @param start   le nom de la station de départ
+     * @param arrival le nom de la station d'arrivé
      * @return la liste des sections du trajet
-     * @throws PathNotFoundException si il n'existe pas de trajet les deux stations
+     * @throws IllegalArgumentException si start ou arrival est `null`
+     * @throws PathNotFoundException    si il n'existe pas de trajet entre les deux
+     *                                  stations
      */
-    public ArrayList<Section> findPathDistOpt(Station start, Station arrival) throws PathNotFoundException {
-        HashMap<Station, Section> path = dijkstra(start, arrival, Section::getDistance);
-        ArrayList<Section> orderedPath = new ArrayList<>();
-        Station previous = arrival;
-        while (previous != start) {
-            Section section = path.get(previous);
-            orderedPath.add(section);
-            previous = section.getStart();
+    public LinkedList<Section> findPathDistOpt(String startStation, String arrivalStation)
+            throws IllegalArgumentException, PathNotFoundException {
+        if (startStation == null || arrivalStation == null)
+            throw new IllegalArgumentException();
+        ArrayList<Station> arrivals = getStationFromName(arrivalStation);
+        if (arrivals.isEmpty())
+            throw new PathNotFoundException(startStation, arrivalStation);
+        for (Station start : getStationFromName(startStation)) {
+            try {
+                return dijkstra(start, arrivals, Section::distance);
+            } catch (PathNotFoundException ignored) {
+            }
         }
-        Collections.reverse(orderedPath);
-        return orderedPath;
+        throw new PathNotFoundException(startStation, arrivalStation);
     }
 
     /**
      * Recherche un chemin entre 2 stations en appliquant l'algorithme de
-     * dijkstra et renvoie les sections du trajet
+     * dijkstra et renvoie les sections du trajet laissant que la station d'arrivé
+     * dans arrivals
      *
      * @param start   la station (sommet) de départ
-     * @param arrival la station (sommet) d'arrivée
+     * @param arrival la liste des stations (sommet) d'arrivé possible
      * @param f       la fonction qui associe à une section (arête) son poids
      * @return map associant une station à la section prendre pour aller à cette
      *         station
-     * @throws PathNotFoundException si il n'existe pas de trajet les deux stations
+     * @throws PathNotFoundException si il n'existe pas de trajet entre les deux
+     *                               stations
      */
-    private HashMap<Station, Section> dijkstra(Station start, Station arrival, Function<Section, Double> f)
+    private LinkedList<Section> dijkstra(Station start, ArrayList<Station> arrivals, ToDoubleFunction<Section> f)
             throws PathNotFoundException {
         HashMap<Station, Double> distance = new HashMap<>();
         HashMap<Station, Section> previous = new HashMap<>();
-        for (java.util.Map.Entry<Station, ArrayList<Section>> entry : map.entrySet()) {
-            Station station = entry.getKey();
+        for (Station station : map.keySet()) {
             distance.put(station, Double.MAX_VALUE);
             previous.put(station, null);
         }
 
         distance.put(start, 0.);
         PriorityQueue<Station> queue = new PriorityQueue<>(map.size(),
-                Comparator.comparingDouble(x -> distance.get(x)));
+                Comparator.comparingDouble(distance::get));
         queue.addAll(map.keySet());
 
         Station u = null;
-        while (!queue.isEmpty() && (u = queue.poll()) != arrival) {
-            for (Section section : map.get(u)) {
-                Station v = section.getArrival();
-                double w = distance.get(u) + f.apply(section);
+        while (!queue.isEmpty() && (!arrivals.contains(u = queue.poll()))) {
+            for (Section section : map.get(u).getSections()) {
+                Station v = section.arrival();
+                double w = distance.get(u) + f.applyAsDouble(section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
                     previous.put(v, section);
@@ -265,8 +320,23 @@ public final class Map {
                 }
             }
         }
-        if (queue.isEmpty())
-            throw new PathNotFoundException(start, arrival);
-        return previous;
+        if (!arrivals.contains(u))
+            throw new PathNotFoundException();
+        return dijkstraResultToList(previous, start, u);
+    }
+
+    private LinkedList<Section> dijkstraResultToList(HashMap<Station, Section> path, Station start, Station arrival)
+            throws PathNotFoundException {
+        LinkedList<Section> orderedPath = new LinkedList<>();
+        Station previous = arrival;
+        while (previous != start) {
+            Section section = path.get(previous);
+            if (section == null)
+                throw new PathNotFoundException();
+            orderedPath.add(section);
+            previous = section.start();
+        }
+        Collections.reverse(orderedPath);
+        return orderedPath;
     }
 }
