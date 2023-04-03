@@ -6,11 +6,12 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedList;
 
+
+/**
+ * Class route qui represente le trajet pris par l'utilisateur
+ */
 public class Route implements Serializable {
 
-    /**
-     * Class route qui represente le trajet prix par l'utilisateur
-     */
     @Serial
     private static final long serialVersionUID = 2L;
 
