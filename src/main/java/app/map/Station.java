@@ -6,19 +6,7 @@ import java.io.Serializable;
 /**
  * Classe représentant une station, avec un nom et ses coordonnées
  */
-public record Station(
-        /*
-         * Le nom de la station
-         */
-        String name,
-        /*
-         * La coordonnée en x
-         */
-        double coordinateX,
-        /*
-         * La coordonnée en y
-         */
-        double coordinateY) implements Serializable {
+public record Station(String name, double coordinateX, double coordinateY) implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

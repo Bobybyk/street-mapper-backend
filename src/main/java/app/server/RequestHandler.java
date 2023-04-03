@@ -21,7 +21,6 @@ import app.server.data.UnknownRequestException;
 class RequestHandler implements Runnable {
 
 
-
     /**
      * Nom de la commande correspondant la requête pour un chemin
      */
@@ -29,14 +28,15 @@ class RequestHandler implements Runnable {
 
     /**
      * Ensemble des couples mot-clef actions a exécuter
+     *
      * @see ServerActionCallback
-    */
+     */
     private static final java.util.Map<String, ServerActionCallback> requestActions = java.util.Map.of(
-        ROUTE_KEY, RequestHandler::handleRouteRequest
+            ROUTE_KEY, RequestHandler::handleRouteRequest
     );
 
     /**
-     * Caractère utilisé pour sépérarer les arguments de la requête 
+     * Caractère utilisé pour sépérarer les arguments de la requête
      */
     private static final String charSplitter = ";";
 
@@ -46,7 +46,6 @@ class RequestHandler implements Runnable {
     private final Socket clientSocket;
 
     /**
-     * 
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      */
     RequestHandler(Socket clientSocket) {
@@ -55,9 +54,9 @@ class RequestHandler implements Runnable {
 
     /**
      * Lit le contenu du socket
+     *
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
-     * 
      */
     private void handleClient(Socket clientSocket) throws IOException {
         InputStream inputStream = clientSocket.getInputStream();
@@ -66,11 +65,12 @@ class RequestHandler implements Runnable {
 
         if (message != null)
             handleLine(message, clientSocket);
-        
+
     }
 
     /**
      * Execute l'action en fonction requête lu dans la chaine de caractère
+     *
      * @param clientLine   Ligne (chaine de caractere) lue dans le sockets
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
@@ -89,6 +89,8 @@ class RequestHandler implements Runnable {
 
     /**
      * Gere la reponse du renvoie d'un trajet au client
+     *
+     * @param inputLine entrée de l'utilisateur
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
@@ -96,18 +98,18 @@ class RequestHandler implements Runnable {
         String[] tabLine = inputLine.split(charSplitter);
         ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
 
-        if(tabLine.length != 3){
-            final String errorTrajetManquant = "[Erreur-serveur] Trajet manquant";
+        if (tabLine.length != 3) {
+            final String errorTrajetManquant = "[Erreur-serveur] Trajet départ ou arrivé manquant.";
             System.out.println(errorTrajetManquant);
             outStream.writeObject(new ErrorServer(errorTrajetManquant));
             outStream.flush();
-        }else{
+        } else {
             try {
                 Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
                 outStream.writeObject(trajet);
                 outStream.flush();
             } catch (Map.PathNotFoundException e) {
-                final String errorTrajetInexistant = "[Erreur-serveur] Trajet inexistant";
+                final String errorTrajetInexistant = "[Erreur-serveur] Trajet inexistant.";
                 System.out.println(errorTrajetInexistant);
                 outStream.writeObject(new ErrorServer(errorTrajetInexistant));
                 outStream.flush();
@@ -131,6 +133,6 @@ class RequestHandler implements Runnable {
             }
         }
     }
-    
+
 }
 

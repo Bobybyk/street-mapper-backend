@@ -13,9 +13,8 @@ public class App {
     /**
      * Commentaire d'erreur en static pour la gestion de fichier
      */
-    private final static String errorArgumentMissing = "[Erreur] Argument invalide. Argument Attendue : java App <file>";
+    private final static String errorIllegalArgument = "[Erreur] Arguments invalides. Arguments Attendus : java App <file>";
     private final static String errorFileNotExist = "[Erreur] Fichier introuvable ou est un repertoire";
-    private final static String errorTooManyArg = "[Erreur] il y'a trop d'arguments. Argument Attendue : java App <file> ";
     private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
 
     private static Map map;
@@ -45,17 +44,17 @@ public class App {
     }
 
     /**
-     * Cette fonction renvoie un vrai ou faux si les arguments
-     * respect le formatage
+     * Cette fonction renvoie un vrai si les arguments sont correctes s'ils respectent le formatage
+     * ou faux si les arguments ne respectent pas le formatage
      * @param args l'ensemble des arguments
      * @return boolean
      */
-    private static boolean argsIsOk(String[] args) {
+    public static boolean argsIsOk(String[] args) {
         if (args.length <= 1) {
-            print(errorArgumentMissing);
+            print(errorIllegalArgument);
             return false;
         } else if (args.length > 2) {
-            print(errorTooManyArg);
+            print(errorIllegalArgument);
             return false;
         }
             return true;
