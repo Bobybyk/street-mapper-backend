@@ -17,7 +17,7 @@ public final class Line {
 
     public static class DifferentStartException extends Exception {
         public DifferentStartException(String line, String variant, String s1, String s2) {
-            super(String.format("Il y plusieurs stations de départ pour la ligne %s variant %S : %s et %s", line,
+            super(String.format("Il y plusieurs stations de départ pour la ligne %s variant %s : %s et %s", line,
                     variant, s1, s2));
         }
     }
