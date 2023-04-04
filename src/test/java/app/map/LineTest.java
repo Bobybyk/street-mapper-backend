@@ -43,8 +43,8 @@ public class LineTest {
         Station station1 = new Station("1", 0, 0);
         Station station2 = new Station("2", 0, 0);
         Station station3 = new Station("3", 0, 0);
-        line.addSection(new Section(station1, station2, 0, 0));
-        line.addSection(new Section(station2, station3, 0, 0));
+        line.addSection(new Section(station1, station2, "1 variant 2", 0, 0));
+        line.addSection(new Section(station2, station3, "1 variant 2", 0, 0));
     }
 
     @Test
@@ -64,7 +64,7 @@ public class LineTest {
             throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
         initLine();
         Section section = line.getSections().get(1);
-        String stationName = section.start().name();
+        String stationName = section.getStart().name();
         line.setStart(stationName);
         assertEquals(section, line.getStart(), "Set start");
     }
@@ -75,7 +75,7 @@ public class LineTest {
             throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
         initLine();
         Section section = line.getSections().get(1);
-        String stationName = section.start().name();
+        String stationName = section.getStart().name();
         line.setStart(stationName);
         line.setStart(stationName);
         assertEquals(section, line.getStart(), "Set the same start twice");

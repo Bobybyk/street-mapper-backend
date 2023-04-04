@@ -115,31 +115,33 @@ public class MapTest {
         pathNotFoundHelper("Commerce", "Lourmel");
     }
 
+    private void findPathHelper(String start, String arrival, int nbLine)
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        Map map = new Map(getPath(MAP_DATA_ALL));
+        LinkedList<Section> trajet = map.findPathDistOpt(start, arrival);
+        assertEquals(nbLine, trajet.size(), start + " to " + arrival);
+    }
+
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathSameLine() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Map map = new Map(getPath("map_data"));
-        LinkedList<Section> trajet = map.findPathDistOpt("Lourmel", "Commerce");
-        assertEquals(3, trajet.size(), "Lourmel to Commerce");
+        findPathHelper("Lourmel", "Commerce", 1);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath2Line() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Map map = new Map(getPath(MAP_DATA_ALL));
-        LinkedList<Section> trajet = map.findPathDistOpt("Cité", "Hôtel de Ville");
-        assertEquals(2, trajet.size(), "Cité to Hôtel de Ville");
+        findPathHelper("Cité", "Hôtel de Ville", 2);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath3Line() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Map map = new Map(getPath(MAP_DATA_ALL));
-        LinkedList<Section> trajet = map.findPathDistOpt("Alma - Marceau", "Invalides");
-        assertEquals(3, trajet.size(), "Alma - Marceau to Invalides");
+        findPathHelper("Alma - Marceau", "Invalides", 3);
     }
 
     @Test
@@ -147,9 +149,7 @@ public class MapTest {
     public void findPathNordToLyon()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Map map = new Map(getPath(MAP_DATA_ALL));
-        LinkedList<Section> trajet = map.findPathDistOpt("Gare du Nord", "Gare de Lyon");
-        assertEquals(8, trajet.size(), "Gare du Nord to Gare de Lyon");
+        findPathHelper("Gare du Nord", "Gare de Lyon", 4);
     }
 
     @Test
@@ -157,8 +157,6 @@ public class MapTest {
     public void findPathBercyToParmentier()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Map map = new Map(getPath(MAP_DATA_ALL));
-        LinkedList<Section> trajet = map.findPathDistOpt("Bercy", "Parmentier");
-        assertEquals(9, trajet.size(), "Bercy to Parmentier");
+        findPathHelper("Bercy", "Parmentier", 4);
     }
 }

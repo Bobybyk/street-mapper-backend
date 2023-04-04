@@ -1,9 +1,15 @@
 package app.map;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * Classe représentant un temps
  */
-public record Time(int hour, int minute, int second) {
+public record Time(int hour, int minute, int second) implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     /**
      * Créer un nouveau temps
@@ -13,7 +19,7 @@ public record Time(int hour, int minute, int second) {
      * @param second le nombre des secondes entre 0 et 59
      * @throws IllegalArgumentException si les valeurs sont incorrectes
      */
-    public Time{
+    public Time {
         if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59)
             throw new IllegalArgumentException();
     }

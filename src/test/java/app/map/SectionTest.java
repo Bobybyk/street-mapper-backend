@@ -10,7 +10,7 @@ public class SectionTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
     private void illegalArgumentHelper(Station start, Station arrival) {
-        assertThrows(IllegalArgumentException.class, () -> new Section(start, arrival, 0, 0), "null value");
+        assertThrows(IllegalArgumentException.class, () -> new Section(start, arrival, "1", 0, 0), "null value");
     }
 
     @Test

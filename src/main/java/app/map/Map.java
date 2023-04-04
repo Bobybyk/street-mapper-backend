@@ -130,7 +130,7 @@ public final class Map {
     private void addSection(Station start, Station arrival, double distance, int duration, String lineName)
             throws IndexOutOfBoundsException, NumberFormatException {
         // création de la section
-        Section section = new Section(start, arrival, distance, duration);
+        Section section = new Section(start, arrival, lineName, distance, duration);
         // ajout dans map
         map.get(start.name()).add(section);
         // ajout dans lines
@@ -256,7 +256,8 @@ public final class Map {
             throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        return dijkstra(startStation, arrivalStation, Section::distance);
+        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::getDistance);
+        return sectionsToRoute(sections);
     }
 
     /**
@@ -289,7 +290,7 @@ public final class Map {
         String u = null;
         while (!queue.isEmpty() && (!arrival.equals(u = queue.poll()))) {
             for (Section section : map.get(u)) {
-                String v = section.arrival().name();
+                String v = section.getArrival().name();
                 double w = distance.get(u) + f.applyAsDouble(section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
@@ -313,9 +314,46 @@ public final class Map {
             if (section == null)
                 throw new PathNotFoundException();
             orderedPath.add(section);
-            previous = section.start().name();
+            previous = section.getStart().name();
         }
         Collections.reverse(orderedPath);
         return orderedPath;
+    }
+
+    private LinkedList<Section> sectionsToRoute(LinkedList<Section> sections) {
+        if (sections == null || sections.isEmpty())
+            return sections;
+
+        LinkedList<Section> route = new LinkedList<>();
+        Section first = sections.getFirst();
+
+        Station start = first.getStart();
+        Station arrival = first.getArrival();
+        String line = lines.get(first.getLine()).getName();
+        Time time = first.getTime();
+        double distance = first.getDistance();
+        int duration = first.getDuration();
+
+        for (Section s : sections) {
+            if (line.equals(lines.get(s.getLine()).getName())) {
+                arrival = s.getArrival();
+                distance += s.getDistance();
+                duration += s.getDuration();
+            } else {
+                Section toAdd = new Section(start, arrival, line, distance, duration);
+                toAdd.setTime(time);
+                route.addLast(toAdd);
+                start = s.getStart();
+                arrival = s.getArrival();
+                line = lines.get(s.getLine()).getName();
+                time = s.getTime();
+                distance = s.getDistance();
+                duration = s.getDuration();
+            }
+        }
+        Section toAdd = new Section(start, arrival, line, distance, duration);
+        toAdd.setTime(time);
+        route.addLast(toAdd);
+        return route;
     }
 }
