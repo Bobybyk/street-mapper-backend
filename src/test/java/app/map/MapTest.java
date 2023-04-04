@@ -21,6 +21,8 @@ public class MapTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
 
+    private static final String MAP_DATA_ALL = "map_data_all";
+
     private String getPath(String filename) {
         return "src/test/resources/" + filename + ".csv";
     }
@@ -126,7 +128,7 @@ public class MapTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath2Line() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Map map = new Map(getPath("map_data_all"));
+        Map map = new Map(getPath(MAP_DATA_ALL));
         LinkedList<Section> trajet = map.findPathDistOpt("Cité", "Hôtel de Ville");
         assertEquals(2, trajet.size(), "Cité to Hôtel de Ville");
     }
@@ -135,7 +137,7 @@ public class MapTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath3Line() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Map map = new Map(getPath("map_data_all"));
+        Map map = new Map(getPath(MAP_DATA_ALL));
         LinkedList<Section> trajet = map.findPathDistOpt("Alma - Marceau", "Invalides");
         assertEquals(3, trajet.size(), "Alma - Marceau to Invalides");
     }
@@ -145,7 +147,7 @@ public class MapTest {
     public void findPathNordToLyon()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Map map = new Map(getPath("map_data_all"));
+        Map map = new Map(getPath(MAP_DATA_ALL));
         LinkedList<Section> trajet = map.findPathDistOpt("Gare du Nord", "Gare de Lyon");
         assertEquals(8, trajet.size(), "Gare du Nord to Gare de Lyon");
     }
@@ -155,7 +157,7 @@ public class MapTest {
     public void findPathBercyToParmentier()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Map map = new Map(getPath("map_data_all"));
+        Map map = new Map(getPath(MAP_DATA_ALL));
         LinkedList<Section> trajet = map.findPathDistOpt("Bercy", "Parmentier");
         assertEquals(9, trajet.size(), "Bercy to Parmentier");
     }
