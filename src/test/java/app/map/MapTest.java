@@ -137,7 +137,7 @@ public class MapTest {
             PathNotFoundException {
         Map map = new Map(getPath("map_data_all"));
         LinkedList<Section> trajet = map.findPathDistOpt("Alma - Marceau", "Invalides");
-        assertEquals(3, trajet.size(), "Cité to Hôtel de Ville");
+        assertEquals(3, trajet.size(), "Alma - Marceau to Invalides");
     }
 
     @Test
