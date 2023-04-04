@@ -61,6 +61,12 @@ class RequestHandler implements Runnable {
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
         String message = in.readLine();
 
+      //  System.out.println("RECEPTION" + message);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (message != null)
             handleLine(message);
 
@@ -100,16 +106,21 @@ class RequestHandler implements Runnable {
             System.out.println(errorTrajetManquant);
             outStream.writeObject(new ErrorServer(errorTrajetManquant));
             outStream.flush();
+            System.out.println("TRAJET PAS BON" );
         } else {
             try {
                 Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
                 outStream.writeObject(trajet);
                 outStream.flush();
+                System.out.println("TRAJET" );
+
             } catch (Map.PathNotFoundException e) {
                 final String errorTrajetInexistant = "[Erreur-serveur] Trajet inexistant.";
                 System.out.println(errorTrajetInexistant);
                 outStream.writeObject(new ErrorServer(errorTrajetInexistant));
                 outStream.flush();
+                System.out.println("ERREUR" );
+
             }
         }
     }
