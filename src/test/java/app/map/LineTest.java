@@ -13,12 +13,12 @@ public class LineTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
 
-    private final Line line = new Line("test", 0);
+    private final Line line = new Line("test", "0");
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void nullName() {
-        assertThrows(IllegalArgumentException.class, () -> new Line(null, 0), "null line name");
+        assertThrows(IllegalArgumentException.class, () -> new Line(null, "0"), "null line name");
     }
 
     @Test

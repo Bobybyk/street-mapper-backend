@@ -137,7 +137,7 @@ public final class Map {
         Line line = lines.computeIfAbsent(lineName, n -> {
             String[] lineVariant = n.split(" ");
             String name = lineVariant[0];
-            int variant = Integer.parseInt(lineVariant[2]);
+            String variant = lineVariant[2];
             return new Line(name, variant);
         });
         line.addSection(section);
