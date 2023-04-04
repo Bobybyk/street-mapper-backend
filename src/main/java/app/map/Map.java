@@ -130,14 +130,16 @@ public final class Map {
     private void addSection(Station start, Station arrival, double distance, int duration, String lineName)
             throws IndexOutOfBoundsException, NumberFormatException {
         // création de la section
-        String[] lineVariant = lineName.split(" ");
-        String name = lineVariant[0];
-        int variant = Integer.parseInt(lineVariant[2]);
         Section section = new Section(start, arrival, distance, duration);
         // ajout dans map
         map.get(start.name()).add(section);
         // ajout dans lines
-        Line line = lines.computeIfAbsent(name, n -> new Line(n, variant));
+        Line line = lines.computeIfAbsent(lineName, n -> {
+            String[] lineVariant = n.split(" ");
+            String name = lineVariant[0];
+            int variant = Integer.parseInt(lineVariant[2]);
+            return new Line(name, variant);
+        });
         line.addSection(section);
     }
 
