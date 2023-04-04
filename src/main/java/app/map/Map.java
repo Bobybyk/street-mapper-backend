@@ -254,7 +254,8 @@ public final class Map {
             throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        return dijkstra(startStation, arrivalStation, Section::getDistance);
+        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::getDistance);
+        return sectionsToRoute(sections);
     }
 
     /**
@@ -315,5 +316,42 @@ public final class Map {
         }
         Collections.reverse(orderedPath);
         return orderedPath;
+    }
+
+    private LinkedList<Section> sectionsToRoute(LinkedList<Section> sections) {
+        if (sections == null || sections.isEmpty())
+            return sections;
+
+        LinkedList<Section> route = new LinkedList<>();
+        Section first = sections.getFirst();
+
+        Station start = first.getStart();
+        Station arrival = first.getArrival();
+        String line = first.getLine();
+        Time time = first.getTime();
+        double distance = first.getDistance();
+        int duration = first.getDuration();
+
+        for (Section s : sections) {
+            if (line.equals(s.getLine())) {
+                arrival = s.getArrival();
+                distance += s.getDistance();
+                duration += s.getDuration();
+            } else {
+                Section toAdd = new Section(start, arrival, line, distance, duration);
+                toAdd.setTime(time);
+                route.addLast(toAdd);
+                start = s.getStart();
+                arrival = s.getArrival();
+                line = s.getLine();
+                time = s.getTime();
+                distance = s.getDistance();
+                duration = s.getDuration();
+            }
+        }
+        Section toAdd = new Section(start, arrival, line, distance, duration);
+        toAdd.setTime(time);
+        route.addLast(toAdd);
+        return route;
     }
 }
