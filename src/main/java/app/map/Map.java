@@ -130,14 +130,16 @@ public final class Map {
     private void addSection(Station start, Station arrival, double distance, int duration, String lineName)
             throws IndexOutOfBoundsException, NumberFormatException {
         // création de la section
-        String[] lineVariant = lineName.split(" ");
-        String name = lineVariant[0];
-        int variant = Integer.parseInt(lineVariant[2]);
-        Section section = new Section(start, arrival, name, distance, duration);
+        Section section = new Section(start, arrival, lineName, distance, duration);
         // ajout dans map
         map.get(start.name()).add(section);
         // ajout dans lines
-        Line line = lines.computeIfAbsent(name, n -> new Line(n, variant));
+        Line line = lines.computeIfAbsent(lineName, n -> {
+            String[] lineVariant = n.split(" ");
+            String name = lineVariant[0];
+            String variant = lineVariant[2];
+            return new Line(name, variant);
+        });
         line.addSection(section);
     }
 
@@ -327,13 +329,13 @@ public final class Map {
 
         Station start = first.getStart();
         Station arrival = first.getArrival();
-        String line = first.getLine();
+        String line = lines.get(first.getLine()).getName();
         Time time = first.getTime();
         double distance = first.getDistance();
         int duration = first.getDuration();
 
         for (Section s : sections) {
-            if (line.equals(s.getLine())) {
+            if (line.equals(lines.get(s.getLine()).getName())) {
                 arrival = s.getArrival();
                 distance += s.getDistance();
                 duration += s.getDuration();
@@ -343,7 +345,7 @@ public final class Map {
                 route.addLast(toAdd);
                 start = s.getStart();
                 arrival = s.getArrival();
-                line = s.getLine();
+                line = lines.get(s.getLine()).getName();
                 time = s.getTime();
                 distance = s.getDistance();
                 duration = s.getDuration();

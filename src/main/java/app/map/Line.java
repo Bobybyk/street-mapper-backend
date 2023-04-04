@@ -10,14 +10,14 @@ import java.util.Optional;
 public final class Line {
 
     public static class StartStationNotFoundException extends Exception {
-        public StartStationNotFoundException(String station, String line, int variant) {
-            super(String.format("La station %s n'est pas sur la ligne %s variant %d", station, line, variant));
+        public StartStationNotFoundException(String station, String line, String variant) {
+            super(String.format("La station %s n'est pas sur la ligne %s variant %s", station, line, variant));
         }
     }
 
     public static class DifferentStartException extends Exception {
-        public DifferentStartException(String line, int variant, String s1, String s2) {
-            super(String.format("Il y plusieurs stations de départ pour la ligne %s variant %d : %s et %s", line,
+        public DifferentStartException(String line, String variant, String s1, String s2) {
+            super(String.format("Il y plusieurs stations de départ pour la ligne %s variant %s : %s et %s", line,
                     variant, s1, s2));
         }
     }
@@ -27,9 +27,9 @@ public final class Line {
      */
     private final String name;
     /**
-     * La variant de la ligne
+     * Le variant de la ligne
      */
-    private final int variant;
+    private final String variant;
     /**
      * La section de départ
      */
@@ -48,9 +48,9 @@ public final class Line {
      * Créer une nouvelle ligne vide.
      *
      * @param name    le nom de la ligne
-     * @param variant le numéro du variant
+     * @param variant le nom du variant
      */
-    public Line(String name, int variant) {
+    public Line(String name, String variant) {
         if (name == null)
             throw new IllegalArgumentException();
         this.name = name;
@@ -86,6 +86,10 @@ public final class Line {
             if (!actual.equals(stationName))
                 throw new DifferentStartException(name, variant, actual, stationName);
         }
+    }
+
+    public String getName() {
+        return name;
     }
 
     /**
