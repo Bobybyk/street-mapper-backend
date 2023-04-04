@@ -4,9 +4,12 @@
 package app;
 
 import app.map.Map;
+import app.server.Server;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.UnknownHostException;
 
 public class App {
 
@@ -16,6 +19,7 @@ public class App {
     private final static String errorIllegalArgument = "[Erreur] Arguments invalides. Arguments Attendus : java App <file>";
     private final static String errorFileNotExist = "[Erreur] Fichier introuvable ou est un repertoire";
     private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
+    private final static String errorServeurStart = "[Erreur] Le serveur n'a pas demarré";
 
 
     private final static String succesMapCreate = "Object Map crée avec succes ";
@@ -45,10 +49,14 @@ public class App {
                try {
                    map = new Map(file.getPath());
                    System.out.println(succesMapCreate);
+                   final Server server = new Server("localhost", 12345);
+                   server.start();
                } catch (FileNotFoundException e) {
                    print(errorFileNotExist);
                } catch (Map.IncorrectFileFormatException e) {
                    print(errorIncorrectFile);
+               } catch (IOException e) {
+                   print(errorServeurStart);
                }
            }
        }

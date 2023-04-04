@@ -54,16 +54,21 @@ class RequestHandler implements Runnable {
     /**
      * Lit le contenu du socket
      *
-     * @param clientSocket Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private void handleClient(Socket clientSocket) throws IOException {
+    private void handleClient() throws IOException {
         InputStream inputStream = clientSocket.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
         String message = in.readLine();
 
+      //  System.out.println("RECEPTION" + message);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (message != null)
-            handleLine(message, clientSocket);
+            handleLine(message);
 
     }
 
@@ -71,10 +76,9 @@ class RequestHandler implements Runnable {
      * Execute l'action en fonction requête lu dans la chaine de caractère
      *
      * @param clientLine   Ligne (chaine de caractere) lue dans le sockets
-     * @param clientSocket Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private void handleLine(String clientLine, Socket clientSocket) throws IOException {
+    private void handleLine(String clientLine) throws IOException {
         String[] splittedLine = clientLine.split(charSplitter);
         // Pour l'instant assumer que tout va bien niveau formattage
         String clientRequest = splittedLine[0];
@@ -82,7 +86,7 @@ class RequestHandler implements Runnable {
         if (callback == null) {
             new ErrorServer("Serveur erreur");
         } else {
-            callback.execute(clientLine, clientSocket);
+            callback.execute(clientLine, this.clientSocket);
         }
     }
 
@@ -102,16 +106,21 @@ class RequestHandler implements Runnable {
             System.out.println(errorTrajetManquant);
             outStream.writeObject(new ErrorServer(errorTrajetManquant));
             outStream.flush();
+            System.out.println("TRAJET PAS BON" );
         } else {
             try {
                 Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
                 outStream.writeObject(trajet);
                 outStream.flush();
+                System.out.println("TRAJET" );
+
             } catch (Map.PathNotFoundException e) {
                 final String errorTrajetInexistant = "[Erreur-serveur] Trajet inexistant.";
                 System.out.println(errorTrajetInexistant);
                 outStream.writeObject(new ErrorServer(errorTrajetInexistant));
                 outStream.flush();
+                System.out.println("ERREUR" );
+
             }
         }
     }
@@ -121,7 +130,7 @@ class RequestHandler implements Runnable {
     public void run() {
         try {
             while (true) {
-                handleClient(clientSocket);
+                handleClient();
             }
         } catch (IOException e) {
             try {
