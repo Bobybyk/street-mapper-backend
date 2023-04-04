@@ -133,7 +133,7 @@ public final class Map {
         // création de la section
         String[] lineVariant = lineName.split(" ");
         String name = lineVariant[0];
-        int variant = Integer.parseInt(lineVariant[2]);
+        String variant = lineVariant[2];
         Section section = new Section(start, arrival, distance, duration);
         // ajout dans map
         map.get(start).addSection(section);
