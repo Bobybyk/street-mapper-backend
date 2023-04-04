@@ -133,7 +133,7 @@ public final class Map {
         String[] lineVariant = lineName.split(" ");
         String name = lineVariant[0];
         int variant = Integer.parseInt(lineVariant[2]);
-        Section section = new Section(start, arrival, distance, duration);
+        Section section = new Section(start, arrival, name, distance, duration);
         // ajout dans map
         map.get(start.name()).add(section);
         // ajout dans lines
@@ -254,7 +254,7 @@ public final class Map {
             throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        return dijkstra(startStation, arrivalStation, Section::distance);
+        return dijkstra(startStation, arrivalStation, Section::getDistance);
     }
 
     /**
@@ -287,7 +287,7 @@ public final class Map {
         String u = null;
         while (!queue.isEmpty() && (!arrival.equals(u = queue.poll()))) {
             for (Section section : map.get(u)) {
-                String v = section.arrival().name();
+                String v = section.getArrival().name();
                 double w = distance.get(u) + f.applyAsDouble(section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
@@ -311,7 +311,7 @@ public final class Map {
             if (section == null)
                 throw new PathNotFoundException();
             orderedPath.add(section);
-            previous = section.start().name();
+            previous = section.getStart().name();
         }
         Collections.reverse(orderedPath);
         return orderedPath;
