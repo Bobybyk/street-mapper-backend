@@ -35,7 +35,7 @@ public final class Map {
      * Map où chaque station est associée aux sections dont le départ est cette
      * station
      */
-    private final HashMap<Station, Connection> map = new HashMap<>();
+    private final HashMap<String, ArrayList<Section>> map = new HashMap<>();
     /**
      * Map où chaque nom (avec variant) de ligne est associée sa ligne
      */
@@ -96,8 +96,7 @@ public final class Map {
     }
 
     /**
-     * Retourne la station correspondant au nom et aux coordonnées. La créer si elle
-     * n'existe pas.
+     * Retourne la station correspondant au nom et aux coordonnées.
      *
      * @param station le nom de la station
      * @param coord   les coordonnées de la station séparées par une virgule
@@ -112,8 +111,8 @@ public final class Map {
         double x = Double.parseDouble(coords[0]);
         double y = Double.parseDouble(coords[1]);
         Station s = new Station(station, x, y);
-        Connection connection = map.computeIfAbsent(s, Connection::new);
-        return connection.getStation();
+        map.putIfAbsent(station, new ArrayList<>());
+        return s;
     }
 
     /**
@@ -136,7 +135,7 @@ public final class Map {
         int variant = Integer.parseInt(lineVariant[2]);
         Section section = new Section(start, arrival, distance, duration);
         // ajout dans map
-        map.get(start).addSection(section);
+        map.get(start.name()).add(section);
         // ajout dans lines
         Line line = lines.computeIfAbsent(name, n -> new Line(n, variant));
         line.addSection(section);
@@ -223,7 +222,7 @@ public final class Map {
     // l.addDepartureTime(hour, minute);
     // }
 
-    public HashMap<Station, Connection> getMap() {
+    public HashMap<String, ArrayList<Section>> getMap() {
         return new HashMap<>(map);
     }
 
@@ -242,19 +241,6 @@ public final class Map {
     }
 
     /**
-     * @param station un nom de station
-     * @return l'ensemble des stations ayant ce nom
-     */
-    private ArrayList<Station> getStationFromName(String station) {
-        ArrayList<Station> stations = new ArrayList<>();
-        for (Station s : map.keySet()) {
-            if (s.name().equals(station))
-                stations.add(s);
-        }
-        return stations;
-    }
-
-    /**
      * Calcule un trajet entre 2 stations et renvoie la liste des sections du trajet
      *
      * @param start   le nom de la station de départ
@@ -268,16 +254,7 @@ public final class Map {
             throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        ArrayList<Station> arrivals = getStationFromName(arrivalStation);
-        if (arrivals.isEmpty())
-            throw new PathNotFoundException(startStation, arrivalStation);
-        for (Station start : getStationFromName(startStation)) {
-            try {
-                return dijkstra(start, arrivals, Section::distance);
-            } catch (PathNotFoundException ignored) {
-            }
-        }
-        throw new PathNotFoundException(startStation, arrivalStation);
+        return dijkstra(startStation, arrivalStation, Section::distance);
     }
 
     /**
@@ -293,24 +270,24 @@ public final class Map {
      * @throws PathNotFoundException si il n'existe pas de trajet entre les deux
      *                               stations
      */
-    private LinkedList<Section> dijkstra(Station start, ArrayList<Station> arrivals, ToDoubleFunction<Section> f)
+    private LinkedList<Section> dijkstra(String start, String arrival, ToDoubleFunction<Section> f)
             throws PathNotFoundException {
-        HashMap<Station, Double> distance = new HashMap<>();
-        HashMap<Station, Section> previous = new HashMap<>();
-        for (Station station : map.keySet()) {
+        HashMap<String, Double> distance = new HashMap<>();
+        HashMap<String, Section> previous = new HashMap<>();
+        for (String station : map.keySet()) {
             distance.put(station, Double.MAX_VALUE);
             previous.put(station, null);
         }
 
         distance.put(start, 0.);
-        PriorityQueue<Station> queue = new PriorityQueue<>(map.size(),
+        PriorityQueue<String> queue = new PriorityQueue<>(map.size(),
                 Comparator.comparingDouble(distance::get));
         queue.addAll(map.keySet());
 
-        Station u = null;
-        while (!queue.isEmpty() && (!arrivals.contains(u = queue.poll()))) {
-            for (Section section : map.get(u).getSections()) {
-                Station v = section.arrival();
+        String u = null;
+        while (!queue.isEmpty() && (!arrival.equals(u = queue.poll()))) {
+            for (Section section : map.get(u)) {
+                String v = section.arrival().name();
                 double w = distance.get(u) + f.applyAsDouble(section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
@@ -320,21 +297,21 @@ public final class Map {
                 }
             }
         }
-        if (!arrivals.contains(u))
+        if (!arrival.equals(u))
             throw new PathNotFoundException();
         return dijkstraResultToList(previous, start, u);
     }
 
-    private LinkedList<Section> dijkstraResultToList(HashMap<Station, Section> path, Station start, Station arrival)
+    private LinkedList<Section> dijkstraResultToList(HashMap<String, Section> path, String start, String arrival)
             throws PathNotFoundException {
         LinkedList<Section> orderedPath = new LinkedList<>();
-        Station previous = arrival;
-        while (previous != start) {
+        String previous = arrival;
+        while (!previous.equals(start)) {
             Section section = path.get(previous);
             if (section == null)
                 throw new PathNotFoundException();
             orderedPath.add(section);
-            previous = section.start();
+            previous = section.start().name();
         }
         Collections.reverse(orderedPath);
         return orderedPath;
