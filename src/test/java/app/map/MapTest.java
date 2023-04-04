@@ -120,8 +120,6 @@ public class MapTest {
             PathNotFoundException {
         Map map = new Map(getPath(MAP_DATA_ALL));
         LinkedList<Section> trajet = map.findPathDistOpt(start, arrival);
-        for (Section s : trajet)
-            System.out.println(s);
         assertEquals(nbLine, trajet.size(), start + " to " + arrival);
     }
 
