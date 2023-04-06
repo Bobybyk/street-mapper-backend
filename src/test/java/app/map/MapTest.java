@@ -17,6 +17,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import app.map.Map.IncorrectFileFormatException;
 import app.map.Map.PathNotFoundException;
 
+import app.map.Map.UndefinedLineException;
+import app.map.Line.StartStationNotFoundException;
+import app.map.Line.DifferentStartException;
+
 public class MapTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
@@ -24,6 +28,8 @@ public class MapTest {
     private static final String MAP_DATA_ALL = "map_data_all";
 
     private String getPath(String filename) {
+        if (filename == null)
+            return null;
         return "src/test/resources/" + filename + ".csv";
     }
 
@@ -159,4 +165,30 @@ public class MapTest {
             PathNotFoundException {
         findPathHelper("Bercy", "Parmentier", 4);
     }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void addTimeToLines()
+        throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException, 
+        UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+
+        Map map = new Map(getPath(MAP_DATA_ALL));
+        map.addTime(getPath("smallTimetables"));
+        assertEquals(15,map.getLines().get("5 variant 2").getDepartures().size(), "nombre de départ de cette ligne");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void nullFileNameTime() throws FileNotFoundException, IncorrectFileFormatException {
+        Map map = new Map(getPath("map_data"));
+        assertThrows(IllegalArgumentException.class, () -> map.addTime(getPath(null)), "null file name");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void notFoundFileTime() throws FileNotFoundException, IncorrectFileFormatException {
+        Map map = new Map(getPath("map_data"));
+        assertThrows(FileNotFoundException.class, () -> map.addTime(getPath("test")), "File not found");
+    }
+
 }
