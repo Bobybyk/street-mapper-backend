@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 
 import app.App;
@@ -26,12 +27,21 @@ class RequestHandler implements Runnable {
     private static final String ROUTE_KEY = "ROUTE";
 
     /**
+     * Nom de la commande correspondant la recherche de stations par leur nom.
+     * 
+     * <p>
+     * Command structure: SEARCH;nom de station
+     */
+    private static final String SEARCH_KEY = "SEARCH";
+
+    /**
      * Ensemble des couples mot-clef actions a exécuter
      *
      * @see ServerActionCallback
      */
     private static final java.util.Map<String, ServerActionCallback> requestActions = java.util.Map.of(
-            ROUTE_KEY, RequestHandler::handleRouteRequest
+            ROUTE_KEY, RequestHandler::handleRouteRequest,
+            SEARCH_KEY, RequestHandler::handleSearchRequest
     );
 
     /**
@@ -52,23 +62,32 @@ class RequestHandler implements Runnable {
     }
 
     /**
+     * Forme un message d'erreur
+     * @param reason Message decrivant le message l'erreur
+     * @return
+     */
+    private static String errorMessageFormat(String reason) {
+        return String.format("[Erreur-serveur] %s", reason);
+    }
+
+    /**
      * Lit le contenu du socket
      *
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private void handleClient() throws IOException {
+    private Serializable handleClient() throws IOException {
         InputStream inputStream = clientSocket.getInputStream();
         BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
         String message = in.readLine();
 
-      //  System.out.println("RECEPTION" + message);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         if (message != null)
-            handleLine(message);
+            return handleLine(message);
+        return null;
 
     }
 
@@ -78,18 +97,16 @@ class RequestHandler implements Runnable {
      * @param clientLine   Ligne (chaine de caractere) lue dans le sockets
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private void handleLine(String clientLine) throws IOException {
+    private Serializable handleLine(String clientLine) throws IOException {
         String[] splittedLine = clientLine.split(charSplitter);
-        // Pour l'instant assumer que tout va bien niveau formattage
         String clientRequest = splittedLine[0];
         ServerActionCallback callback = requestActions.get(clientRequest);
         if (callback == null) {
-            new ErrorServer("Serveur erreur");
+            return new ErrorServer("Serveur erreur");
         } else {
-            callback.execute(clientLine, this.clientSocket);
+            return callback.execute(clientLine);
         }
     }
-
     /**
      * Gere la reponse du renvoie d'un trajet au client
      *
@@ -97,32 +114,40 @@ class RequestHandler implements Runnable {
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private static void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
+    private static Serializable handleRouteRequest(String inputLine) throws IOException {
         String[] tabLine = inputLine.split(charSplitter);
-        ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
 
         if (tabLine.length != 3) {
-            final String errorTrajetManquant = "[Erreur-serveur] Trajet départ ou arrivé manquant.";
-            System.out.println(errorTrajetManquant);
-            outStream.writeObject(new ErrorServer(errorTrajetManquant));
-            outStream.flush();
-            System.out.println("TRAJET PAS BON" );
+            System.out.println("TRAJET PAS BON");
+            final String errorTrajetManquant = errorMessageFormat("Trajet départ ou arrivé manquant.");
+            return new ErrorServer(errorTrajetManquant);
         } else {
             try {
                 Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
-                outStream.writeObject(trajet);
-                outStream.flush();
-                System.out.println("TRAJET" );
+                System.out.println("TRAJET");
+                return trajet;
 
             } catch (Map.PathNotFoundException e) {
-                final String errorTrajetInexistant = "[Erreur-serveur] Trajet inexistant.";
+                final String errorTrajetInexistant = errorMessageFormat("Trajet inexistant.");
                 System.out.println(errorTrajetInexistant);
-                outStream.writeObject(new ErrorServer(errorTrajetInexistant));
-                outStream.flush();
-                System.out.println("ERREUR" );
-
+                System.out.println("ERREUR");
+                return new ErrorServer(errorTrajetInexistant);
             }
         }
+    }
+
+
+    private static Serializable handleSearchRequest(String inputLine) throws IOException {
+        String[] inputSplitted = inputLine.split(charSplitter);
+        if ( inputSplitted.length < 2 || inputSplitted[1].isBlank() ) {
+            final String errorMissingSearchStation = errorMessageFormat("Station manquante ou vide");
+            System.out.println("TRAJET PAS BON");
+            return new ErrorServer(errorMissingSearchStation);
+        }
+
+        String stationToSearch = inputSplitted[1].trim();
+        // Chercher dans la map
+        return null;
     }
 
     // Implement Runnable
@@ -130,12 +155,17 @@ class RequestHandler implements Runnable {
     public void run() {
         try {
             while (true) {
-                handleClient();
+                Serializable s = handleClient();
+                if (s != null) {
+                    ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
+                    outStream.writeObject(s);
+                    outStream.flush();
+                }
             }
         } catch (IOException e) {
             try {
                 clientSocket.close();
-            } catch (IOException _exception) {
+            } catch (IOException ignore) {
                 System.out.println("Erreur @run REQQUESTHANDLER");
             }
         }

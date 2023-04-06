@@ -1,7 +1,7 @@
 package app.server;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.io.Serializable;
 
 /**
  * l'Interface {@code ServerActionCallback} doit etre implémenté par l'importe quel objet dont la volonté 
@@ -16,5 +16,5 @@ public interface ServerActionCallback {
      * @param socket       Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public void execute(String s, Socket socket) throws IOException;
+    public Serializable execute(String s) throws IOException;
 }
