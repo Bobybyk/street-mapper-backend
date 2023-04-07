@@ -2,7 +2,6 @@ package app.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -55,10 +54,16 @@ class RequestHandler implements Runnable {
     private final Socket clientSocket;
 
     /**
+     * Un liseur de stream associé au {@code InputStream} du {@code clientSocket}
+     */
+    private InputStreamReader clientInputStreamReader;
+
+    /**
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      */
-    RequestHandler(Socket clientSocket) {
+    RequestHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
+        this.clientInputStreamReader = new InputStreamReader(clientSocket.getInputStream());
     }
 
     /**
@@ -76,8 +81,7 @@ class RequestHandler implements Runnable {
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     private Serializable handleClient() throws IOException {
-        InputStream inputStream = clientSocket.getInputStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+        BufferedReader in = new BufferedReader(clientInputStreamReader);
         String message = in.readLine();
 
         try {
@@ -85,10 +89,10 @@ class RequestHandler implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if (message != null)
-            return handleLine(message);
-        return null;
+        if (message == null)
+           return new ErrorServer(errorMessageFormat("Message est null"));
 
+        return handleLine(message);
     }
 
     /**
@@ -111,7 +115,6 @@ class RequestHandler implements Runnable {
      * Gere la reponse du renvoie d'un trajet au client
      *
      * @param inputLine entrée de l'utilisateur
-     * @param clientSocket Socket sur lequel la réponse sera envoyée
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     private static Serializable handleRouteRequest(String inputLine) throws IOException {
@@ -156,11 +159,9 @@ class RequestHandler implements Runnable {
         try {
             while (true) {
                 Serializable s = handleClient();
-                if (s != null) {
-                    ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
-                    outStream.writeObject(s);
-                    outStream.flush();
-                }
+                ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
+                outStream.writeObject(s);
+                outStream.flush();
             }
         } catch (IOException e) {
             try {
