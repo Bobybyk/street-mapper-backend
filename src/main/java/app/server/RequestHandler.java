@@ -111,6 +111,7 @@ class RequestHandler implements Runnable {
             return callback.execute(clientLine);
         }
     }
+
     /**
      * Gere la reponse du renvoie d'un trajet au client
      *
@@ -139,7 +140,12 @@ class RequestHandler implements Runnable {
         }
     }
 
-
+    /**
+     * Gere la reponse du pour la sugestion de station en fonction du nom
+     * 
+     * @param inputLine ligne envoyé par le client
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     */
     private static Serializable handleSearchRequest(String inputLine) throws IOException {
         String[] inputSplitted = inputLine.split(charSplitter);
         if ( inputSplitted.length < 2 || inputSplitted[1].isBlank() ) {
@@ -150,7 +156,7 @@ class RequestHandler implements Runnable {
 
         String stationToSearch = inputSplitted[1].trim();
         // Chercher dans la map
-        return null;
+        return new ErrorServer(errorMessageFormat("SEARCH Pas encore implemenete"));
     }
 
     // Implement Runnable

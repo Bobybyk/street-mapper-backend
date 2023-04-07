@@ -13,6 +13,7 @@ public interface ServerActionCallback {
     /**
      * 
      * @param s            Ligne (chaine de caractere) lue dans le sockets 
+     * @return             L'objet {@code Serializable} à renvoyer au client
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     public Serializable execute(String s) throws IOException;
