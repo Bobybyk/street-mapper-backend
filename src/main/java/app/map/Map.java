@@ -2,17 +2,9 @@ package app.map;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.text.Collator;
+import java.util.*;
 import java.util.function.ToDoubleFunction;
-
-import app.map.Line.DifferentStartException;
-import app.map.Line.StartStationNotFoundException;
 
 /**
  * Classe représentant la carte
@@ -35,11 +27,11 @@ public final class Map {
      * Map où chaque station est associée aux sections dont le départ est cette
      * station
      */
-    private final HashMap<String, ArrayList<Section>> map = new HashMap<>();
+    private final TreeMap<String, ArrayList<Section>> map;
     /**
      * Map où chaque nom (avec variant) de ligne est associée sa ligne
      */
-    private final HashMap<String, Line> lines = new HashMap<>();
+    private final TreeMap<String, Line> lines;
 
     /**
      * Créer une map à partir d'un fichier CSV contenant les sections des lignes du
@@ -55,6 +47,13 @@ public final class Map {
         if (mapFileName == null)
             throw new IllegalArgumentException();
         parseMap(mapFileName);
+    }
+
+    {
+        final Collator instance = Collator.getInstance();
+        instance.setStrength(Collator.PRIMARY);
+        map = new TreeMap<>(instance);
+        lines = new TreeMap<>(instance);
     }
 
     /**
@@ -123,7 +122,7 @@ public final class Map {
      * @param arrival  la station d'arrivé
      * @param distance la distance entre les deux stations
      * @param duration la durée du trajet entre les deux stations
-     * @param line     le nom et le variant de la ligne
+     * @param lineName le nom et le variant de la ligne
      * @throws IndexOutOfBoundsException si le nom de la ligne est mal formé
      * @throws NumberFormatException     si le variant n'est pas un nombre
      */
@@ -143,7 +142,7 @@ public final class Map {
         line.addSection(section);
     }
 
-    /**
+    /*
      * Parse un fichier CSV contenant les horaires de départ des lignes du réseau.
      *
      * @param fileName le nom du fichier à parser
@@ -175,7 +174,7 @@ public final class Map {
     // }
     // }
 
-    /**
+    /*
      * Parse une ligne d'un fichier CSV contenant un horaire de départ d'une ligne
      * du réseau.
      *
@@ -199,7 +198,7 @@ public final class Map {
     // addDepartureTime(line, stationName, hour, minute);
     // }
 
-    /**
+    /*
      * Ajoute l'horaire de départ et le section de départ à la ligne si elle n'a pas
      * été déjà déterminée
      *
@@ -232,7 +231,7 @@ public final class Map {
         return new HashMap<>(lines);
     }
 
-    public class PathNotFoundException extends Exception {
+    public static class PathNotFoundException extends Exception {
         public PathNotFoundException(String start, String arrival) {
             super(String.format("Pas de chemin trouvé entre %s et %s", start, arrival));
         }
@@ -245,8 +244,8 @@ public final class Map {
     /**
      * Calcule un trajet entre 2 stations et renvoie la liste des sections du trajet
      *
-     * @param start   le nom de la station de départ
-     * @param arrival le nom de la station d'arrivé
+     * @param startStation   le nom de la station de départ
+     * @param arrivalStation le nom de la station d'arrivé
      * @return la liste des sections du trajet
      * @throws IllegalArgumentException si start ou arrival est `null`
      * @throws PathNotFoundException    si il n'existe pas de trajet entre les deux
@@ -275,8 +274,10 @@ public final class Map {
      */
     private LinkedList<Section> dijkstra(String start, String arrival, ToDoubleFunction<Section> f)
             throws PathNotFoundException {
-        HashMap<String, Double> distance = new HashMap<>();
-        HashMap<String, Section> previous = new HashMap<>();
+        final Collator instance = Collator.getInstance();
+        instance.setStrength(Collator.PRIMARY);
+        TreeMap<String, Double> distance = new TreeMap<>(instance);
+        TreeMap<String, Section> previous = new TreeMap<>(instance);
         for (String station : map.keySet()) {
             distance.put(station, Double.MAX_VALUE);
             previous.put(station, null);
@@ -288,7 +289,7 @@ public final class Map {
         queue.addAll(map.keySet());
 
         String u = null;
-        while (!queue.isEmpty() && (!arrival.equals(u = queue.poll()))) {
+        while (!queue.isEmpty() && (!(instance.compare(arrival, (u = queue.poll()))==0)/*arrival.equals(u = queue.poll())*/)) {
             for (Section section : map.get(u)) {
                 String v = section.getArrival().name();
                 double w = distance.get(u) + f.applyAsDouble(section);
@@ -300,16 +301,18 @@ public final class Map {
                 }
             }
         }
-        if (!arrival.equals(u))
+        if (!(instance.compare(arrival, u)==0))
             throw new PathNotFoundException();
         return dijkstraResultToList(previous, start, u);
     }
 
-    private LinkedList<Section> dijkstraResultToList(HashMap<String, Section> path, String start, String arrival)
+    private LinkedList<Section> dijkstraResultToList(TreeMap<String, Section> path, String start, String arrival)
             throws PathNotFoundException {
         LinkedList<Section> orderedPath = new LinkedList<>();
         String previous = arrival;
-        while (!previous.equals(start)) {
+        final Collator instance = Collator.getInstance();
+        instance.setStrength(Collator.PRIMARY);
+        while (!(instance.compare(previous, start)==0)) {
             Section section = path.get(previous);
             if (section == null)
                 throw new PathNotFoundException();
