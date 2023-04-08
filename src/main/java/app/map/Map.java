@@ -132,7 +132,7 @@ public final class Map {
         // création de la section
         Section section = new Section(start, arrival, lineName, distance, duration);
         // ajout dans map
-        map.get(start.name()).add(section);
+        map.get(start.getName()).add(section);
         // ajout dans lines
         Line line = lines.computeIfAbsent(lineName, n -> {
             String[] lineVariant = n.split(" ");
@@ -290,7 +290,7 @@ public final class Map {
         String u = null;
         while (!queue.isEmpty() && (!arrival.equals(u = queue.poll()))) {
             for (Section section : map.get(u)) {
-                String v = section.getArrival().name();
+                String v = section.getArrival().getName();
                 double w = distance.get(u) + f.applyAsDouble(section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
@@ -314,7 +314,7 @@ public final class Map {
             if (section == null)
                 throw new PathNotFoundException();
             orderedPath.add(section);
-            previous = section.getStart().name();
+            previous = section.getStart().getName();
         }
         Collections.reverse(orderedPath);
         return orderedPath;
