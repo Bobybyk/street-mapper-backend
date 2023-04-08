@@ -27,6 +27,8 @@ public class MapTest {
 
     private static final String MAP_DATA_ALL = "map_data_all";
 
+    private static final String MAP_TIME_ALL = "map_time_all";
+
     private String getPath(String filename) {
         if (filename == null)
             return null;
@@ -173,7 +175,7 @@ public class MapTest {
         UndefinedLineException, StartStationNotFoundException, DifferentStartException {
 
         Map map = new Map(getPath(MAP_DATA_ALL));
-        map.addTime(getPath("smallTimetables"));
+        map.addTime(getPath("time_data"));
         assertEquals(15,map.getLines().get("5 variant 2").getDepartures().size(), "nombre de départ de cette ligne");
     }
 
@@ -189,6 +191,15 @@ public class MapTest {
     public void notFoundFileTime() throws FileNotFoundException, IncorrectFileFormatException {
         Map map = new Map(getPath("map_data"));
         assertThrows(FileNotFoundException.class, () -> map.addTime(getPath("test")), "File not found");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "time_station_missing", "time_bad_time_format", "time_line_missing" })
+    @Timeout(DEFAULT_TIMEOUT)
+    public void incorrectTimeFileFormat(String filename) throws FileNotFoundException, IncorrectFileFormatException {
+        Map map = new Map(getPath("map_data"));
+        assertThrows(IncorrectFileFormatException.class, () -> map.addTime(getPath(filename)),
+                "Incorrect file format");
     }
 
 }
