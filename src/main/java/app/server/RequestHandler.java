@@ -108,26 +108,24 @@ class RequestHandler implements Runnable {
         if (callback == null) {
             return new ErrorServer("Serveur erreur");
         } else {
-            return callback.execute(clientLine);
+            return callback.execute(splittedLine);
         }
     }
 
     /**
      * Gere la reponse du renvoie d'un trajet au client
      *
-     * @param inputLine entrée de l'utilisateur
+     * @param  inputArgs   entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private static Serializable handleRouteRequest(String inputLine) throws IOException {
-        String[] tabLine = inputLine.split(charSplitter);
-
-        if (tabLine.length != 3) {
+    private static Serializable handleRouteRequest(String[] inputArgs) throws IOException {
+        if (inputArgs.length != 3) {
             System.out.println("TRAJET PAS BON");
             final String errorTrajetManquant = errorMessageFormat("Trajet départ ou arrivé manquant.");
             return new ErrorServer(errorTrajetManquant);
         } else {
             try {
-                Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
+                Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(inputArgs[1], inputArgs[2]));
                 System.out.println("TRAJET");
                 return trajet;
 
@@ -143,18 +141,17 @@ class RequestHandler implements Runnable {
     /**
      * Gere la reponse du pour la sugestion de station en fonction du nom
      * 
-     * @param inputLine ligne envoyé par le client
+     * @param inputLine    entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private static Serializable handleSearchRequest(String inputLine) throws IOException {
-        String[] inputSplitted = inputLine.split(charSplitter);
-        if ( inputSplitted.length < 2 || inputSplitted[1].isBlank() ) {
+    private static Serializable handleSearchRequest(String[] inputArgs) throws IOException {
+        if ( inputArgs.length < 2 || inputArgs[1].isBlank() ) {
             final String errorMissingSearchStation = errorMessageFormat("Station manquante ou vide");
             System.out.println("RECHECHER DE STATION PAS BONNE");
             return new ErrorServer(errorMissingSearchStation);
         }
 
-        String stationToSearch = inputSplitted[1].trim();
+        String stationToSearch = inputArgs[1].trim();
         // Chercher dans la map
         return new ErrorServer(errorMessageFormat("SEARCH Pas encore implemenete"));
     }
