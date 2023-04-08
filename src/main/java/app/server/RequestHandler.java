@@ -76,6 +76,17 @@ class RequestHandler implements Runnable {
     }
 
     /**
+     * Cree un {@code ErrorServer} en formattant {@code reason}
+     * 
+     * @param reason Message decrivant le message l'erreur
+     * 
+     * @see #errorMessageFormat()
+     */
+    private static ErrorServer serverErrorFormatted(String reason) {
+        return new ErrorServer(errorMessageFormat(reason));
+    }
+
+    /**
      * Lit le contenu du socket
      *
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
@@ -90,7 +101,7 @@ class RequestHandler implements Runnable {
             e.printStackTrace();
         }
         if (message == null)
-           return new ErrorServer(errorMessageFormat("Message est null"));
+           return serverErrorFormatted("Message est null");
 
         return handleLine(message);
     }
@@ -106,7 +117,7 @@ class RequestHandler implements Runnable {
         String clientRequest = splittedLine[0];
         ServerActionCallback callback = requestActions.get(clientRequest);
         if (callback == null) {
-            return new ErrorServer("Serveur erreur");
+            return serverErrorFormatted("Serveur erreur");
         } else {
             return callback.execute(splittedLine);
         }
@@ -121,8 +132,7 @@ class RequestHandler implements Runnable {
     private static Serializable handleRouteRequest(String[] inputArgs) throws IOException {
         if (inputArgs.length != 3) {
             System.out.println("TRAJET PAS BON");
-            final String errorTrajetManquant = errorMessageFormat("Trajet départ ou arrivé manquant.");
-            return new ErrorServer(errorTrajetManquant);
+            return serverErrorFormatted("Trajet départ ou arrivé manquant.");
         } else {
             try {
                 Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(inputArgs[1], inputArgs[2]));
@@ -130,10 +140,8 @@ class RequestHandler implements Runnable {
                 return trajet;
 
             } catch (Map.PathNotFoundException e) {
-                final String errorTrajetInexistant = errorMessageFormat("Trajet inexistant.");
-                System.out.println(errorTrajetInexistant);
-                System.out.println("ERREUR");
-                return new ErrorServer(errorTrajetInexistant);
+                System.out.println("ERREUR: Trajet inexistant.");
+                return serverErrorFormatted("Trajet inexistant");
             }
         }
     }
@@ -146,14 +154,13 @@ class RequestHandler implements Runnable {
      */
     private static Serializable handleSearchRequest(String[] inputArgs) throws IOException {
         if ( inputArgs.length < 2 || inputArgs[1].isBlank() ) {
-            final String errorMissingSearchStation = errorMessageFormat("Station manquante ou vide");
-            System.out.println("RECHECHER DE STATION PAS BONNE");
-            return new ErrorServer(errorMissingSearchStation);
+            System.out.println("RECHERCHE DE STATION PAS BONNE");
+            return serverErrorFormatted("Station manquante ou vide");
         }
 
         String stationToSearch = inputArgs[1].trim();
         // Chercher dans la map
-        return new ErrorServer(errorMessageFormat("SEARCH Pas encore implemenete"));
+        return serverErrorFormatted("SEARCH Pas encore implemenete");
     }
 
     // Implement Runnable
