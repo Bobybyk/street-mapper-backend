@@ -11,6 +11,7 @@ import app.App;
 import app.map.Map;
 import app.server.data.ErrorServer;
 import app.server.data.Route;
+import app.server.data.SuggestionStations;
 
 /**
  * Classe réprésentant les réponses du server.
@@ -155,8 +156,11 @@ class RequestHandler implements Runnable {
         }
 
         String stationToSearch = inputSplitted[1].trim();
-        // Chercher dans la map
-        return new ErrorServer(errorMessageFormat("SEARCH Pas encore implemenete"));
+        SuggestionStations suggestions = new SuggestionStations();
+        suggestions.addAll(App.getInstanceOfMap().getStations());
+        suggestions.filterWithPrefix(stationToSearch);
+
+        return suggestions;
     }
 
     // Implement Runnable

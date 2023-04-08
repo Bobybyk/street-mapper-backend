@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.ToDoubleFunction;
 
 import app.map.Line.DifferentStartException;
@@ -40,6 +42,8 @@ public final class Map {
      * Map où chaque nom (avec variant) de ligne est associée sa ligne
      */
     private final HashMap<String, Line> lines = new HashMap<>();
+
+    private final SortedSet<LignedStation> stations = new TreeSet<>();
 
     /**
      * Créer une map à partir d'un fichier CSV contenant les sections des lignes du
@@ -89,6 +93,9 @@ public final class Map {
         Station arrival = parseStation(data[2], data[3]);
         String line = data[4].trim();
         String[] time = data[5].trim().split(":");
+
+        stations.add(new LignedStation(start, line));
+        stations.add(new LignedStation(arrival, line));
         // on suppose que la durée est donnée au format mm:ss
         int duration = Integer.parseInt(time[0]) * 60 + Integer.parseInt(time[1]);
         double distance = Double.parseDouble(data[6].trim());
@@ -125,10 +132,9 @@ public final class Map {
      * @param duration la durée du trajet entre les deux stations
      * @param line     le nom et le variant de la ligne
      * @throws IndexOutOfBoundsException si le nom de la ligne est mal formé
-     * @throws NumberFormatException     si le variant n'est pas un nombre
      */
     private void addSection(Station start, Station arrival, double distance, int duration, String lineName)
-            throws IndexOutOfBoundsException, NumberFormatException {
+            throws IndexOutOfBoundsException {
         // création de la section
         Section section = new Section(start, arrival, lineName, distance, duration);
         // ajout dans map
@@ -230,6 +236,10 @@ public final class Map {
 
     public HashMap<String, Line> getLines() {
         return new HashMap<>(lines);
+    }
+
+    public SortedSet<LignedStation> getStations() {
+        return new TreeSet<>(stations);
     }
 
     public class PathNotFoundException extends Exception {
