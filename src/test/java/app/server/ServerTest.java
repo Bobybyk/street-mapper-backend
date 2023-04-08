@@ -19,7 +19,10 @@ public class ServerTest {
     private static final String ROUTE_REQUEST_WRONG = "ROUTE;GARE1;GARE2";
     private static final String ROUTE_REQUEST_RIGHT = "ROUTE;Pyramides;Bercy";
 
-    private static final String SUGESSTION_CRETEIL = "SEARCH;Créteil";
+    private static final String NULL_REQUEST = null;
+    private static final String EMPTY_REQUEST = "";
+    private static final String SUGGESTION_VALID = "SEARCH;GARE1";
+    private static final String SUGGESTION_EMPTY = "SEARCH; ";
 
     private static final int PORT = 12334;
     private static final int incommingConnection = 3;
@@ -89,21 +92,35 @@ public class ServerTest {
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testWrongQueryRoute() throws IOException, ClassNotFoundException {
+    public void testNullRequest() throws Exception {
+        Object errorServer = sendRequest(NULL_REQUEST);
+        assertTrue(errorServer instanceof ErrorServer);
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    public void testEmptyRequest() throws Exception {
+        Object errorServer = sendRequest(EMPTY_REQUEST);
+        assertTrue(errorServer instanceof ErrorServer);
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    public void testWrongQueryRoute() throws Exception {
         Object serializableRoute = sendRequest(ROUTE_REQUEST_WRONG);
         assertTrue(serializableRoute instanceof ErrorServer);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testQueryRoute() throws IOException, ClassNotFoundException {
+    public void testQueryRoute() throws Exception {
         Object serializableRoute = sendRequest(ROUTE_REQUEST_RIGHT);
         assertTrue(serializableRoute instanceof Route);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testQueryRouteTwice() throws IOException, ClassNotFoundException {
+    public void testQueryRouteTwice() throws Exception {
         Object serializableRoute = sendRequest(ROUTE_REQUEST_RIGHT);
         assertTrue(serializableRoute instanceof Route);
         Object serializableRoute2 = sendRequest(ROUTE_REQUEST_RIGHT);
@@ -128,9 +145,16 @@ public class ServerTest {
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testSuggestion() throws Exception {
-        Object suggestions = sendRequest(SUGESSTION_CRETEIL);
+    public void testValidSuggestion() throws Exception {
+        Object suggestions = sendRequest(SUGGESTION_VALID);
         assertTrue(suggestions instanceof SuggestionStations);
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    public void testEmptySuggestion() throws Exception {
+        Object suggestions = sendRequest(SUGGESTION_EMPTY);
+        assertTrue(suggestions instanceof ErrorServer);
     }
 
 }
