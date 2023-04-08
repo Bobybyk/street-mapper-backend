@@ -150,7 +150,7 @@ class RequestHandler implements Runnable {
         String[] inputSplitted = inputLine.split(charSplitter);
         if ( inputSplitted.length < 2 || inputSplitted[1].isBlank() ) {
             final String errorMissingSearchStation = errorMessageFormat("Station manquante ou vide");
-            System.out.println("TRAJET PAS BON");
+            System.out.println("RECHECHER DE STATION PAS BONNE");
             return new ErrorServer(errorMissingSearchStation);
         }
 
