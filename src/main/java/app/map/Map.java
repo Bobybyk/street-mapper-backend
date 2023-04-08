@@ -94,13 +94,15 @@ public final class Map {
         String line = data[4].trim();
         String[] time = data[5].trim().split(":");
 
-        stations.add(new LignedStation(start, line));
-        stations.add(new LignedStation(arrival, line));
+
 
         // on suppose que la durée est donnée au format mm:ss
         int duration = Integer.parseInt(time[0]) * 60 + Integer.parseInt(time[1]);
         double distance = Double.parseDouble(data[6].trim());
-        addSection(start, arrival, distance, duration, line);
+        Line createdLine = addSection(start, arrival, distance, duration, line);
+
+        stations.add(new LignedStation(start, createdLine.getName()));
+        stations.add(new LignedStation(arrival, createdLine.getName()));
     }
 
     /**
@@ -134,7 +136,7 @@ public final class Map {
      * @param line     le nom et le variant de la ligne
      * @throws IndexOutOfBoundsException si le nom de la ligne est mal formé
      */
-    private void addSection(Station start, Station arrival, double distance, int duration, String lineName)
+    private Line addSection(Station start, Station arrival, double distance, int duration, String lineName)
             throws IndexOutOfBoundsException {
         // création de la section
         Section section = new Section(start, arrival, lineName, distance, duration);
@@ -148,6 +150,7 @@ public final class Map {
             return new Line(name, variant);
         });
         line.addSection(section);
+        return line;
     }
 
     /**

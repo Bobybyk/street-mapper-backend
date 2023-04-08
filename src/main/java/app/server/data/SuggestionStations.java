@@ -23,7 +23,7 @@ public class SuggestionStations implements Serializable {
     public SuggestionStations(String prefixStation, Collection <? extends LignedStation> collection) {
         stations = collection.stream()
         .filter(lignedStation -> 
-            lignedStation.getLine().startsWith(prefixStation)
+            lignedStation.getStationName().startsWith(prefixStation)
         ).collect(Collectors.toSet());
     }
 
