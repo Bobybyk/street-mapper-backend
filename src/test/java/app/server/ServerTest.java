@@ -11,12 +11,15 @@ import app.server.data.ErrorServer;
 import org.junit.jupiter.api.*;
 
 import app.server.data.Route;
+import app.server.data.SuggestionStations;
 
 public class ServerTest {
 
     private static final String HOST = "localhost";
     private static final String ROUTE_REQUEST_WRONG = "ROUTE;GARE1;GARE2";
     private static final String ROUTE_REQUEST_RIGHT = "ROUTE;Pyramides;Bercy";
+
+    private static final String SUGESSTION_CRETEIL = "SEARCH;Créteil";
 
     private static final int PORT = 12334;
     private static final int incommingConnection = 3;
@@ -121,6 +124,13 @@ public class ServerTest {
     public void testWrongQuery() throws Exception {
         Object exception = sendRequest(ROUTE_REQUEST_WRONG);
         assertTrue(exception instanceof ErrorServer);
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    public void testSuggestion() throws Exception {
+        Object suggestions = sendRequest(SUGESSTION_CRETEIL);
+        assertTrue(suggestions instanceof SuggestionStations);
     }
 
 }

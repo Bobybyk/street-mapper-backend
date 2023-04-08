@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Une station associeée à sa ligne
  */
 
-public class LignedStation implements Serializable, Comparable<LignedStation> {
+public class LignedStation implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -24,6 +24,10 @@ public class LignedStation implements Serializable, Comparable<LignedStation> {
     public String getLine() {
         return line;
     }
+    
+    public Station getStation() {
+        return station;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -37,13 +41,5 @@ public class LignedStation implements Serializable, Comparable<LignedStation> {
     @Override
     public String toString() {
         return String.format("ligne : %s, station : %s", line, station.toString());
-    }
-
-    @Override
-    public int compareTo(LignedStation o) {
-        // Trie les lignes par leur nom puis le ligne
-        int nameCompare = this.station.name().compareTo(o.station.name());
-        if (nameCompare != 0) return nameCompare;
-        return this.line.compareTo(o.line);
     }
 }

@@ -156,10 +156,8 @@ class RequestHandler implements Runnable {
         }
 
         String stationToSearch = inputSplitted[1].trim();
-        SuggestionStations suggestions = new SuggestionStations();
-        suggestions.addAll(App.getInstanceOfMap().getStations());
-        suggestions.filterWithPrefix(stationToSearch);
-
+        SuggestionStations suggestions = new SuggestionStations(stationToSearch, App.getInstanceOfMap().getStations() );
+        
         return suggestions;
     }
 

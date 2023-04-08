@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Set;
 import java.util.function.ToDoubleFunction;
 
 import app.map.Line.DifferentStartException;
@@ -43,7 +43,7 @@ public final class Map {
      */
     private final HashMap<String, Line> lines = new HashMap<>();
 
-    private final SortedSet<LignedStation> stations = new TreeSet<>();
+    private final HashSet<LignedStation> stations = new HashSet<>();
 
     /**
      * Créer une map à partir d'un fichier CSV contenant les sections des lignes du
@@ -96,6 +96,7 @@ public final class Map {
 
         stations.add(new LignedStation(start, line));
         stations.add(new LignedStation(arrival, line));
+
         // on suppose que la durée est donnée au format mm:ss
         int duration = Integer.parseInt(time[0]) * 60 + Integer.parseInt(time[1]);
         double distance = Double.parseDouble(data[6].trim());
@@ -238,8 +239,8 @@ public final class Map {
         return new HashMap<>(lines);
     }
 
-    public SortedSet<LignedStation> getStations() {
-        return new TreeSet<>(stations);
+    public Set<LignedStation> getStations() {
+        return new HashSet<>(stations);
     }
 
     public class PathNotFoundException extends Exception {
