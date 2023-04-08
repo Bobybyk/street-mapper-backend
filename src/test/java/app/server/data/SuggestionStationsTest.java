@@ -17,6 +17,7 @@ public class SuggestionStationsTest {
 
     private static final String SUGESS_CRET = "Crét";
     private static final String SUGESS_CHATELET = "Châtelet";
+    private static final String SUGESS_GARE = "Gare de";
     private static final int DEFAULT_TIMEOUT = 2000;
 
     private static final String MAP_DATA_ALL = "map_data_all";
@@ -60,6 +61,23 @@ public class SuggestionStationsTest {
         LignedStation chatelet1 = createStation("Châtelet", "1");
         
         List<LignedStation> expected = Arrays.asList(chatelet1, chatelet4, chatelet7, chatelet11, chatelet14);
+        assertTrue(set.size() == 5 && set.containsAll(expected));
+    }
+
+    @Test
+    @Timeout(value = DEFAULT_TIMEOUT)
+    public void testGareDe() throws Exception {
+        SuggestionStations s = createSuggestionStations(SUGESS_GARE);
+        Set<LignedStation> set = s.getStations();
+
+        var gareDeEst4 = createStation("Gare de l'Est", "4");
+        var gareDeEst5 = createStation("Gare de l'Est", "5");
+        var gareDeEst7 = createStation("Gare de l'Est", "7");
+
+        var gareDeLyon1 = createStation("Gare de Lyon", "1");
+        var gareDeLyon14 = createStation("Gare de Lyon", "14");
+
+        List<LignedStation> expected = Arrays.asList(gareDeEst4, gareDeEst5, gareDeEst7, gareDeLyon1, gareDeLyon14);
         assertTrue(set.size() == 5 && set.containsAll(expected));
     }
 
