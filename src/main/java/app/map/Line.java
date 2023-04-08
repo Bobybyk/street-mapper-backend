@@ -109,6 +109,13 @@ public final class Line {
     }
 
     /**
+     * @return l'attribut de type HashMap sections
+     */
+    public HashMap<Section, Integer> getSectionsMap() {
+        return sections;
+    }
+
+    /**
      * Ajoute une section à la ligne.
      * La durée entre la section et la section de départ est initialisée à -1.
      *
@@ -137,5 +144,24 @@ public final class Line {
 
     public ArrayList<Time> getDepartures() {
         return new ArrayList<>(departures);
+    }
+
+    public void updateSectionsTime() {
+        if (start == null)
+            return;
+        Section curentSection = start;
+        sections.put(start,start.getDuration());
+        int curentTime = curentSection.getDuration();
+        int nbSections = sections.size();
+        int nbSectionDone = 0;
+        while (nbSectionDone < nbSections) {
+            for (Section s : getSections()) {
+                if (s.getStart().name().equals(curentSection.getArrival().name())) {
+                    sections.put(s, sections.get(curentSection)+s.getDuration());
+                    curentSection = s;
+                }
+                nbSectionDone++;
+            }
+        }
     }
 }
