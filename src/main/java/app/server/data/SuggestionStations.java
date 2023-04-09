@@ -2,6 +2,7 @@ package app.server.data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,9 +22,21 @@ public class SuggestionStations implements Serializable {
     private Set<LignedStation> stations;
 
     public SuggestionStations(String prefixStation, Collection <? extends LignedStation> collection) {
+        Collator insenstiveStringComparator = Collator.getInstance();
+        insenstiveStringComparator.setStrength(Collator.PRIMARY);
+
         stations = collection.stream()
-        .filter(lignedStation -> 
-            lignedStation.getStationName().startsWith(prefixStation)
+        .filter(lignedStation ->
+            insenstiveStringComparator.compare(
+                lignedStation.getStationName().substring(
+                    0,
+                    Math.min(
+                        lignedStation.getStationName().length(),
+                        prefixStation.length()
+                    )
+                ),
+                prefixStation
+            ) == 0
         ).collect(Collectors.toSet());
     }
 
