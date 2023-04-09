@@ -159,4 +159,12 @@ public class MapTest {
             PathNotFoundException {
         findPathHelper("Bercy", "Parmentier", 4);
     }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathBMaisonBlancheToPigalle()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathHelper("Maison Blanche", "Pigalle", 5);
+    }
 }

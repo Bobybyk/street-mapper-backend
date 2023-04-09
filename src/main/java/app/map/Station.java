@@ -16,10 +16,14 @@ public class Station implements Serializable {
     }
 
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     public String getName() {
         return name;
+    }
+
+    public Coordinate getCoordinate() {
+        return coordinate;
     }
 
     @Override

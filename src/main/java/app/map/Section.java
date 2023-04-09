@@ -10,7 +10,7 @@ import java.util.Objects;
 public class Section implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 5L;
+    private static final long serialVersionUID = 6L;
 
     private final Station start;
     private final Station arrival;
@@ -61,6 +61,21 @@ public class Section implements Serializable {
 
     public int getDistance() {
         return distance;
+    }
+
+    /**
+     * Calcul la distance en mètre entre l'arrivé de cette section à l'arrivée de
+     * nextSection
+     *
+     * @param nextSection une section
+     * @return la distance entre l'arrivé de cette section à l'arrivée de
+     *         nextSection
+     * @throws IllegalArgumentException si nextSection est null
+     */
+    public int distanceTo(Section nextSection) throws IllegalArgumentException {
+        if (nextSection == null)
+            throw new IllegalArgumentException();
+        return arrival.getCoordinate().getDistance(nextSection.start.getCoordinate()) + nextSection.distance;
     }
 
     public int getDuration() {

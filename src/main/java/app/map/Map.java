@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
-import java.util.function.ToIntFunction;
+import java.util.function.ToIntBiFunction;
 
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
@@ -256,7 +256,7 @@ public final class Map {
             throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::getDistance);
+        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::distanceTo);
         return sectionsToRoute(sections);
     }
 
@@ -273,7 +273,7 @@ public final class Map {
      * @throws PathNotFoundException si il n'existe pas de trajet entre les deux
      *                               stations
      */
-    private LinkedList<Section> dijkstra(String start, String arrival, ToIntFunction<Section> f)
+    private LinkedList<Section> dijkstra(String start, String arrival, ToIntBiFunction<Section, Section> f)
             throws PathNotFoundException {
         HashMap<String, Integer> distance = new HashMap<>();
         HashMap<String, Section> previous = new HashMap<>();
@@ -288,10 +288,14 @@ public final class Map {
         queue.addAll(map.keySet());
 
         String u = null;
-        while (!queue.isEmpty() && (!arrival.equals(u = queue.poll()))) {
+        while (!queue.isEmpty() && (!arrival.equals(u = queue.poll())) && distance.get(u) != Integer.MAX_VALUE) {
             for (Section section : map.get(u)) {
+                Section current = previous.get(u);
+                if (current == null) {
+                    current = new Section(section.getStart(), section.getStart(), section.getLine(), 0, 0);
+                }
                 String v = section.getArrival().getName();
-                int w = distance.get(u) + f.applyAsInt(section);
+                int w = distance.get(u) + f.applyAsInt(current, section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
                     previous.put(v, section);
