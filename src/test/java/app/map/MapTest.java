@@ -271,7 +271,24 @@ public class MapTest {
         }
 
         huit_variant_1.updateSectionsTime();
-        assertEquals(432,huit_variant_1.getSectionsMap().get(boucicaut_felix_faure), "temps associé au depart egal -1");
+        assertEquals(452,huit_variant_1.getSectionsMap().get(boucicaut_felix_faure), "temps associé a la section boucicaut_felix_faure egal 452sec");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void testDeparturesFromStation() throws FileNotFoundException, IncorrectFileFormatException, StartStationNotFoundException,
+            DifferentStartException, UndefinedLineException {
+
+        Map map = new Map(getPath(MAP_DATA_ALL));
+        map.addTime(getPath("time_data"));
+        Line huit_variant_1 = map.getLines().get("8 variant 1");
+        huit_variant_1.setStart("Lourmel");
+        huit_variant_1.updateSectionsTime();
+        
+        Station station =  map.getMap().get("Félix Faure").get(0).getStart();
+        Time time = new Time(0,0,0);
+
+        assertEquals(17,map.departuresFromStation(station,time).get("8 variant 1").size(), "nombre d'horaires depuis Félix Faure sur la ligne 8 variant 1");
     }
 
 }

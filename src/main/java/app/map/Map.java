@@ -352,4 +352,26 @@ public final class Map {
         route.addLast(toAdd);
         return route;
     }
+
+    public HashMap<String,LinkedList<Time>> departuresFromStation(Station station, Time start) {
+
+        ArrayList<Section> sectionsFromStation = map.get(station.name());
+        HashMap<String,LinkedList<Section>> sectionTable = new HashMap<>();
+        for (Section s : sectionsFromStation) {
+            Line line = lines.get(s.getLine());
+            sectionTable.putIfAbsent(line.getName()+" variant "+line.getVariant(), new LinkedList<>());
+        }
+        for (Section s : sectionsFromStation) {
+            Line line = lines.get(s.getLine());
+            sectionTable.get(line.getName()+" variant "+line.getVariant()).addLast(s);
+        }
+
+        HashMap<String,LinkedList<Time>> timeTable = new HashMap<>();
+        for (Section s : sectionsFromStation) {
+            Line line = lines.get(s.getLine());
+            timeTable.putIfAbsent(line.getName()+" variant "+line.getVariant(),line.getDepartureTimeFromStation(s));
+        }
+
+        return timeTable;
+    }
 }

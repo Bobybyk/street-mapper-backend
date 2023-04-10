@@ -4,6 +4,7 @@ import app.map.Time;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 
@@ -15,13 +16,13 @@ public class StationTimeTable implements Serializable {
     @Serial
     private static final long serialVersionUID = 2L;
 
-    private final LinkedList<Time> timeTable;
+    private final HashMap<String,LinkedList<Time>> timeTable;
 
-    public StationTimeTable(LinkedList<Time> timeTable) {
+    public StationTimeTable(HashMap<String,LinkedList<Time>> timeTable) {
         this.timeTable = timeTable;
     }
 
-    public LinkedList<Time> getPathDistOpt() {
+    public HashMap<String,LinkedList<Time>> getPathDistOpt() {
         return timeTable;
     }
 
