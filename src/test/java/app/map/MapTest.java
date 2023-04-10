@@ -221,15 +221,15 @@ public class MapTest {
         Line huit_variant_1 = map.getLines().get("8 variant 1");
         huit_variant_1.setStart("Lourmel");
         ArrayList<Section> boucicautSections = huit_variant_1.getSections();
-        Section boucicaut_felix_faure = null;
+        Section lourmel_boucicaut = null;
         for (Section s : boucicautSections) {
             if (s.getStart().name().equals("Lourmel") && s.getArrival().name().equals("Boucicaut")) {
-                boucicaut_felix_faure = s;
+                lourmel_boucicaut = s;
                 break;
             }
         }
 
-        assertEquals(-1,huit_variant_1.getSectionsMap().get(boucicaut_felix_faure), "temps associé au depart egal -1");
+        assertEquals(-1,huit_variant_1.getSectionsMap().get(lourmel_boucicaut), "temps associé au depart egal -1");
     }
 
     @Test
@@ -241,37 +241,37 @@ public class MapTest {
         Line huit_variant_1 = map.getLines().get("8 variant 1");
         huit_variant_1.setStart("Lourmel");
         ArrayList<Section> boucicautSections = huit_variant_1.getSections();
-        Section boucicaut_felix_faure = null;
+        Section lourmel_boucicaut = null;
         for (Section s : boucicautSections) {
             if (s.getStart().name().equals("Lourmel") && s.getArrival().name().equals("Boucicaut")) {
+                lourmel_boucicaut = s;
+                break;
+            }
+        }
+
+        huit_variant_1.updateSectionsTime();
+        assertEquals(254,huit_variant_1.getSectionsMap().get(lourmel_boucicaut), "temps associé au depart egal 254sec");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void testUpdateSectionsTime2() throws FileNotFoundException, IncorrectFileFormatException, StartStationNotFoundException,
+            DifferentStartException {
+
+        Map map = new Map(getPath("map_data"));
+        Line huit_variant_1 = map.getLines().get("8 variant 1");
+        huit_variant_1.setStart("Lourmel");
+        ArrayList<Section> boucicautSections = huit_variant_1.getSections();
+        Section boucicaut_felix_faure = null;
+        for (Section s : boucicautSections) {
+            if (s.getStart().name().equals("Boucicaut") && s.getArrival().name().equals("Félix Faure")) {
                 boucicaut_felix_faure = s;
                 break;
             }
         }
 
         huit_variant_1.updateSectionsTime();
-        assertEquals(254,huit_variant_1.getSectionsMap().get(boucicaut_felix_faure), "temps associé au depart egal 254sec");
+        assertEquals(432,huit_variant_1.getSectionsMap().get(boucicaut_felix_faure), "temps associé au depart egal -1");
     }
-
-    // @Test
-    // @Timeout(DEFAULT_TIMEOUT)
-    // public void testUpdateSectionsTime2() throws FileNotFoundException, IncorrectFileFormatException, StartStationNotFoundException,
-    //         DifferentStartException {
-
-    //     Map map = new Map(getPath("map_data"));
-    //     Line huit_variant_1 = map.getLines().get("8 variant 1");
-    //     huit_variant_1.setStart("Boucicaut");
-    //     ArrayList<Section> boucicautSections = huit_variant_1.getSections();
-    //     Section boucicaut_felix_faure = null;
-    //     for (Section s : boucicautSections) {
-    //         if (s.getStart().name().equals("Boucicaut") && s.getArrival().name().equals("Félix Faure")) {
-    //             boucicaut_felix_faure = s;
-    //             break;
-    //         }
-    //     }
-
-    //     huit_variant_1.updateSectionsTime();
-    //     assertEquals(432,huit_variant_1.getSectionsMap().get(boucicaut_felix_faure), "temps associé au depart egal -1");
-    // }
 
 }
