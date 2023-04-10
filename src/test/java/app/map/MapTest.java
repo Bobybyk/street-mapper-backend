@@ -280,15 +280,31 @@ public class MapTest {
             DifferentStartException, UndefinedLineException {
 
         Map map = new Map(getPath(MAP_DATA_ALL));
-        map.addTime(getPath("time_data"));
+        map.addTime(getPath("time_data_ligne8"));
         Line huit_variant_1 = map.getLines().get("8 variant 1");
         huit_variant_1.setStart("Lourmel");
         huit_variant_1.updateSectionsTime();
         
         Station station =  map.getMap().get("Félix Faure").get(0).getStart();
-        Time time = new Time(0,0,0);
 
-        assertEquals(17,map.departuresFromStation(station,time).get("8 variant 1").size(), "nombre d'horaires depuis Félix Faure sur la ligne 8 variant 1");
+        assertEquals(17,map.departuresFromStation(station).get("8 variant 1").size(), "nombre d'horaires depuis Félix Faure sur la ligne 8 variant 1");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void testDeparturesFromStationFromTime() throws FileNotFoundException, IncorrectFileFormatException, StartStationNotFoundException,
+            DifferentStartException, UndefinedLineException {
+
+        Map map = new Map(getPath(MAP_DATA_ALL));
+        map.addTime(getPath("time_data_ligne8"));
+        Line huit_variant_1 = map.getLines().get("8 variant 1");
+        huit_variant_1.setStart("Lourmel");
+        huit_variant_1.updateSectionsTime();
+        
+        Station station =  map.getMap().get("Félix Faure").get(0).getStart();
+        Time time = new Time(16,0,0);
+
+        assertEquals(12,map.departuresFromStationFromTime(station,time).get("8 variant 1").size(), "nombre d'horaires depuis Félix Faure sur la ligne 8 variant 1 depuis 16h");
     }
 
 }

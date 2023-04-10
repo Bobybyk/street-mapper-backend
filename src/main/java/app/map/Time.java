@@ -41,4 +41,12 @@ public record Time(int hour, int minute, int second) implements Serializable {
     public String toString() {
         return String.format("%02d:%02d:%02d", hour, minute, second);
     }
+
+    public int toSeconds() {
+        return second+minute*60+hour*3600;
+    }
+
+    public boolean isBefore(Time t) {
+        return (this.toSeconds() < t.toSeconds());
+    }
 }

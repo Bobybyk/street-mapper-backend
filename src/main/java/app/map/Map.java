@@ -353,7 +353,7 @@ public final class Map {
         return route;
     }
 
-    public HashMap<String,LinkedList<Time>> departuresFromStation(Station station, Time start) {
+    public HashMap<String,LinkedList<Time>> departuresFromStation(Station station) {
 
         ArrayList<Section> sectionsFromStation = map.get(station.name());
         HashMap<String,LinkedList<Section>> sectionTable = new HashMap<>();
@@ -373,5 +373,19 @@ public final class Map {
         }
 
         return timeTable;
+    }
+
+    public HashMap<String,LinkedList<Time>> departuresFromStationFromTime(Station station, Time start) {
+        HashMap<String,LinkedList<Time>> timeTable = departuresFromStation(station);
+        HashMap<String,LinkedList<Time>> timeTableFiltered = new HashMap<>();
+        for (String s : timeTable.keySet()) {
+            LinkedList<Time> timeList = new LinkedList<>();
+            for (Time t : timeTable.get(s)) {
+                if (!t.isBefore(start)) 
+                    timeList.addLast(t);
+            }
+            timeTableFiltered.put(s,timeList);
+        }
+        return timeTableFiltered;
     }
 }
