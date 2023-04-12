@@ -1,5 +1,6 @@
 package app.map;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -12,6 +13,8 @@ public class Coordinate implements Serializable {
     private final double longitudeR;
 
     private static final int EARTH_RADIUS = 6_371_000;
+
+    @Serial
     private static final long serialVersionUID = 1L;
 
     public Coordinate(double latitude, double longitude) {
