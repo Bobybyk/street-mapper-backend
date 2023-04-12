@@ -283,8 +283,7 @@ public final class Map {
         }
 
         distance.put(start, 0);
-        PriorityQueue<String> queue = new PriorityQueue<>(map.size(),
-                Comparator.comparingDouble(distance::get));
+        PriorityQueue<String> queue = new PriorityQueue<>(map.size(), Comparator.comparingInt(distance::get));
         queue.addAll(map.keySet());
 
         String u = null;
