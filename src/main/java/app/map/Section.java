@@ -24,6 +24,7 @@ public class Section implements Serializable {
      *
      * @param start    la station de départ
      * @param arrival  la station d'arrivée
+     * @param line     le nom de la ligne de la section
      * @param distance la longueur section
      * @param duration la durée en seconde de la section
      * @throws IllegalArgumentException si start ou arrival est `null`
@@ -55,6 +56,10 @@ public class Section implements Serializable {
         return time;
     }
 
+    private Time getArrivalTime() {
+        return time.addDuration(duration);
+    }
+
     public void setTime(Time time) {
         this.time = time;
     }
@@ -75,7 +80,21 @@ public class Section implements Serializable {
     public int distanceTo(Section nextSection) throws IllegalArgumentException {
         if (nextSection == null)
             throw new IllegalArgumentException();
-        return arrival.getCoordinate().getDistance(nextSection.start.getCoordinate()) + nextSection.distance;
+        return arrival.distanceBetween(nextSection.start) + nextSection.distance;
+    }
+
+    /**
+     * Calcul la temps en seconde entre l'arrivé de cette section à l'arrivée de
+     * nextSection
+     *
+     * @param nextSection une section
+     * @return la temps entre l'arrivé de cette section à l'arrivée de nextSection
+     * @throws IllegalArgumentException si nextSection est null
+     */
+    public int durationTo(Section nextSection) throws IllegalArgumentException {
+        if (nextSection == null)
+            throw new IllegalArgumentException();
+        return arrival.durationBetween(nextSection.start) + time.durationBetween(nextSection.getArrivalTime());
     }
 
     public int getDuration() {

@@ -11,6 +11,8 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
     @Serial
     private static final long serialVersionUID = 2L;
 
+    private static final int HOUR_IN_A_DAY = 3600 * 24;
+
     /**
      * Créer un nouveau temps
      *
@@ -57,5 +59,19 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
     @Override
     public int compareTo(Time time) {
         return time.toSeconds() - toSeconds();
+    }
+
+    /**
+     * @param time
+     * @return le temps en seconde nécessaire pour atteindre time
+     */
+    public int durationBetween(Time time) {
+        int t1 = toSeconds();
+        int t2 = time.toSeconds();
+        int diff = t2 - t1;
+        while (diff < 0) {
+            diff += HOUR_IN_A_DAY;
+        }
+        return diff;
     }
 }

@@ -111,7 +111,7 @@ class RequestHandler implements Runnable {
             System.out.println("TRAJET PAS BON");
         } else {
             try {
-                Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2], null));
+                Route trajet = new Route(App.getInstanceOfMap().findPathOpt(tabLine[1], tabLine[2], null, true));
                 outStream.writeObject(trajet);
                 outStream.flush();
                 System.out.println("TRAJET");

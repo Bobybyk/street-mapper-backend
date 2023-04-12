@@ -74,7 +74,7 @@ public class MapTest {
     public void findPathWithNullStart()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Map map = new Map(getPath("map_data"));
-        assertThrows(IllegalArgumentException.class, () -> map.findPathDistOpt(null, "test", null),
+        assertThrows(IllegalArgumentException.class, () -> map.findPathOpt(null, "test", null, true),
                 "Find path from null station");
     }
 
@@ -83,14 +83,14 @@ public class MapTest {
     public void findPathWithNullArrival()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Map map = new Map(getPath("map_data"));
-        assertThrows(IllegalArgumentException.class, () -> map.findPathDistOpt("test", null, null),
+        assertThrows(IllegalArgumentException.class, () -> map.findPathOpt("test", null, null, true),
                 "Find path to null station");
     }
 
     private void pathNotFoundHelper(String start, String arrival)
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Map map = new Map(getPath("map_data"));
-        assertThrows(PathNotFoundException.class, () -> map.findPathDistOpt(start, arrival, null),
+        assertThrows(PathNotFoundException.class, () -> map.findPathOpt(start, arrival, null, true),
                 "Path not found from " + start + " to " + arrival);
     }
 
@@ -119,7 +119,7 @@ public class MapTest {
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
         Map map = new Map(getPath(MAP_DATA_ALL));
-        LinkedList<Section> trajet = map.findPathDistOpt(start, arrival, null);
+        LinkedList<Section> trajet = map.findPathOpt(start, arrival, null, true);
         assertEquals(nbLine, trajet.size(), start + " to " + arrival);
     }
 

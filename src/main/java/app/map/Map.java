@@ -243,22 +243,25 @@ public final class Map {
     }
 
     /**
-     * Calcule un trajet optimisé en distance entre 2 stations et renvoie la liste
+     * Calcule un trajet optimisé en distance ou en temps entre 2 stations et
+     * renvoie la liste
      * des sections du trajet
      *
      * @param start      le nom de la station de départ
      * @param arrival    le nom de la station d'arrivé
      * @param departTime l'horaire de départ du trajet
+     * @param distance   optimisation en distance si `true` sinon en temps
      * @return la liste des sections du trajet
      * @throws IllegalArgumentException si start ou arrival est `null`
      * @throws PathNotFoundException    si il n'existe pas de trajet entre les deux
      *                                  stations
      */
-    public LinkedList<Section> findPathDistOpt(String startStation, String arrivalStation, Time departTime)
-            throws IllegalArgumentException, PathNotFoundException {
+    public LinkedList<Section> findPathOpt(String startStation, String arrivalStation, Time departTime,
+            boolean distance) throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, departTime, Section::distanceTo);
+        ToIntBiFunction<Section, Section> getWeight = distance ? Section::distanceTo : Section::durationTo;
+        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, departTime, getWeight);
         return sectionsToRoute(sections);
     }
 
@@ -276,8 +279,8 @@ public final class Map {
      * @throws PathNotFoundException si il n'existe pas de trajet entre les deux
      *                               stations
      */
-    private LinkedList<Section> dijkstra(String start, String arrival, Time time, ToIntBiFunction<Section, Section> f)
-            throws PathNotFoundException {
+    private LinkedList<Section> dijkstra(String start, String arrival, Time time,
+            ToIntBiFunction<Section, Section> getWeight) throws PathNotFoundException {
         HashMap<String, Integer> distance = new HashMap<>();
         HashMap<String, Section> previous = new HashMap<>();
         for (String station : map.keySet()) {
@@ -300,7 +303,7 @@ public final class Map {
                 }
                 updateSectionTime(section, current.getTime());
                 String v = section.getArrival().getName();
-                int w = distance.get(u) + f.applyAsInt(current, section);
+                int w = distance.get(u) + getWeight.applyAsInt(current, section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
                     previous.put(v, section);
