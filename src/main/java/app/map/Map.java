@@ -243,20 +243,22 @@ public final class Map {
     }
 
     /**
-     * Calcule un trajet entre 2 stations et renvoie la liste des sections du trajet
+     * Calcule un trajet optimisé en distance entre 2 stations et renvoie la liste
+     * des sections du trajet
      *
-     * @param start   le nom de la station de départ
-     * @param arrival le nom de la station d'arrivé
+     * @param start      le nom de la station de départ
+     * @param arrival    le nom de la station d'arrivé
+     * @param departTime l'horaire de départ du trajet
      * @return la liste des sections du trajet
      * @throws IllegalArgumentException si start ou arrival est `null`
      * @throws PathNotFoundException    si il n'existe pas de trajet entre les deux
      *                                  stations
      */
-    public LinkedList<Section> findPathDistOpt(String startStation, String arrivalStation)
+    public LinkedList<Section> findPathDistOpt(String startStation, String arrivalStation, Time departTime)
             throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::distanceTo);
+        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, departTime, Section::distanceTo);
         return sectionsToRoute(sections);
     }
 
@@ -267,13 +269,14 @@ public final class Map {
      *
      * @param start   la station (sommet) de départ
      * @param arrival la liste des stations (sommet) d'arrivé possible
+     * @param time    l'horaire de départ
      * @param f       la fonction qui associe à une section (arête) son poids
      * @return map associant une station à la section prendre pour aller à cette
      *         station
      * @throws PathNotFoundException si il n'existe pas de trajet entre les deux
      *                               stations
      */
-    private LinkedList<Section> dijkstra(String start, String arrival, ToIntBiFunction<Section, Section> f)
+    private LinkedList<Section> dijkstra(String start, String arrival, Time time, ToIntBiFunction<Section, Section> f)
             throws PathNotFoundException {
         HashMap<String, Integer> distance = new HashMap<>();
         HashMap<String, Section> previous = new HashMap<>();
@@ -293,7 +296,9 @@ public final class Map {
                 Section current = previous.get(u);
                 if (current == null) {
                     current = new Section(section.getStart(), section.getStart(), section.getLine(), 0, 0);
+                    current.setTime(time);
                 }
+                updateSectionTime(section, current.getTime());
                 String v = section.getArrival().getName();
                 int w = distance.get(u) + f.applyAsInt(current, section);
                 if (distance.get(v) > w) {
@@ -307,6 +312,17 @@ public final class Map {
         if (!arrival.equals(u))
             throw new PathNotFoundException();
         return dijkstraResultToList(previous, start, u);
+    }
+
+    /**
+     * Met à jour l'horaire de départ d'une section à partir d'un horaire
+     *
+     * @param section une section à mettre à jour
+     * @param time    l'horaire minimal
+     */
+    private void updateSectionTime(Section section, Time time) {
+        Line l = lines.get(section.getLine());
+        section.setTime(l.getNextTime(section, time));
     }
 
     private LinkedList<Section> dijkstraResultToList(HashMap<String, Section> path, String start, String arrival)

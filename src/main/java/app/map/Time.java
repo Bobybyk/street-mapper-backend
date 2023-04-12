@@ -6,7 +6,7 @@ import java.io.Serializable;
 /**
  * Classe représentant un temps
  */
-public record Time(int hour, int minute, int second) implements Serializable {
+public record Time(int hour, int minute, int second) implements Comparable<Time>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 2L;
@@ -45,5 +45,17 @@ public record Time(int hour, int minute, int second) implements Serializable {
     public String toString() {
         return hour == 0 ? String.format("%02d:%02d", minute, second)
                 : String.format("%02d:%02d:%02d", hour, minute, second);
+    }
+
+    /**
+     * @return le temps à partir de minuit en secondes
+     */
+    private int toSeconds() {
+        return second + minute * 60 + hour * 3600;
+    }
+
+    @Override
+    public int compareTo(Time time) {
+        return time.toSeconds() - toSeconds();
     }
 }

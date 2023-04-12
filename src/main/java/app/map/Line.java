@@ -139,4 +139,22 @@ public final class Line {
     public ArrayList<Time> getDepartures() {
         return new ArrayList<>(departures);
     }
+
+    /**
+     * @param section la section dont l'horaire est à déterminée
+     * @param time    l'horaire minimal
+     * @return l'horaire du prochain départ à section après time, `null` si time est
+     *         `null` ou departures et vide
+     */
+    public Time getNextTime(Section section, Time time) {
+        if (time == null || departures.isEmpty())
+            return null;
+        int durationFromDeparture = sections.get(section);
+        for (Time t : departures) {
+            Time departTime = t.addDuration(durationFromDeparture);
+            if (time.compareTo(departTime) > 0)
+                return departTime;
+        }
+        return departures.get(0).addDuration(durationFromDeparture);
+    }
 }
