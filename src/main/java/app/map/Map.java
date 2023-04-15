@@ -13,9 +13,6 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.function.ToDoubleFunction;
 
-import app.map.Line.DifferentStartException;
-import app.map.Line.StartStationNotFoundException;
-
 /**
  * Classe représentant la carte
  */
@@ -133,7 +130,7 @@ public final class Map {
      * @param arrival  la station d'arrivé
      * @param distance la distance entre les deux stations
      * @param duration la durée du trajet entre les deux stations
-     * @param line     le nom et le variant de la ligne
+     * @param lineName le nom et le variant de la ligne
      * @throws IndexOutOfBoundsException si le nom de la ligne est mal formé
      */
     private Line addSection(Station start, Station arrival, double distance, int duration, String lineName)
@@ -153,7 +150,7 @@ public final class Map {
         return line;
     }
 
-    /**
+    /*
      * Parse un fichier CSV contenant les horaires de départ des lignes du réseau.
      *
      * @param fileName le nom du fichier à parser
@@ -185,7 +182,7 @@ public final class Map {
     // }
     // }
 
-    /**
+    /*
      * Parse une ligne d'un fichier CSV contenant un horaire de départ d'une ligne
      * du réseau.
      *
@@ -209,7 +206,7 @@ public final class Map {
     // addDepartureTime(line, stationName, hour, minute);
     // }
 
-    /**
+    /*
      * Ajoute l'horaire de départ et le section de départ à la ligne si elle n'a pas
      * été déjà déterminée
      *
@@ -246,7 +243,7 @@ public final class Map {
         return new HashSet<>(stations);
     }
 
-    public class PathNotFoundException extends Exception {
+    public static class PathNotFoundException extends Exception {
         public PathNotFoundException(String start, String arrival) {
             super(String.format("Pas de chemin trouvé entre %s et %s", start, arrival));
         }
@@ -259,8 +256,8 @@ public final class Map {
     /**
      * Calcule un trajet entre 2 stations et renvoie la liste des sections du trajet
      *
-     * @param start   le nom de la station de départ
-     * @param arrival le nom de la station d'arrivé
+     * @param startStation   le nom de la station de départ
+     * @param arrivalStation le nom de la station d'arrivé
      * @return la liste des sections du trajet
      * @throws IllegalArgumentException si start ou arrival est `null`
      * @throws PathNotFoundException    si il n'existe pas de trajet entre les deux

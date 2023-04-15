@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Timeout;
 import app.map.LignedStation;
 import app.map.Map;
 import app.map.Station;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 public class SuggestionStationsTest {
 
@@ -33,6 +35,21 @@ public class SuggestionStationsTest {
 
     public static LignedStation createStation(String stationName, String Ligne) {
         return new LignedStation(new Station(stationName, 0, 0), Ligne);
+    }
+
+    @Timeout(value = DEFAULT_TIMEOUT)
+    @ParameterizedTest
+    @ValueSource(strings = {"cret", "CRÉt", "CrÉt"})
+    public void testMultipleStationWithPrefixIgnoreCaseSpecialChar(String prefix) throws Exception {
+        SuggestionStations s = createSuggestionStations(prefix);
+        Set<LignedStation> set = s.getStations();
+        LignedStation creteilPref = createStation("Créteil - Préfecture", "8");
+        LignedStation creteilUni = createStation("Créteil - Université", "8");
+        LignedStation creteilEcha = createStation("Créteil - L'Échat", "8");
+
+        List<LignedStation> expected = Arrays.asList(creteilPref, creteilUni, creteilEcha);
+        assertTrue(set.size() == 3 && set.containsAll(expected));
+
     }
 
     @Test
