@@ -40,7 +40,13 @@ public final class Map {
      */
     private final HashMap<String, Line> lines = new HashMap<>();
 
-    private final HashSet<LignedStation> stations = new HashSet<>();
+    /**
+     * Map ou le nom de la station est associé à ses informations
+     */
+    // Ne peux pas etre juste un Set puisque pour retrouver la StationInfo pour modifier je dois savoir
+    // à quoi elle est égale or je ne peux pas la retrouver juste avec son som puisque l'ensemble de lines qui la compose
+    // est aussi verifié dans la toString de StationInfo 
+    private final java.util.Map<String, StationInfo> stations = java.util.Map.of();
 
     /**
      * Créer une map à partir d'un fichier CSV contenant les sections des lignes du
@@ -76,6 +82,19 @@ public final class Map {
         }
     }
 
+    private void addStationInfo(Station station, Line line) {
+        String stationName = station.name();
+        String lineName = line.getName();
+        StationInfo info = stations.get(stationName);
+        if (info == null) {
+            info = new StationInfo(stationName);
+            info.addLine(lineName);
+            stations.put(stationName, info);
+        } else {
+            info.addLine(lineName);
+        }
+    }
+
     /**
      * Parse une ligne d'un fichier CSV contenant une section de trajet du réseau.
      *
@@ -91,15 +110,13 @@ public final class Map {
         String line = data[4].trim();
         String[] time = data[5].trim().split(":");
 
-
-
         // on suppose que la durée est donnée au format mm:ss
         int duration = Integer.parseInt(time[0]) * 60 + Integer.parseInt(time[1]);
         double distance = Double.parseDouble(data[6].trim());
         Line createdLine = addSection(start, arrival, distance, duration, line);
 
-        stations.add(new LignedStation(start, createdLine.getName()));
-        stations.add(new LignedStation(arrival, createdLine.getName()));
+        addStationInfo(start, createdLine);
+        addStationInfo(arrival, createdLine);
     }
 
     /**
@@ -239,8 +256,18 @@ public final class Map {
         return new HashMap<>(lines);
     }
 
-    public Set<LignedStation> getStations() {
-        return new HashSet<>(stations);
+    public Set<StationInfo> getStationsInfo() {
+        return stations
+            .entrySet()
+            .stream()
+            .reduce(new HashSet<StationInfo>(), (acc, entry) -> {
+                acc.add(entry.getValue());
+                return acc;
+            }, 
+            (lentry, rentry) -> { // Doute sur comment le combiner fonctionne
+                lentry.addAll(rentry);
+                return lentry;
+            } );
     }
 
     public static class PathNotFoundException extends Exception {

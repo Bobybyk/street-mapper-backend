@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import app.map.LignedStation;
+import app.map.StationInfo;
 
 
 /**
@@ -19,9 +19,9 @@ public class SuggestionStations implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private Set<LignedStation> stations;
+    private Set<StationInfo> stations;
 
-    public SuggestionStations(String prefixStation, Collection <? extends LignedStation> collection) {
+    public SuggestionStations(String prefixStation, Collection <? extends StationInfo> collection) {
         Collator insenstiveStringComparator = Collator.getInstance();
         insenstiveStringComparator.setStrength(Collator.PRIMARY);
 
@@ -40,7 +40,7 @@ public class SuggestionStations implements Serializable {
         ).collect(Collectors.toSet());
     }
 
-    public Set<LignedStation> getStations() {
+    public Set<StationInfo> getStations() {
         return stations;
     }
 

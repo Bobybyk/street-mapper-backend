@@ -9,9 +9,8 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import app.map.LignedStation;
+import app.map.StationInfo;
 import app.map.Map;
-import app.map.Station;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -29,12 +28,12 @@ public class SuggestionStationsTest {
     }
 
     public static SuggestionStations createSuggestionStations(String prefix) throws Exception {
-        Set<LignedStation> stations = new Map(getPath(MAP_DATA_ALL)).getStations();
+        Set<StationInfo> stations = new Map(getPath(MAP_DATA_ALL)).getStationsInfo();
         return new SuggestionStations(prefix, stations);
     }
 
-    public static LignedStation createStation(String stationName, String Ligne) {
-        return new LignedStation(new Station(stationName, 0, 0), Ligne);
+    public static StationInfo createStationInfo(String stationName, String... lines) {
+        return new StationInfo(stationName, Arrays.asList(lines));
     }
 
     @Timeout(value = DEFAULT_TIMEOUT)
@@ -42,12 +41,12 @@ public class SuggestionStationsTest {
     @ValueSource(strings = {"cret", "CRÉt", "CrÉt"})
     public void testMultipleStationWithPrefixIgnoreCaseSpecialChar(String prefix) throws Exception {
         SuggestionStations s = createSuggestionStations(prefix);
-        Set<LignedStation> set = s.getStations();
-        LignedStation creteilPref = createStation("Créteil - Préfecture", "8");
-        LignedStation creteilUni = createStation("Créteil - Université", "8");
-        LignedStation creteilEcha = createStation("Créteil - L'Échat", "8");
+        Set<StationInfo> set = s.getStations();
+        StationInfo creteilPref = createStationInfo("Créteil - Préfecture", "8");
+        StationInfo creteilUni = createStationInfo("Créteil - Université", "8");
+        StationInfo creteilEcha = createStationInfo("Créteil - L'Échat", "8");
 
-        List<LignedStation> expected = Arrays.asList(creteilPref, creteilUni, creteilEcha);
+        List<StationInfo> expected = Arrays.asList(creteilPref, creteilUni, creteilEcha);
         assertTrue(set.size() == 3 && set.containsAll(expected));
 
     }
@@ -56,12 +55,12 @@ public class SuggestionStationsTest {
     @Timeout(value = DEFAULT_TIMEOUT)
     public void testMultipleStationWithPrefix() throws Exception {
         SuggestionStations s = createSuggestionStations(SUGESS_CRET);
-        Set<LignedStation> set = s.getStations();
-        LignedStation creteilPref = createStation("Créteil - Préfecture", "8");
-        LignedStation creteilUni = createStation("Créteil - Université", "8");
-        LignedStation creteilEcha = createStation("Créteil - L'Échat", "8");
+        Set<StationInfo> set = s.getStations();
+        StationInfo creteilPref = createStationInfo("Créteil - Préfecture", "8");
+        StationInfo creteilUni = createStationInfo("Créteil - Université", "8");
+        StationInfo creteilEcha = createStationInfo("Créteil - L'Échat", "8");
 
-        List<LignedStation> expected = Arrays.asList(creteilPref, creteilUni, creteilEcha);
+        List<StationInfo> expected = Arrays.asList(creteilPref, creteilUni, creteilEcha);
         assertTrue(set.size() == 3 && set.containsAll(expected));
         
     }
@@ -70,31 +69,23 @@ public class SuggestionStationsTest {
     @Timeout(value = DEFAULT_TIMEOUT)
     public void testChatelet() throws Exception {
         SuggestionStations s = createSuggestionStations(SUGESS_CHATELET);
-        Set<LignedStation> set = s.getStations();
-        LignedStation chatelet14 = createStation("Châtelet", "14");
-        LignedStation chatelet11 = createStation("Châtelet", "11");
-        LignedStation chatelet7 = createStation("Châtelet", "7");
-        LignedStation chatelet4 = createStation("Châtelet", "4");
-        LignedStation chatelet1 = createStation("Châtelet", "1");
+        Set<StationInfo> set = s.getStations();
+        StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
         
-        List<LignedStation> expected = Arrays.asList(chatelet1, chatelet4, chatelet7, chatelet11, chatelet14);
-        assertTrue(set.size() == 5 && set.containsAll(expected));
+        assertTrue(set.size() == 1 && set.contains(chatelet));
     }
 
     @Test
     @Timeout(value = DEFAULT_TIMEOUT)
     public void testGareDe() throws Exception {
         SuggestionStations s = createSuggestionStations(SUGESS_GARE);
-        Set<LignedStation> set = s.getStations();
+        Set<StationInfo> set = s.getStations();
 
-        var gareDeEst4 = createStation("Gare de l'Est", "4");
-        var gareDeEst5 = createStation("Gare de l'Est", "5");
-        var gareDeEst7 = createStation("Gare de l'Est", "7");
+        var gareDeEst = createStationInfo("Gare de l'Est", "4", "5", "7");
 
-        var gareDeLyon1 = createStation("Gare de Lyon", "1");
-        var gareDeLyon14 = createStation("Gare de Lyon", "14");
+        var gareDeLyon = createStationInfo("Gare de Lyon", "1", "14");
 
-        List<LignedStation> expected = Arrays.asList(gareDeEst4, gareDeEst5, gareDeEst7, gareDeLyon1, gareDeLyon14);
+        List<StationInfo> expected = Arrays.asList(gareDeEst, gareDeLyon);
         assertTrue(set.size() == 5 && set.containsAll(expected));
     }
 
