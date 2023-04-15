@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Timeout;
 
 import app.map.StationInfo;
@@ -19,17 +20,23 @@ public class SuggestionStationsTest {
 
     private static final String MAP_DATA_ALL = "map_data_all";
 
+    private static Set<StationInfo> stations = null;
+
     private static String getPath(String filename) {
         return "src/test/resources/" + filename + ".csv";
     }
 
     public static SuggestionStations createSuggestionStations(String prefix) throws Exception {
-        Set<StationInfo> stations = new Map(getPath(MAP_DATA_ALL)).getStationsInfo();
         return new SuggestionStations(prefix, stations);
     }
 
     public static StationInfo createStationInfo(String stationName, String... lines) {
         return new StationInfo(stationName, Arrays.asList(lines));
+    }
+
+    @BeforeAll
+    static void init() throws Exception {
+        stations = new Map(getPath(MAP_DATA_ALL)).getStationsInfo();
     }
 
     @ParameterizedTest

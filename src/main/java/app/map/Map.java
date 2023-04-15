@@ -46,6 +46,7 @@ public final class Map {
     // Ne peux pas etre juste un Set puisque pour retrouver la StationInfo pour modifier je dois savoir
     // à quoi elle est égale or je ne peux pas la retrouver juste avec son som puisque l'ensemble de lines qui la compose
     // est aussi verifié dans la toString de StationInfo 
+    // Peut-etre mettre Station en clef ?
     private final java.util.Map<String, StationInfo> stations = new HashMap<>();
 
     /**
@@ -82,6 +83,12 @@ public final class Map {
         }
     }
 
+    /**
+     * Extrait le nom de la station et de la ligne pour les ajoutes à {@code stations}
+     * 
+     * @param station La station à àjouter à {@code stations}
+     * @param line    Le ligne à ajouter à {@code stations}
+     */
     private void addStationInfo(Station station, Line line) {
         String stationName = station.name();
         String lineName = line.getName();
