@@ -46,7 +46,7 @@ public final class Map {
     // Ne peux pas etre juste un Set puisque pour retrouver la StationInfo pour modifier je dois savoir
     // à quoi elle est égale or je ne peux pas la retrouver juste avec son som puisque l'ensemble de lines qui la compose
     // est aussi verifié dans la toString de StationInfo 
-    private final java.util.Map<String, StationInfo> stations = java.util.Map.of();
+    private final java.util.Map<String, StationInfo> stations = new HashMap<>();
 
     /**
      * Créer une map à partir d'un fichier CSV contenant les sections des lignes du

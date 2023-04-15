@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import app.map.StationInfo;
@@ -16,9 +15,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class SuggestionStationsTest {
 
-    private static final String SUGESS_CRET = "Crét";
-    private static final String SUGESS_CHATELET = "Châtelet";
-    private static final String SUGESS_GARE = "Gare de";
     private static final int DEFAULT_TIMEOUT = 2000;
 
     private static final String MAP_DATA_ALL = "map_data_all";
@@ -36,8 +32,8 @@ public class SuggestionStationsTest {
         return new StationInfo(stationName, Arrays.asList(lines));
     }
 
-    @Timeout(value = DEFAULT_TIMEOUT)
     @ParameterizedTest
+    @Timeout(value = DEFAULT_TIMEOUT)
     @ValueSource(strings = {"cret", "CRÉt", "CrÉt"})
     public void testMultipleStationWithPrefixIgnoreCaseSpecialChar(String prefix) throws Exception {
         SuggestionStations s = createSuggestionStations(prefix);
@@ -51,34 +47,22 @@ public class SuggestionStationsTest {
 
     }
 
-    @Test
+    @ParameterizedTest
     @Timeout(value = DEFAULT_TIMEOUT)
-    public void testMultipleStationWithPrefix() throws Exception {
-        SuggestionStations s = createSuggestionStations(SUGESS_CRET);
-        Set<StationInfo> set = s.getStations();
-        StationInfo creteilPref = createStationInfo("Créteil - Préfecture", "8");
-        StationInfo creteilUni = createStationInfo("Créteil - Université", "8");
-        StationInfo creteilEcha = createStationInfo("Créteil - L'Échat", "8");
-
-        List<StationInfo> expected = Arrays.asList(creteilPref, creteilUni, creteilEcha);
-        assertTrue(set.size() == 3 && set.containsAll(expected));
-        
-    }
-
-    @Test
-    @Timeout(value = DEFAULT_TIMEOUT)
-    public void testChatelet() throws Exception {
-        SuggestionStations s = createSuggestionStations(SUGESS_CHATELET);
+    @ValueSource(strings = {"Châtelet", "Chatelet", "chatEl"})
+    public void testChatelet(String prefix) throws Exception {
+        SuggestionStations s = createSuggestionStations(prefix);
         Set<StationInfo> set = s.getStations();
         StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
         
         assertTrue(set.size() == 1 && set.contains(chatelet));
     }
 
-    @Test
+    @ParameterizedTest
     @Timeout(value = DEFAULT_TIMEOUT)
-    public void testGareDe() throws Exception {
-        SuggestionStations s = createSuggestionStations(SUGESS_GARE);
+    @ValueSource(strings = {"Gare de", "GARE DE", "GaRE De"})
+    public void testGareDe(String prefix) throws Exception {
+        SuggestionStations s = createSuggestionStations(prefix);
         Set<StationInfo> set = s.getStations();
 
         var gareDeEst = createStationInfo("Gare de l'Est", "4", "5", "7");
@@ -86,7 +70,7 @@ public class SuggestionStationsTest {
         var gareDeLyon = createStationInfo("Gare de Lyon", "1", "14");
 
         List<StationInfo> expected = Arrays.asList(gareDeEst, gareDeLyon);
-        assertTrue(set.size() == 5 && set.containsAll(expected));
+        assertTrue(set.size() == 2 && set.containsAll(expected));
     }
 
 }
