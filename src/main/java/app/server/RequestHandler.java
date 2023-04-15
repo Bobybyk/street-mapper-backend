@@ -77,6 +77,17 @@ class RequestHandler implements Runnable {
     }
 
     /**
+     * Cree un {@code ErrorServer} en formattant {@code reason}
+     * 
+     * @param reason Message decrivant le message l'erreur
+     * 
+     * @see #errorMessageFormat()
+     */
+    private static ErrorServer serverErrorFormatted(String reason) {
+        return new ErrorServer(errorMessageFormat(reason));
+    }
+
+    /**
      * Lit le contenu du socket
      *
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
@@ -91,7 +102,7 @@ class RequestHandler implements Runnable {
             e.printStackTrace();
         }
         if (message == null)
-           return new ErrorServer(errorMessageFormat("Message est null"));
+           return serverErrorFormatted("Message est null");
 
         return handleLine(message);
     }
@@ -107,36 +118,31 @@ class RequestHandler implements Runnable {
         String clientRequest = splittedLine[0];
         ServerActionCallback callback = requestActions.get(clientRequest);
         if (callback == null) {
-            return new ErrorServer("Serveur erreur");
+            return serverErrorFormatted("Serveur erreur");
         } else {
-            return callback.execute(clientLine);
+            return callback.execute(splittedLine);
         }
     }
 
     /**
      * Gere la reponse du renvoie d'un trajet au client
      *
-     * @param inputLine entrée de l'utilisateur
+     * @param  inputArgs   entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private static Serializable handleRouteRequest(String inputLine) throws IOException {
-        String[] tabLine = inputLine.split(charSplitter);
-
-        if (tabLine.length != 3) {
+    private static Serializable handleRouteRequest(String[] inputArgs) throws IOException {
+        if (inputArgs.length != 3) {
             System.out.println("TRAJET PAS BON");
-            final String errorTrajetManquant = errorMessageFormat("Trajet départ ou arrivé manquant.");
-            return new ErrorServer(errorTrajetManquant);
+            return serverErrorFormatted("Trajet départ ou arrivé manquant.");
         } else {
             try {
-                Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(tabLine[1], tabLine[2]));
+                Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(inputArgs[1], inputArgs[2]));
                 System.out.println("TRAJET");
                 return trajet;
 
             } catch (Map.PathNotFoundException e) {
-                final String errorTrajetInexistant = errorMessageFormat("Trajet inexistant.");
-                System.out.println(errorTrajetInexistant);
-                System.out.println("ERREUR");
-                return new ErrorServer(errorTrajetInexistant);
+                System.out.println("ERREUR: Trajet inexistant.");
+                return serverErrorFormatted("Trajet inexistant");
             }
         }
     }
@@ -144,18 +150,16 @@ class RequestHandler implements Runnable {
     /**
      * Gere la reponse du pour la sugestion de station en fonction du nom
      * 
-     * @param inputLine ligne envoyé par le client
+     * @param inputLine    entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    private static Serializable handleSearchRequest(String inputLine) throws IOException {
-        String[] inputSplitted = inputLine.split(charSplitter);
-        if ( inputSplitted.length < 2 || inputSplitted[1].isBlank() ) {
-            final String errorMissingSearchStation = errorMessageFormat("Station manquante ou vide");
-            System.out.println("TRAJET PAS BON");
-            return new ErrorServer(errorMissingSearchStation);
+    private static Serializable handleSearchRequest(String[] inputArgs) throws IOException {
+        if ( inputArgs.length < 2 || inputArgs[1].isBlank() ) {
+            System.out.println("RECHERCHE DE STATION PAS BONNE");
+            return serverErrorFormatted("Station manquante ou vide");
         }
 
-        String stationToSearch = inputSplitted[1].trim();
+        String stationToSearch = inputArgs[1].trim();
         SuggestionStations suggestions = new SuggestionStations(stationToSearch, App.getInstanceOfMap().getStationsInfo() );
         
         return suggestions;
