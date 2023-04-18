@@ -92,14 +92,8 @@ public final class Map {
     private void addStationInfo(Station station, Line line) {
         String stationName = station.name();
         String lineName = line.getName();
-        StationInfo info = stations.get(stationName);
-        if (info == null) {
-            info = new StationInfo(stationName);
-            info.addLine(lineName);
-            stations.put(stationName, info);
-        } else {
-            info.addLine(lineName);
-        }
+        StationInfo info = stations.computeIfAbsent(stationName, StationInfo::new);        
+        info.addLine(lineName);
     }
 
     /**
@@ -264,17 +258,7 @@ public final class Map {
     }
 
     public Set<StationInfo> getStationsInfo() {
-        return stations
-            .entrySet()
-            .stream()
-            .reduce(new HashSet<StationInfo>(), (acc, entry) -> {
-                acc.add(entry.getValue());
-                return acc;
-            }, 
-            (lentry, rentry) -> { // Doute sur comment le combiner fonctionne
-                lentry.addAll(rentry);
-                return lentry;
-            } );
+        return new HashSet<>(stations.values());
     }
 
     public static class PathNotFoundException extends Exception {
