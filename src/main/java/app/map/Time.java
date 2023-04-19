@@ -9,7 +9,7 @@ import java.io.Serializable;
 public record Time(int hour, int minute, int second) implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     /**
      * Créer un nouveau temps
@@ -22,6 +22,10 @@ public record Time(int hour, int minute, int second) implements Serializable {
     public Time {
         if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59)
             throw new IllegalArgumentException();
+    }
+
+    public Time(int duration) {
+        this(duration / 3600, (duration / 60) % 60, duration % 60);
     }
 
     /**
@@ -39,6 +43,7 @@ public record Time(int hour, int minute, int second) implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%02d:%02d:%02d", hour, minute, second);
+        return hour == 0 ? String.format("%02d:%02d", minute, second)
+                : String.format("%02d:%02d:%02d", hour, minute, second);
     }
 }

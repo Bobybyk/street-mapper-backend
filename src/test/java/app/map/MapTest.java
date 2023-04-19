@@ -17,13 +17,21 @@ import org.junit.jupiter.params.provider.ValueSource;
 import app.map.Map.IncorrectFileFormatException;
 import app.map.Map.PathNotFoundException;
 
+import app.map.Map.UndefinedLineException;
+import app.map.Line.StartStationNotFoundException;
+import app.map.Line.DifferentStartException;
+
 public class MapTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
 
     private static final String MAP_DATA_ALL = "map_data_all";
 
+    private static final String MAP_TIME_ALL = "map_time_all";
+
     private String getPath(String filename) {
+        if (filename == null)
+            return null;
         return "src/test/resources/" + filename + ".csv";
     }
 
@@ -158,5 +166,45 @@ public class MapTest {
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
         findPathHelper("Bercy", "Parmentier", 4);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathBMaisonBlancheToPigalle()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathHelper("Maison Blanche", "Pigalle", 5);
+    }
+
+    public void addTimeToLines()
+        throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException, 
+        UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+
+        Map map = new Map(getPath(MAP_DATA_ALL));
+        map.addTime(getPath("time_data"));
+        assertEquals(15,map.getLines().get("5 variant 2").getDepartures().size(), "nombre de départ de cette ligne");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void nullFileNameTime() throws FileNotFoundException, IncorrectFileFormatException {
+        Map map = new Map(getPath("map_data"));
+        assertThrows(IllegalArgumentException.class, () -> map.addTime(getPath(null)), "null file name");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void notFoundFileTime() throws FileNotFoundException, IncorrectFileFormatException {
+        Map map = new Map(getPath("map_data"));
+        assertThrows(FileNotFoundException.class, () -> map.addTime(getPath("test")), "File not found");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "time_station_missing", "time_bad_time_format", "time_line_missing" })
+    @Timeout(DEFAULT_TIMEOUT)
+    public void incorrectTimeFileFormat(String filename) throws FileNotFoundException, IncorrectFileFormatException {
+        Map map = new Map(getPath("map_data"));
+        assertThrows(IncorrectFileFormatException.class, () -> map.addTime(getPath(filename)),
+                "Incorrect file format");
     }
 }

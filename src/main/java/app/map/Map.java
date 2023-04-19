@@ -11,7 +11,11 @@ import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntBiFunction;
+
+import app.map.Line.DifferentStartException;
+import app.map.Line.StartStationNotFoundException;
+
 
 /**
  * Classe représentant la carte
@@ -86,7 +90,7 @@ public final class Map {
      * @param line    Le ligne à ajouter à {@code stations}
      */
     private void addStationInfo(Station station, Line line) {
-        String stationName = station.name();
+        String stationName = station.getName();
         String lineName = line.getName();
         StationInfo info = stations.computeIfAbsent(stationName, StationInfo::new);        
         info.addLine(lineName);
@@ -109,7 +113,7 @@ public final class Map {
 
         // on suppose que la durée est donnée au format mm:ss
         int duration = Integer.parseInt(time[0]) * 60 + Integer.parseInt(time[1]);
-        double distance = Double.parseDouble(data[6].trim());
+        int distance = (int) Math.round(Double.parseDouble(data[6].trim()) * 1000);
         Line createdLine = addSection(start, arrival, distance, duration, line);
 
         addStationInfo(start, createdLine);
@@ -147,12 +151,12 @@ public final class Map {
      * @param lineName le nom et le variant de la ligne
      * @throws IndexOutOfBoundsException si le nom de la ligne est mal formé
      */
-    private Line addSection(Station start, Station arrival, double distance, int duration, String lineName)
+    private Line addSection(Station start, Station arrival, int distance, int duration, String lineName)
             throws IndexOutOfBoundsException {
         // création de la section
         Section section = new Section(start, arrival, lineName, distance, duration);
         // ajout dans map
-        map.get(start.name()).add(section);
+        map.get(start.getName()).add(section);
         // ajout dans lines
         Line line = lines.computeIfAbsent(lineName, n -> {
             String[] lineVariant = n.split(" ");
@@ -176,25 +180,22 @@ public final class Map {
      * @throws DifferentStartException       s'il y a plusieurs station de départ
      *                                       pour une même ligne
      */
-    // public void addTime(String fileName) throws IllegalArgumentException,
-    // FileNotFoundException,
-    // IncorrectFileFormatException, UndefinedLineException,
-    // StartStationNotFoundException,
-    // DifferentStartException {
-    // if (fileName == null)
-    // throw new IllegalArgumentException();
-    // File file = new File(fileName);
-    // Scanner sc = new Scanner(file);
-    // try {
-    // while (sc.hasNextLine()) {
-    // handleTimeLine(sc.nextLine());
-    // }
-    // } catch (IndexOutOfBoundsException | NumberFormatException e) {
-    // throw new IncorrectFileFormatException(file.getName());
-    // } finally {
-    // sc.close();
-    // }
-    // }
+    public void addTime(String fileName)
+    throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException, UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+        if (fileName == null) 
+            throw new IllegalArgumentException();
+        File file = new File(fileName);
+        Scanner sc = new Scanner(file);
+        try {
+            while (sc.hasNextLine()) {
+                handleTimeLine(sc.nextLine());
+            }
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            throw new IncorrectFileFormatException(file.getName());
+        } finally {
+            sc.close();
+        }
+    }
 
     /*
      * Parse une ligne d'un fichier CSV contenant un horaire de départ d'une ligne
@@ -208,17 +209,18 @@ public final class Map {
      * @throws DifferentStartException       s'il y a plusieurs station de départ
      *                                       pour une même ligne
      */
-    // private void handleTimeLine(String s) throws IndexOutOfBoundsException,
-    // NumberFormatException, UndefinedLineException,
-    // StartStationNotFoundException, DifferentStartException {
-    // String[] data = s.split(";");
-    // String line = data[0].trim();
-    // String stationName = data[1].trim();
-    // String[] time = data[2].trim().split(":");
-    // int hour = Integer.parseInt(time[0]);
-    // int minute = Integer.parseInt(time[1]);
-    // addDepartureTime(line, stationName, hour, minute);
-    // }
+    private void handleTimeLine(String s)
+    throws IndexOutOfBoundsException, NumberFormatException, UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+        String[] data = s.split(";");
+        String line = data[0].trim();
+        String stationName = data[1].trim();
+        String[] time = data[2].trim().split(":");
+        int hour = Integer.parseInt(time[0]);
+        int minute = Integer.parseInt(time[1]);
+        String variant = data[3].trim();
+        String ligneVariant = line + " variant " + variant;
+        addDepartureTime(ligneVariant, stationName, hour, minute);
+    }
 
     /*
      * Ajoute l'horaire de départ et le section de départ à la ligne si elle n'a pas
@@ -233,17 +235,15 @@ public final class Map {
      * @throws DifferentStartException       s'il y a plusieurs station de départ
      *                                       pour une même ligne
      */
-    // private void addDepartureTime(String line, String stationName, int hour, int
-    // minute)
-    // throws UndefinedLineException, StartStationNotFoundException,
-    // DifferentStartException {
-    // Line l = lines.get(line);
-    // if (l == null)
-    // throw new UndefinedLineException(line);
-    // // ajoute la section de départ si nécessaire
-    // l.setStart(stationName);
-    // l.addDepartureTime(hour, minute);
-    // }
+    private void addDepartureTime(String line, String stationName, int hour, int minute)
+    throws UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+        Line l = lines.get(line);
+        if (l == null) 
+            throw new UndefinedLineException(line);
+        // ajoute la section de départ si nécessaire
+        l.setStart(stationName);
+        l.addDepartureTime(hour, minute);
+    }
 
     public HashMap<String, ArrayList<Section>> getMap() {
         return new HashMap<>(map);
@@ -281,7 +281,7 @@ public final class Map {
             throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::getDistance);
+        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::distanceTo);
         return sectionsToRoute(sections);
     }
 
@@ -298,25 +298,28 @@ public final class Map {
      * @throws PathNotFoundException si il n'existe pas de trajet entre les deux
      *                               stations
      */
-    private LinkedList<Section> dijkstra(String start, String arrival, ToDoubleFunction<Section> f)
+    private LinkedList<Section> dijkstra(String start, String arrival, ToIntBiFunction<Section, Section> f)
             throws PathNotFoundException {
-        HashMap<String, Double> distance = new HashMap<>();
+        HashMap<String, Integer> distance = new HashMap<>();
         HashMap<String, Section> previous = new HashMap<>();
         for (String station : map.keySet()) {
-            distance.put(station, Double.MAX_VALUE);
+            distance.put(station, Integer.MAX_VALUE);
             previous.put(station, null);
         }
 
-        distance.put(start, 0.);
-        PriorityQueue<String> queue = new PriorityQueue<>(map.size(),
-                Comparator.comparingDouble(distance::get));
+        distance.put(start, 0);
+        PriorityQueue<String> queue = new PriorityQueue<>(map.size(), Comparator.comparingInt(distance::get));
         queue.addAll(map.keySet());
 
         String u = null;
-        while (!queue.isEmpty() && (!arrival.equals(u = queue.poll()))) {
+        while (!queue.isEmpty() && (!arrival.equals(u = queue.poll())) && distance.get(u) != Integer.MAX_VALUE) {
             for (Section section : map.get(u)) {
-                String v = section.getArrival().name();
-                double w = distance.get(u) + f.applyAsDouble(section);
+                Section current = previous.get(u);
+                if (current == null) {
+                    current = new Section(section.getStart(), section.getStart(), section.getLine(), 0, 0);
+                }
+                String v = section.getArrival().getName();
+                int w = distance.get(u) + f.applyAsInt(current, section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
                     previous.put(v, section);
@@ -339,7 +342,7 @@ public final class Map {
             if (section == null)
                 throw new PathNotFoundException();
             orderedPath.add(section);
-            previous = section.getStart().name();
+            previous = section.getStart().getName();
         }
         Collections.reverse(orderedPath);
         return orderedPath;
@@ -356,7 +359,7 @@ public final class Map {
         Station arrival = first.getArrival();
         String line = lines.get(first.getLine()).getName();
         Time time = first.getTime();
-        double distance = first.getDistance();
+        int distance = first.getDistance();
         int duration = first.getDuration();
 
         for (Section s : sections) {

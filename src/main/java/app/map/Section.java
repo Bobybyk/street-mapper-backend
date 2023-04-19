@@ -10,14 +10,14 @@ import java.util.Objects;
 public class Section implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 6L;
 
     private final Station start;
     private final Station arrival;
     private final String line;
     private Time time;
-    private final double distance;
-    private final int duration;
+    private final int distance; // en mètre
+    private final int duration; // en seconde
 
     /**
      * Crée une section
@@ -28,7 +28,7 @@ public class Section implements Serializable {
      * @param duration la durée en seconde de la section
      * @throws IllegalArgumentException si start ou arrival est `null`
      */
-    public Section(Station start, Station arrival, String line, double distance, int duration) {
+    public Section(Station start, Station arrival, String line, int distance, int duration) {
         if (start == null || arrival == null || line == null)
             throw new IllegalArgumentException();
         this.start = start;
@@ -59,8 +59,23 @@ public class Section implements Serializable {
         this.time = time;
     }
 
-    public double getDistance() {
+    public int getDistance() {
         return distance;
+    }
+
+    /**
+     * Calcul la distance en mètre entre l'arrivé de cette section à l'arrivée de
+     * nextSection
+     *
+     * @param nextSection une section
+     * @return la distance entre l'arrivé de cette section à l'arrivée de
+     *         nextSection
+     * @throws IllegalArgumentException si nextSection est null
+     */
+    public int distanceTo(Section nextSection) throws IllegalArgumentException {
+        if (nextSection == null)
+            throw new IllegalArgumentException();
+        return arrival.getCoordinate().getDistance(nextSection.start.getCoordinate()) + nextSection.distance;
     }
 
     public int getDuration() {
@@ -82,7 +97,8 @@ public class Section implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("ligne %s à %s : %s --> %s (%f, %d)",
-                line, time != null ? time : "no:tm", start.name(), arrival.name(), distance, duration);
+        return String.format("ligne %s à %s : %s --> %s (%d m, %s)",
+                line, time != null ? time : "no:tm", start.getName(), arrival.getName(), distance,
+                new Time(duration));
     }
 }
