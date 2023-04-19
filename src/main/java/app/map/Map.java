@@ -266,11 +266,11 @@ public final class Map {
      *                                  stations
      */
     public LinkedList<Section> findPathOpt(String startStation, String arrivalStation, Time departTime,
-            boolean distance) throws IllegalArgumentException, PathNotFoundException {
+            boolean distance, boolean foot) throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
         ToIntBiFunction<Section, Section> getWeight = distance ? Section::distanceTo : Section::durationTo;
-        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, departTime, getWeight);
+        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, departTime, getWeight, foot);
         return sectionsToRoute(sections);
     }
 
@@ -304,13 +304,11 @@ public final class Map {
      *                               stations
      */
     private LinkedList<Section> dijkstra(String start, String arrival, Time time,
-            ToIntBiFunction<Section, Section> getWeight) throws PathNotFoundException {
+            ToIntBiFunction<Section, Section> getWeight, boolean foot) throws PathNotFoundException {
         HashMap<String, Integer> distance = new HashMap<>();
         HashMap<String, Section> previous = new HashMap<>();
-        for (String station : map.keySet()) {
+        for (String station : map.keySet())
             distance.put(station, Integer.MAX_VALUE);
-            previous.put(station, null);
-        }
 
         distance.put(start, 0);
         PriorityQueue<String> queue = new PriorityQueue<>(map.size(),
@@ -318,13 +316,14 @@ public final class Map {
         queue.addAll(map.keySet());
 
         String u = null;
+
         while (!queue.isEmpty() && (!arrival.equals(u = queue.poll())) && distance.get(u) != Integer.MAX_VALUE) {
             List<Section> neighbors = map.get(u);
             Section current = previous.get(u);
-            if (current != null)
+            if (current != null && foot)
                 neighbors.addAll(closeStations(previous.get(u).getArrival()));
             for (Section section : neighbors) {
-                if (current == null) {
+                if (previous.get(u) == null) {
                     current = new Section(section.getStart(), section.getStart(), section.getLine(), 0, 0);
                     current.setTime(time);
                 }

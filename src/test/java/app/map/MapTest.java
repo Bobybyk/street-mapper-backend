@@ -21,7 +21,7 @@ public class MapTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
 
-    private static final String MAP_DATA_ALL = "map_data_all";
+    private static final String MAP_DATA_ALL = "map_data_fix_dist";
 
     private String getPath(String filename) {
         return "src/test/resources/" + filename + ".csv";
@@ -74,7 +74,7 @@ public class MapTest {
     public void findPathWithNullStart()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Map map = new Map(getPath("map_data"));
-        assertThrows(IllegalArgumentException.class, () -> map.findPathOpt(null, "test", null, true),
+        assertThrows(IllegalArgumentException.class, () -> map.findPathOpt(null, "test", null, true, false),
                 "Find path from null station");
     }
 
@@ -83,14 +83,14 @@ public class MapTest {
     public void findPathWithNullArrival()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Map map = new Map(getPath("map_data"));
-        assertThrows(IllegalArgumentException.class, () -> map.findPathOpt("test", null, null, true),
+        assertThrows(IllegalArgumentException.class, () -> map.findPathOpt("test", null, null, true, false),
                 "Find path to null station");
     }
 
     private void pathNotFoundHelper(String start, String arrival)
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Map map = new Map(getPath("map_data"));
-        assertThrows(PathNotFoundException.class, () -> map.findPathOpt(start, arrival, null, true),
+        assertThrows(PathNotFoundException.class, () -> map.findPathOpt(start, arrival, null, true, false),
                 "Path not found from " + start + " to " + arrival);
     }
 
@@ -115,11 +115,15 @@ public class MapTest {
         pathNotFoundHelper("Commerce", "Lourmel");
     }
 
-    private void findPathHelper(String start, String arrival, int nbLine)
+    private void findPathHelper(String start, String arrival, int nbLine, boolean foot)
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
         Map map = new Map(getPath(MAP_DATA_ALL));
-        LinkedList<Section> trajet = map.findPathOpt(start, arrival, null, true);
+        LinkedList<Section> trajet = map.findPathOpt(start, arrival, null, true, foot);
+        System.out.println("########");
+        for (Section s : trajet)
+            System.out.println(s);
+        System.out.println("########");
         assertEquals(nbLine, trajet.size(), start + " to " + arrival);
     }
 
@@ -127,21 +131,50 @@ public class MapTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathSameLine() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Lourmel", "Commerce", 1);
+        findPathHelper("Lourmel", "Commerce", 1, false);
+        findPathHelper("Lourmel", "Commerce", 2, true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath2Line() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Cité", "Hôtel de Ville", 2);
+        findPathHelper("Cité", "Hôtel de Ville", 2, false);
+        findPathHelper("Cité", "Hôtel de Ville", 2, true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath3Line() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Alma - Marceau", "Invalides", 3);
+        findPathHelper("Alma - Marceau", "Invalides", 3, false);
+        findPathHelper("Alma - Marceau", "Invalides", 2, true);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathJussieuToOdeon() throws FileNotFoundException, IllegalArgumentException,
+            IncorrectFileFormatException, PathNotFoundException {
+        findPathHelper("Jussieu", "Odéon", 1, false);
+        findPathHelper("Jussieu", "Odéon", 2, true);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathBastilleToRepublique()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathHelper("Bastille", "République", 1, false);
+        findPathHelper("Bastille", "République", 2, true);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathPyramidesToBercy()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathHelper("Pyramides", "Bercy", 1, false);
+        findPathHelper("Pyramides", "Bercy", 1, true);
     }
 
     @Test
@@ -149,7 +182,8 @@ public class MapTest {
     public void findPathNordToLyon()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Gare du Nord", "Gare de Lyon", 4);
+        findPathHelper("Gare du Nord", "Gare de Lyon", 4, false);
+        findPathHelper("Gare du Nord", "Gare de Lyon", 6, true);
     }
 
     @Test
@@ -157,7 +191,8 @@ public class MapTest {
     public void findPathBercyToParmentier()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Bercy", "Parmentier", 4);
+        findPathHelper("Bercy", "Parmentier", 4, false);
+        findPathHelper("Bercy", "Parmentier", 4, true);
     }
 
     @Test
@@ -165,6 +200,7 @@ public class MapTest {
     public void findPathBMaisonBlancheToPigalle()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Maison Blanche", "Pigalle", 5);
+        findPathHelper("Maison Blanche", "Pigalle", 6, false);
+        findPathHelper("Maison Blanche", "Pigalle", 10, true);
     }
 }
