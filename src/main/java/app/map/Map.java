@@ -155,25 +155,22 @@ public final class Map {
      * @throws DifferentStartException       s'il y a plusieurs station de départ
      *                                       pour une même ligne
      */
-    // public void addTime(String fileName) throws IllegalArgumentException,
-    // FileNotFoundException,
-    // IncorrectFileFormatException, UndefinedLineException,
-    // StartStationNotFoundException,
-    // DifferentStartException {
-    // if (fileName == null)
-    // throw new IllegalArgumentException();
-    // File file = new File(fileName);
-    // Scanner sc = new Scanner(file);
-    // try {
-    // while (sc.hasNextLine()) {
-    // handleTimeLine(sc.nextLine());
-    // }
-    // } catch (IndexOutOfBoundsException | NumberFormatException e) {
-    // throw new IncorrectFileFormatException(file.getName());
-    // } finally {
-    // sc.close();
-    // }
-    // }
+    public void addTime(String fileName)
+    throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException, UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+        if (fileName == null) 
+            throw new IllegalArgumentException();
+        File file = new File(fileName);
+        Scanner sc = new Scanner(file);
+        try {
+            while (sc.hasNextLine()) {
+                handleTimeLine(sc.nextLine());
+            }
+        } catch (IndexOutOfBoundsException | NumberFormatException e) {
+            throw new IncorrectFileFormatException(file.getName());
+        } finally {
+            sc.close();
+        }
+    }
 
     /**
      * Parse une ligne d'un fichier CSV contenant un horaire de départ d'une ligne
@@ -187,17 +184,18 @@ public final class Map {
      * @throws DifferentStartException       s'il y a plusieurs station de départ
      *                                       pour une même ligne
      */
-    // private void handleTimeLine(String s) throws IndexOutOfBoundsException,
-    // NumberFormatException, UndefinedLineException,
-    // StartStationNotFoundException, DifferentStartException {
-    // String[] data = s.split(";");
-    // String line = data[0].trim();
-    // String stationName = data[1].trim();
-    // String[] time = data[2].trim().split(":");
-    // int hour = Integer.parseInt(time[0]);
-    // int minute = Integer.parseInt(time[1]);
-    // addDepartureTime(line, stationName, hour, minute);
-    // }
+    private void handleTimeLine(String s)
+    throws IndexOutOfBoundsException, NumberFormatException, UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+        String[] data = s.split(";");
+        String line = data[0].trim();
+        String stationName = data[1].trim();
+        String[] time = data[2].trim().split(":");
+        int hour = Integer.parseInt(time[0]);
+        int minute = Integer.parseInt(time[1]);
+        String variant = data[3].trim();
+        String ligneVariant = line + " variant " + variant;
+        addDepartureTime(ligneVariant, stationName, hour, minute);
+    }
 
     /**
      * Ajoute l'horaire de départ et le section de départ à la ligne si elle n'a pas
@@ -212,17 +210,15 @@ public final class Map {
      * @throws DifferentStartException       s'il y a plusieurs station de départ
      *                                       pour une même ligne
      */
-    // private void addDepartureTime(String line, String stationName, int hour, int
-    // minute)
-    // throws UndefinedLineException, StartStationNotFoundException,
-    // DifferentStartException {
-    // Line l = lines.get(line);
-    // if (l == null)
-    // throw new UndefinedLineException(line);
-    // // ajoute la section de départ si nécessaire
-    // l.setStart(stationName);
-    // l.addDepartureTime(hour, minute);
-    // }
+    private void addDepartureTime(String line, String stationName, int hour, int minute)
+    throws UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+        Line l = lines.get(line);
+        if (l == null) 
+            throw new UndefinedLineException(line);
+        // ajoute la section de départ si nécessaire
+        l.setStart(stationName);
+        l.addDepartureTime(hour, minute);
+    }
 
     public HashMap<String, ArrayList<Section>> getMap() {
         return new HashMap<>(map);
