@@ -98,7 +98,7 @@ public class Section implements Serializable {
     @Override
     public String toString() {
         return String.format("ligne %s à %s : %s --> %s (%d m, %s)",
-                line, time != null ? time : "unknown", start.getName(), arrival.getName(), distance,
+                line, time != null ? time : "no:tm", start.getName(), arrival.getName(), distance,
                 new Time(duration));
     }
 }
