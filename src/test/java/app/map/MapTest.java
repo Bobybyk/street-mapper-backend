@@ -170,6 +170,12 @@ public class MapTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
+    public void findPathBMaisonBlancheToPigalle()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathHelper("Maison Blanche", "Pigalle", 5);
+    }
+
     public void addTimeToLines()
         throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException, 
         UndefinedLineException, StartStationNotFoundException, DifferentStartException {
@@ -223,7 +229,7 @@ public class MapTest {
         ArrayList<Section> boucicautSections = huit_variant_1.getSections();
         Section lourmel_boucicaut = null;
         for (Section s : boucicautSections) {
-            if (s.getStart().name().equals("Lourmel") && s.getArrival().name().equals("Boucicaut")) {
+            if (s.getStart().getName().equals("Lourmel") && s.getArrival().getName().equals("Boucicaut")) {
                 lourmel_boucicaut = s;
                 break;
             }
@@ -243,7 +249,7 @@ public class MapTest {
         ArrayList<Section> boucicautSections = huit_variant_1.getSections();
         Section lourmel_boucicaut = null;
         for (Section s : boucicautSections) {
-            if (s.getStart().name().equals("Lourmel") && s.getArrival().name().equals("Boucicaut")) {
+            if (s.getStart().getName().equals("Lourmel") && s.getArrival().getName().equals("Boucicaut")) {
                 lourmel_boucicaut = s;
                 break;
             }
@@ -264,7 +270,7 @@ public class MapTest {
         ArrayList<Section> boucicautSections = huit_variant_1.getSections();
         Section boucicaut_felix_faure = null;
         for (Section s : boucicautSections) {
-            if (s.getStart().name().equals("Boucicaut") && s.getArrival().name().equals("Félix Faure")) {
+            if (s.getStart().getName().equals("Boucicaut") && s.getArrival().getName().equals("Félix Faure")) {
                 boucicaut_felix_faure = s;
                 break;
             }

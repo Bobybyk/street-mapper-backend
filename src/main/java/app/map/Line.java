@@ -81,13 +81,14 @@ public final class Line {
         if (stationName == null)
             throw new IllegalArgumentException();
         if (start == null) {
-            Optional<Section> station = sections.keySet().stream().filter(s -> s.getStart().name().equals(stationName))
+            Optional<Section> station = sections.keySet().stream()
+                    .filter(s -> s.getStart().getName().equals(stationName))
                     .findAny();
             if (station.isEmpty())
                 throw new StartStationNotFoundException(stationName, name, variant);
             start = station.get();
         } else {
-            String actual = start.getStart().name();
+            String actual = start.getStart().getName();
             if (!actual.equals(stationName))
                 throw new DifferentStartException(name, variant, actual, stationName);
         }
@@ -165,7 +166,7 @@ public final class Line {
         int nbSectionDone = 1;
         while (nbSectionDone < nbSections) {
             for (Section s : getSections()) {
-                if (s.getStart().name().equals(curentSection.getArrival().name())) {
+                if (s.getStart().getName().equals(curentSection.getArrival().getName())) {
                     sections.put(s, sections.get(curentSection)+s.getDuration()+waitingTime);
                     curentSection = s;
                 }

@@ -84,4 +84,28 @@ public class TimeTest {
     public void addToNextDay() {
         addDurationHelper(23, 50, 0, 645, 0, 0, 45);
     }
+
+    private void timeFromDurationHelper(int duration, int hour, int minute, int second) {
+        Time expected = new Time(hour, minute, second);
+        Time t = new Time(duration);
+        assertEquals(expected, t, String.format("%d to time", duration));
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void timeFromDurationSecond() {
+        timeFromDurationHelper(30, 0, 0, 30);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void timeFromDurationMinute() {
+        timeFromDurationHelper(90, 0, 1, 30);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void timeFromDurationHour() {
+        timeFromDurationHelper(3700, 1, 1, 40);
+    }
 }
