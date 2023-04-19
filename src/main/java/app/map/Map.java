@@ -99,7 +99,7 @@ public final class Map {
         String[] time = data[5].trim().split(":");
         // on suppose que la durée est donnée au format mm:ss
         int duration = Integer.parseInt(time[0]) * 60 + Integer.parseInt(time[1]);
-        int distance = (int) Math.round(Double.parseDouble(data[6].trim()) * 1000);
+        int distance = (int) Math.ceil(Double.parseDouble(data[6].trim()) * 1000);
         addSection(start, arrival, distance, duration, line);
     }
 
@@ -118,7 +118,7 @@ public final class Map {
         String[] coords = coord.trim().split(",");
         double x = Double.parseDouble(coords[0]);
         double y = Double.parseDouble(coords[1]);
-        Station s = new Station(station, x, y);
+        Station s = new Station(station, y, x);
         stations.add(s);
         map.putIfAbsent(station, new ArrayList<>());
         return s;

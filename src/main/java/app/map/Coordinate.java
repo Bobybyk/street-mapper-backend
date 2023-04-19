@@ -46,7 +46,7 @@ public class Coordinate implements Serializable {
         double x = Math.sin(latitudeR) * Math.sin(c.latitudeR);
         double y = Math.cos(latitudeR) * Math.cos(c.latitudeR);
         double z = Math.cos(longitudeR - c.longitudeR);
-        return (int) Math.round(Math.acos(x + (y * z)) * EARTH_RADIUS);
+        return (int) Math.ceil(Math.acos(x + (y * z)) * EARTH_RADIUS);
     }
 
     @Override
