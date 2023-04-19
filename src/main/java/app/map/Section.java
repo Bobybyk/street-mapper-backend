@@ -30,7 +30,7 @@ public class Section implements Serializable {
      * @throws IllegalArgumentException si start ou arrival est `null`
      */
     public Section(Station start, Station arrival, String line, int distance, int duration) {
-        if (start == null || arrival == null || line == null)
+        if (start == null || arrival == null)
             throw new IllegalArgumentException();
         this.start = start;
         this.arrival = arrival;
@@ -116,8 +116,8 @@ public class Section implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("ligne %s à %s : %s --> %s (%d m, %s)",
-                line, time != null ? time : "unknown", start.getName(), arrival.getName(), distance,
-                new Time(duration));
+        return String.format("%s à %s : %s --> %s (%d m, %s)",
+                line == null ? "à pied" : "ligne " + line, time != null ? time : "unknown", start.getName(),
+                arrival.getName(), distance, new Time(duration));
     }
 }

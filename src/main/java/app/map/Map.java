@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 import java.util.function.ToIntBiFunction;
@@ -18,6 +20,8 @@ import app.map.Line.StartStationNotFoundException;
  * Classe représentant la carte
  */
 public final class Map {
+
+    private static final int MAX_FOOT_DISTANCE = 1000;
 
     public static class IncorrectFileFormatException extends Exception {
         public IncorrectFileFormatException(String filename) {
@@ -40,6 +44,10 @@ public final class Map {
      * Map où chaque nom (avec variant) de ligne est associée sa ligne
      */
     private final HashMap<String, Line> lines = new HashMap<>();
+    /**
+     * L'ensemble des stations
+     */
+    private final HashSet<Station> stations = new HashSet<>();
 
     /**
      * Créer une map à partir d'un fichier CSV contenant les sections des lignes du
@@ -111,6 +119,7 @@ public final class Map {
         double x = Double.parseDouble(coords[0]);
         double y = Double.parseDouble(coords[1]);
         Station s = new Station(station, x, y);
+        stations.add(s);
         map.putIfAbsent(station, new ArrayList<>());
         return s;
     }
@@ -266,6 +275,21 @@ public final class Map {
     }
 
     /**
+     * @param startStation une station
+     * @return une liste de section à pied partant de startStation et arrivant à une
+     *         autre station à moins de MAX_FOOT_DISTANCE mètre
+     */
+    private List<Section> closeStations(Station startStation) {
+        List<Section> res = new ArrayList<>();
+        for (Station s : stations) {
+            int distance = startStation.distanceBetween(s);
+            if (distance < MAX_FOOT_DISTANCE)
+                res.add(new Section(startStation, s, null, distance, startStation.durationBetween(s)));
+        }
+        return res;
+    }
+
+    /**
      * Recherche un chemin entre 2 stations en appliquant l'algorithme de
      * dijkstra et renvoie les sections du trajet laissant que la station d'arrivé
      * dans arrivals
@@ -295,8 +319,11 @@ public final class Map {
 
         String u = null;
         while (!queue.isEmpty() && (!arrival.equals(u = queue.poll())) && distance.get(u) != Integer.MAX_VALUE) {
-            for (Section section : map.get(u)) {
-                Section current = previous.get(u);
+            List<Section> neighbors = map.get(u);
+            Section current = previous.get(u);
+            if (current != null)
+                neighbors.addAll(closeStations(previous.get(u).getArrival()));
+            for (Section section : neighbors) {
                 if (current == null) {
                     current = new Section(section.getStart(), section.getStart(), section.getLine(), 0, 0);
                     current.setTime(time);
@@ -325,7 +352,10 @@ public final class Map {
      */
     private void updateSectionTime(Section section, Time time) {
         Line l = lines.get(section.getLine());
-        section.setTime(l.getNextTime(section, time));
+        if (l != null)
+            section.setTime(l.getNextTime(section, time));
+        else
+            section.setTime(time);
     }
 
     private LinkedList<Section> dijkstraResultToList(HashMap<String, Section> path, String start, String arrival)
@@ -343,6 +373,15 @@ public final class Map {
         return orderedPath;
     }
 
+    /**
+     * @param s une section
+     * @return le nom de la ligne s sans le variant ou null s'il s'agit d'une
+     *         section à pied
+     */
+    private String getLineName(Section s) {
+        return s.getLine() == null ? null : lines.get(s.getLine()).getName();
+    }
+
     private LinkedList<Section> sectionsToRoute(LinkedList<Section> sections) {
         if (sections == null || sections.isEmpty())
             return sections;
@@ -352,13 +391,13 @@ public final class Map {
 
         Station start = first.getStart();
         Station arrival = first.getArrival();
-        String line = lines.get(first.getLine()).getName();
+        String line = getLineName(first);
         Time time = first.getTime();
         int distance = first.getDistance();
         int duration = first.getDuration();
 
         for (Section s : sections) {
-            if (line.equals(lines.get(s.getLine()).getName())) {
+            if (line != null && line.equals(getLineName(s))) {
                 arrival = s.getArrival();
                 distance += s.getDistance();
                 duration += s.getDuration();
@@ -368,7 +407,7 @@ public final class Map {
                 route.addLast(toAdd);
                 start = s.getStart();
                 arrival = s.getArrival();
-                line = lines.get(s.getLine()).getName();
+                line = getLineName(s);
                 time = s.getTime();
                 distance = s.getDistance();
                 duration = s.getDuration();
