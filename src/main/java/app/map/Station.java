@@ -2,6 +2,7 @@ package app.map;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Classe représentant une station, avec un nom et ses coordonnées
@@ -50,5 +51,17 @@ public class Station implements Serializable {
      */
     public int durationBetween(Station station) {
         return (int) Math.round(distanceBetween(station) * WALKING_SPEED);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Station s)
+            return s.name.equals(name) && s.coordinate.equals(coordinate);
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, coordinate);
     }
 }
