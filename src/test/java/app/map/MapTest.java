@@ -170,6 +170,12 @@ public class MapTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
+    public void findPathBMaisonBlancheToPigalle()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathHelper("Maison Blanche", "Pigalle", 5);
+    }
+
     public void addTimeToLines()
         throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException, 
         UndefinedLineException, StartStationNotFoundException, DifferentStartException {
@@ -201,5 +207,4 @@ public class MapTest {
         assertThrows(IncorrectFileFormatException.class, () -> map.addTime(getPath(filename)),
                 "Incorrect file format");
     }
-
 }

@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
-import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntBiFunction;
 
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
@@ -91,7 +91,7 @@ public final class Map {
         String[] time = data[5].trim().split(":");
         // on suppose que la durée est donnée au format mm:ss
         int duration = Integer.parseInt(time[0]) * 60 + Integer.parseInt(time[1]);
-        double distance = Double.parseDouble(data[6].trim());
+        int distance = (int) Math.round(Double.parseDouble(data[6].trim()) * 1000);
         addSection(start, arrival, distance, duration, line);
     }
 
@@ -123,16 +123,16 @@ public final class Map {
      * @param arrival  la station d'arrivé
      * @param distance la distance entre les deux stations
      * @param duration la durée du trajet entre les deux stations
-     * @param line     le nom et le variant de la ligne
+     * @param lineName le nom et le variant de la ligne
      * @throws IndexOutOfBoundsException si le nom de la ligne est mal formé
      * @throws NumberFormatException     si le variant n'est pas un nombre
      */
-    private void addSection(Station start, Station arrival, double distance, int duration, String lineName)
+    private void addSection(Station start, Station arrival, int distance, int duration, String lineName)
             throws IndexOutOfBoundsException, NumberFormatException {
         // création de la section
         Section section = new Section(start, arrival, lineName, distance, duration);
         // ajout dans map
-        map.get(start.name()).add(section);
+        map.get(start.getName()).add(section);
         // ajout dans lines
         Line line = lines.computeIfAbsent(lineName, n -> {
             String[] lineVariant = n.split(" ");
@@ -252,7 +252,7 @@ public final class Map {
             throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::getDistance);
+        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::distanceTo);
         return sectionsToRoute(sections);
     }
 
@@ -269,25 +269,28 @@ public final class Map {
      * @throws PathNotFoundException si il n'existe pas de trajet entre les deux
      *                               stations
      */
-    private LinkedList<Section> dijkstra(String start, String arrival, ToDoubleFunction<Section> f)
+    private LinkedList<Section> dijkstra(String start, String arrival, ToIntBiFunction<Section, Section> f)
             throws PathNotFoundException {
-        HashMap<String, Double> distance = new HashMap<>();
+        HashMap<String, Integer> distance = new HashMap<>();
         HashMap<String, Section> previous = new HashMap<>();
         for (String station : map.keySet()) {
-            distance.put(station, Double.MAX_VALUE);
+            distance.put(station, Integer.MAX_VALUE);
             previous.put(station, null);
         }
 
-        distance.put(start, 0.);
-        PriorityQueue<String> queue = new PriorityQueue<>(map.size(),
-                Comparator.comparingDouble(distance::get));
+        distance.put(start, 0);
+        PriorityQueue<String> queue = new PriorityQueue<>(map.size(), Comparator.comparingInt(distance::get));
         queue.addAll(map.keySet());
 
         String u = null;
-        while (!queue.isEmpty() && (!arrival.equals(u = queue.poll()))) {
+        while (!queue.isEmpty() && (!arrival.equals(u = queue.poll())) && distance.get(u) != Integer.MAX_VALUE) {
             for (Section section : map.get(u)) {
-                String v = section.getArrival().name();
-                double w = distance.get(u) + f.applyAsDouble(section);
+                Section current = previous.get(u);
+                if (current == null) {
+                    current = new Section(section.getStart(), section.getStart(), section.getLine(), 0, 0);
+                }
+                String v = section.getArrival().getName();
+                int w = distance.get(u) + f.applyAsInt(current, section);
                 if (distance.get(v) > w) {
                     distance.put(v, w);
                     previous.put(v, section);
@@ -310,7 +313,7 @@ public final class Map {
             if (section == null)
                 throw new PathNotFoundException();
             orderedPath.add(section);
-            previous = section.getStart().name();
+            previous = section.getStart().getName();
         }
         Collections.reverse(orderedPath);
         return orderedPath;
@@ -327,7 +330,7 @@ public final class Map {
         Station arrival = first.getArrival();
         String line = lines.get(first.getLine()).getName();
         Time time = first.getTime();
-        double distance = first.getDistance();
+        int distance = first.getDistance();
         int duration = first.getDuration();
 
         for (Section s : sections) {
