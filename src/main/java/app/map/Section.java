@@ -83,6 +83,6 @@ public class Section implements Serializable {
     @Override
     public String toString() {
         return String.format("ligne %s à %s : %s --> %s (%f, %d)",
-                line, time != null ? time : "unknown", start.name(), arrival.name(), distance, duration);
+                line, time != null ? time : "no:tm", start.name(), arrival.name(), distance, duration);
     }
 }

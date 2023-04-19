@@ -6,13 +6,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.function.ToDoubleFunction;
-
-import app.map.Line.DifferentStartException;
-import app.map.Line.StartStationNotFoundException;
 
 /**
  * Classe représentant la carte
@@ -40,6 +39,15 @@ public final class Map {
      * Map où chaque nom (avec variant) de ligne est associée sa ligne
      */
     private final HashMap<String, Line> lines = new HashMap<>();
+
+    /**
+     * Map ou le nom de la station est associé à ses informations
+     */
+    // Ne peux pas etre juste un Set puisque pour retrouver la StationInfo pour modifier je dois savoir
+    // à quoi elle est égale or je ne peux pas la retrouver juste avec son som puisque l'ensemble de lines qui la compose
+    // est aussi verifié dans la toString de StationInfo 
+    // Peut-etre mettre Station en clef ?
+    private final java.util.Map<String, StationInfo> stations = new HashMap<>();
 
     /**
      * Créer une map à partir d'un fichier CSV contenant les sections des lignes du
@@ -76,6 +84,19 @@ public final class Map {
     }
 
     /**
+     * Extrait le nom de la station et de la ligne pour les ajoutes à {@code stations}
+     * 
+     * @param station La station à àjouter à {@code stations}
+     * @param line    Le ligne à ajouter à {@code stations}
+     */
+    private void addStationInfo(Station station, Line line) {
+        String stationName = station.name();
+        String lineName = line.getName();
+        StationInfo info = stations.computeIfAbsent(stationName, StationInfo::new);        
+        info.addLine(lineName);
+    }
+
+    /**
      * Parse une ligne d'un fichier CSV contenant une section de trajet du réseau.
      *
      * @param s la ligne à parser
@@ -89,10 +110,14 @@ public final class Map {
         Station arrival = parseStation(data[2], data[3]);
         String line = data[4].trim();
         String[] time = data[5].trim().split(":");
+
         // on suppose que la durée est donnée au format mm:ss
         int duration = Integer.parseInt(time[0]) * 60 + Integer.parseInt(time[1]);
         double distance = Double.parseDouble(data[6].trim());
-        addSection(start, arrival, distance, duration, line);
+        Line createdLine = addSection(start, arrival, distance, duration, line);
+
+        addStationInfo(start, createdLine);
+        addStationInfo(arrival, createdLine);
     }
 
     /**
@@ -123,12 +148,11 @@ public final class Map {
      * @param arrival  la station d'arrivé
      * @param distance la distance entre les deux stations
      * @param duration la durée du trajet entre les deux stations
-     * @param line     le nom et le variant de la ligne
+     * @param lineName le nom et le variant de la ligne
      * @throws IndexOutOfBoundsException si le nom de la ligne est mal formé
-     * @throws NumberFormatException     si le variant n'est pas un nombre
      */
-    private void addSection(Station start, Station arrival, double distance, int duration, String lineName)
-            throws IndexOutOfBoundsException, NumberFormatException {
+    private Line addSection(Station start, Station arrival, double distance, int duration, String lineName)
+            throws IndexOutOfBoundsException {
         // création de la section
         Section section = new Section(start, arrival, lineName, distance, duration);
         // ajout dans map
@@ -141,9 +165,10 @@ public final class Map {
             return new Line(name, variant);
         });
         line.addSection(section);
+        return line;
     }
 
-    /**
+    /*
      * Parse un fichier CSV contenant les horaires de départ des lignes du réseau.
      *
      * @param fileName le nom du fichier à parser
@@ -175,7 +200,7 @@ public final class Map {
     // }
     // }
 
-    /**
+    /*
      * Parse une ligne d'un fichier CSV contenant un horaire de départ d'une ligne
      * du réseau.
      *
@@ -199,7 +224,7 @@ public final class Map {
     // addDepartureTime(line, stationName, hour, minute);
     // }
 
-    /**
+    /*
      * Ajoute l'horaire de départ et le section de départ à la ligne si elle n'a pas
      * été déjà déterminée
      *
@@ -232,7 +257,11 @@ public final class Map {
         return new HashMap<>(lines);
     }
 
-    public class PathNotFoundException extends Exception {
+    public Set<StationInfo> getStationsInfo() {
+        return new HashSet<>(stations.values());
+    }
+
+    public static class PathNotFoundException extends Exception {
         public PathNotFoundException(String start, String arrival) {
             super(String.format("Pas de chemin trouvé entre %s et %s", start, arrival));
         }
@@ -245,8 +274,8 @@ public final class Map {
     /**
      * Calcule un trajet entre 2 stations et renvoie la liste des sections du trajet
      *
-     * @param start   le nom de la station de départ
-     * @param arrival le nom de la station d'arrivé
+     * @param startStation   le nom de la station de départ
+     * @param arrivalStation le nom de la station d'arrivé
      * @return la liste des sections du trajet
      * @throws IllegalArgumentException si start ou arrival est `null`
      * @throws PathNotFoundException    si il n'existe pas de trajet entre les deux
