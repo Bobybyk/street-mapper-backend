@@ -168,7 +168,7 @@ public final class Map {
         return line;
     }
 
-    /*
+    /**
      * Parse un fichier CSV contenant les horaires de départ des lignes du réseau.
      *
      * @param fileName le nom du fichier à parser
@@ -197,7 +197,7 @@ public final class Map {
         }
     }
 
-    /*
+    /**
      * Parse une ligne d'un fichier CSV contenant un horaire de départ d'une ligne
      * du réseau.
      *
@@ -222,7 +222,7 @@ public final class Map {
         addDepartureTime(ligneVariant, stationName, hour, minute);
     }
 
-    /*
+    /**
      * Ajoute l'horaire de départ et le section de départ à la ligne si elle n'a pas
      * été déjà déterminée
      *
