@@ -115,7 +115,7 @@ public class MapTest {
         pathNotFoundHelper("Commerce", "Lourmel");
     }
 
-    private void findPathHelper(String start, String arrival, int nbLine, boolean foot)
+    private void findPathHelper(String start, String arrival, int distance, boolean foot)
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
         Map map = new Map(getPath(MAP_DATA_ALL));
@@ -124,39 +124,36 @@ public class MapTest {
         for (Section s : trajet)
             System.out.println(s);
         System.out.println("########");
-        assertEquals(nbLine, trajet.size(), start + " to " + arrival);
+        int n = trajet.stream().reduce(0, (x, s) -> x + s.getDistance(), Integer::sum);
+        assertEquals(distance, n, String.format("Distance between %s and %s is %d m", start, arrival, distance));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathSameLine() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Lourmel", "Commerce", 1, false);
-        findPathHelper("Lourmel", "Commerce", 2, true);
+        findPathHelper("Lourmel", "Commerce", 1092, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath2Line() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Cité", "Hôtel de Ville", 2, false);
-        findPathHelper("Cité", "Hôtel de Ville", 2, true);
+        findPathHelper("Cité", "Hôtel de Ville", 813, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath3Line() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Alma - Marceau", "Invalides", 3, false);
-        findPathHelper("Alma - Marceau", "Invalides", 2, true);
+        findPathHelper("Alma - Marceau", "Invalides", 1950, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathJussieuToOdeon() throws FileNotFoundException, IllegalArgumentException,
             IncorrectFileFormatException, PathNotFoundException {
-        findPathHelper("Jussieu", "Odéon", 1, false);
-        findPathHelper("Jussieu", "Odéon", 2, true);
+        findPathHelper("Jussieu", "Odéon", 1310, false);
     }
 
     @Test
@@ -164,8 +161,7 @@ public class MapTest {
     public void findPathBastilleToRepublique()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Bastille", "République", 1, false);
-        findPathHelper("Bastille", "République", 2, true);
+        findPathHelper("Bastille", "République", 1643, false);
     }
 
     @Test
@@ -173,8 +169,7 @@ public class MapTest {
     public void findPathPyramidesToBercy()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Pyramides", "Bercy", 1, false);
-        findPathHelper("Pyramides", "Bercy", 1, true);
+        findPathHelper("Pyramides", "Bercy", 4336, false);
     }
 
     @Test
@@ -182,8 +177,15 @@ public class MapTest {
     public void findPathNordToLyon()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Gare du Nord", "Gare de Lyon", 4, false);
-        findPathHelper("Gare du Nord", "Gare de Lyon", 6, true);
+        findPathHelper("Gare du Nord", "Gare de Lyon", 3828, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathNordToLyonFoot()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathHelper("Gare du Nord", "Gare de Lyon", 3828, true);
     }
 
     @Test
@@ -191,8 +193,15 @@ public class MapTest {
     public void findPathBercyToParmentier()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Bercy", "Parmentier", 4, false);
-        findPathHelper("Bercy", "Parmentier", 4, true);
+        findPathHelper("Bercy", "Parmentier", 3877, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathBercyToParmentierFoot()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathHelper("Bercy", "Parmentier", 3154, true);
     }
 
     @Test
@@ -200,7 +209,14 @@ public class MapTest {
     public void findPathBMaisonBlancheToPigalle()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        findPathHelper("Maison Blanche", "Pigalle", 6, false);
-        findPathHelper("Maison Blanche", "Pigalle", 10, true);
+        findPathHelper("Maison Blanche", "Pigalle", 8420, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathBMaisonBlancheToPigalleFoot()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathHelper("Maison Blanche", "Pigalle", 7871, true);
     }
 }

@@ -23,6 +23,8 @@ public final class Map {
 
     private static final int MAX_FOOT_DISTANCE = 1000;
 
+    private static final double WEIGHT_FOOT = 1.5;
+
     public static class IncorrectFileFormatException extends Exception {
         public IncorrectFileFormatException(String filename) {
             super(String.format("Le fichier %s n'est pas bien formé", filename));
@@ -284,7 +286,8 @@ public final class Map {
         for (Station s : stations) {
             int distance = startStation.distanceBetween(s);
             if (distance < MAX_FOOT_DISTANCE)
-                res.add(new Section(startStation, s, null, distance, startStation.durationBetween(s)));
+                res.add(new Section(startStation, s, null, (int) Math.round(distance * WEIGHT_FOOT),
+                        (int) Math.round(startStation.durationBetween(s) * WEIGHT_FOOT)));
         }
         return res;
     }
@@ -392,8 +395,8 @@ public final class Map {
         Station arrival = first.getArrival();
         String line = getLineName(first);
         Time time = first.getTime();
-        int distance = first.getDistance();
-        int duration = first.getDuration();
+        int distance = 0;
+        int duration = 0;
 
         for (Section s : sections) {
             if (line != null && line.equals(getLineName(s))) {
