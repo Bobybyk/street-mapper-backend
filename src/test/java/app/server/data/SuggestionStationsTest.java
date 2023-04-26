@@ -1,18 +1,15 @@
 package app.server.data;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Timeout;
-
-import app.map.StationInfo;
-import app.map.Map;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import app.map.PlanParser;
+import app.map.StationInfo;
 
 public class SuggestionStationsTest {
 
@@ -36,7 +33,7 @@ public class SuggestionStationsTest {
 
     @BeforeAll
     static void init() throws Exception {
-        stations = new Map(getPath(MAP_DATA_ALL)).getStationsInfo();
+        stations = PlanParser.planFromSectionCSV(getPath(MAP_DATA_ALL)).getStationsInfo();
     }
 
     @ParameterizedTest
@@ -61,7 +58,7 @@ public class SuggestionStationsTest {
         SuggestionStations s = createSuggestionStations(prefix);
         Set<StationInfo> set = s.getStations();
         StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
-        
+
         assertTrue(set.size() == 1 && set.contains(chatelet));
     }
 
