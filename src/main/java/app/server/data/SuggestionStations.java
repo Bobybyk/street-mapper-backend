@@ -19,6 +19,19 @@ public class SuggestionStations implements Serializable {
     public static enum SuggestionKind {
         DEPART,
         ARRIVAL;
+
+        /**
+         * Retourne l'énumération correspondant à {@code s}, {@code null} sinon
+         * @param s Nom de l'énumération
+         * @return cas correspondant au nom de l'énumération
+         */
+        public static SuggestionKind ofString(String s){
+            return switch(s) {
+                case "DEPART" -> DEPART;
+                case "ARRIVAL" -> ARRIVAL;
+                default -> null;
+            };
+        }
     }
 
     @Serial

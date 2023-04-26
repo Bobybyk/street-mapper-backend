@@ -23,6 +23,7 @@ public class ServerTest {
     private static final String EMPTY_REQUEST = "";
     private static final String SUGGESTION_VALID_DEPART = "SEARCH;GARE1;DEPART";
     private static final String SUGGESTION_VALID_ARRIVAL = "SEARCH;GARE1;ARRIVAL";
+    private static final String SUGGESTION_INVALID_2ARG = "SEARCH;GARE1;afhja";
     private static final String SUGGESTION_EMPTY = "SEARCH; ";
 
     private static final int PORT = 12334;
@@ -156,6 +157,13 @@ public class ServerTest {
     public void testValidSuggestionArrival() throws Exception {
         Object suggestions = sendRequest(SUGGESTION_VALID_ARRIVAL);
         assertTrue(suggestions instanceof SuggestionStations);
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    public void testInvalidSuggestion2Arg() throws Exception {
+        Object suggestions = sendRequest(SUGGESTION_INVALID_2ARG);
+        assertTrue(suggestions instanceof ErrorServer);
     }
 
     @Test

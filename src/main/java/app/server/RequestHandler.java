@@ -161,7 +161,7 @@ class RequestHandler implements Runnable {
         }
 
         String stationToSearch = inputArgs[1].trim();
-        SuggestionStations.SuggestionKind kind = SuggestionKind.valueOf(inputArgs[2].trim());
+        SuggestionStations.SuggestionKind kind = SuggestionKind.ofString(inputArgs[2].trim());
         if (kind == null) {
             return serverErrorFormatted("Impossible de analyser le type de search <Arrival| Depart>");
         }
