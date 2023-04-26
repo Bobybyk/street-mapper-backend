@@ -16,12 +16,19 @@ import app.map.StationInfo;
  */
 public class SuggestionStations implements Serializable {
 
+    public static enum SuggestionKind {
+        DEPART,
+        ARRIVAL;
+    }
+
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     private Set<StationInfo> stations;
+    private SuggestionKind kind;
 
-    public SuggestionStations(String prefixStation, Collection <? extends StationInfo> collection) {
+    public SuggestionStations(String prefixStation, SuggestionKind kind, Collection <? extends StationInfo> collection) {
+        this.kind = kind;
         Collator insenstiveStringComparator = Collator.getInstance();
         insenstiveStringComparator.setStrength(Collator.PRIMARY);
 
@@ -42,6 +49,10 @@ public class SuggestionStations implements Serializable {
 
     public Set<StationInfo> getStations() {
         return stations;
+    }
+
+    public SuggestionKind getKind() {
+        return kind;
     }
 
 }

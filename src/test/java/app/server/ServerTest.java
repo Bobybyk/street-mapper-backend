@@ -21,7 +21,8 @@ public class ServerTest {
 
     private static final String NULL_REQUEST = null;
     private static final String EMPTY_REQUEST = "";
-    private static final String SUGGESTION_VALID = "SEARCH;GARE1";
+    private static final String SUGGESTION_VALID_DEPART = "SEARCH;GARE1;DEPART";
+    private static final String SUGGESTION_VALID_ARRIVAL = "SEARCH;GARE1;ARRIVAL";
     private static final String SUGGESTION_EMPTY = "SEARCH; ";
 
     private static final int PORT = 12334;
@@ -145,8 +146,15 @@ public class ServerTest {
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testValidSuggestion() throws Exception {
-        Object suggestions = sendRequest(SUGGESTION_VALID);
+    public void testValidSuggestionDepart() throws Exception {
+        Object suggestions = sendRequest(SUGGESTION_VALID_DEPART);
+        assertTrue(suggestions instanceof SuggestionStations);
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    public void testValidSuggestionArrival() throws Exception {
+        Object suggestions = sendRequest(SUGGESTION_VALID_ARRIVAL);
         assertTrue(suggestions instanceof SuggestionStations);
     }
 
