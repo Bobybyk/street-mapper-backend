@@ -2,21 +2,20 @@ package app.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
-
 import app.App;
-import app.map.Map;
+import app.map.Plan;
 import app.server.data.ErrorServer;
 import app.server.data.Route;
+import app.server.data.SuggestionStations;
+import app.server.data.SuggestionStations.SuggestionKind;
 
 /**
- * Classe réprésentant les réponses du server.
- * Actuellement le server réagit à un mot clef lu dans la chaine de caractèrere
- * envoyé par le client
- * et agit en conséquence.
+ * Classe réprésentant les réponses du server. Actuellement le server réagit à un mot clef lu dans
+ * la chaine de caractèrere envoyé par le client et agit en conséquence.
  */
 class RequestHandler implements Runnable {
 
@@ -26,12 +25,21 @@ class RequestHandler implements Runnable {
     private static final String ROUTE_KEY = "ROUTE";
 
     /**
+     * Nom de la commande correspondant la recherche de stations par leur nom.
+     *
+     * <p>
+     * Command structure: SEARCH;nom de station
+     */
+    private static final String SEARCH_KEY = "SEARCH";
+
+    /**
      * Ensemble des couples mot-clef actions a exécuter
      *
      * @see ServerActionCallback
      */
-    private static final java.util.Map<String, ServerActionCallback> requestActions = java.util.Map.of(
-            ROUTE_KEY, RequestHandler::handleRouteRequest);
+    private static final java.util.Map<String, ServerActionCallback> requestActions =
+            java.util.Map.of(ROUTE_KEY, RequestHandler::handleRouteRequest, SEARCH_KEY,
+                    RequestHandler::handleSearchRequest);
 
     /**
      * Caractère utilisé pour sépérarer les arguments de la requête
@@ -44,87 +52,126 @@ class RequestHandler implements Runnable {
     private final Socket clientSocket;
 
     /**
+     * Un liseur de stream associé au {@code InputStream} du {@code clientSocket}
+     */
+    private InputStreamReader clientInputStreamReader;
+
+    /**
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      */
-    RequestHandler(Socket clientSocket) {
+    RequestHandler(Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
+        this.clientInputStreamReader = new InputStreamReader(clientSocket.getInputStream());
+    }
+
+    /**
+     * Forme un message d'erreur
+     *
+     * @param reason Message decrivant le message l'erreur
+     * @return
+     */
+    private static String errorMessageFormat(String reason) {
+        return String.format("[Erreur-serveur] %s", reason);
+    }
+
+    /**
+     * Cree un {@code ErrorServer} en formattant {@code reason}
+     *
+     * @param reason Message decrivant le message l'erreur
+     *
+     * @see #errorMessageFormat()
+     */
+    private static ErrorServer serverErrorFormatted(String reason) {
+        return new ErrorServer(errorMessageFormat(reason));
     }
 
     /**
      * Lit le contenu du socket
      *
-     * @throws IOException si une erreur arrive lors de la manipulation des
-     *                     entrées/sorties du socket
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
-    private void handleClient() throws IOException {
-        InputStream inputStream = clientSocket.getInputStream();
-        BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+    private Serializable handleClient() throws IOException {
+        BufferedReader in = new BufferedReader(clientInputStreamReader);
         String message = in.readLine();
 
-        // System.out.println("RECEPTION" + message);
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if (message != null)
-            handleLine(message);
+        if (message == null)
+            return serverErrorFormatted("Message est null");
 
+        return handleLine(message);
     }
 
     /**
      * Execute l'action en fonction requête lu dans la chaine de caractère
      *
      * @param clientLine Ligne (chaine de caractere) lue dans le sockets
-     * @throws IOException si une erreur arrive lors de la manipulation des
-     *                     entrées/sorties du socket
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
-    private void handleLine(String clientLine) throws IOException {
+    private Serializable handleLine(String clientLine) throws IOException {
         String[] splittedLine = clientLine.split(charSplitter);
-        // Pour l'instant assumer que tout va bien niveau formattage
         String clientRequest = splittedLine[0];
         ServerActionCallback callback = requestActions.get(clientRequest);
         if (callback == null) {
-            new ErrorServer("Serveur erreur");
+            return serverErrorFormatted("Serveur erreur");
         } else {
-            callback.execute(clientLine, this.clientSocket);
+            return callback.execute(splittedLine);
         }
     }
 
     /**
      * Gere la reponse du renvoie d'un trajet au client
      *
-     * @param inputLine    entrée de l'utilisateur
-     * @param clientSocket Socket sur lequel la réponse sera envoyée
-     * @throws IOException si une erreur arrive lors de la manipulation des
-     *                     entrées/sorties du socket
+     * @param inputArgs entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
-    private static void handleRouteRequest(String inputLine, Socket clientSocket) throws IOException {
-        String[] tabLine = inputLine.split(charSplitter);
-        ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
-
-        if (tabLine.length != 3) {
-            final String errorTrajetManquant = "[Erreur-serveur] Trajet départ ou arrivé manquant.";
-            System.out.println(errorTrajetManquant);
-            outStream.writeObject(new ErrorServer(errorTrajetManquant));
-            outStream.flush();
+    private static Serializable handleRouteRequest(String[] inputArgs) throws IOException {
+        if (inputArgs.length != 3) {
             System.out.println("TRAJET PAS BON");
+            return serverErrorFormatted("Trajet départ ou arrivé manquant.");
         } else {
             try {
-                Route trajet = new Route(App.getInstanceOfMap().findPathOpt(tabLine[1], tabLine[2], null, true));
-                outStream.writeObject(trajet);
-                outStream.flush();
+                Route trajet = new Route(
+                        App.getInstanceOfMap().findPathOpt(inputArgs[1], inputArgs[2], null, true));
                 System.out.println("TRAJET");
+                return trajet;
 
-            } catch (Map.PathNotFoundException e) {
-                final String errorTrajetInexistant = "[Erreur-serveur] Trajet inexistant.";
-                System.out.println(errorTrajetInexistant);
-                outStream.writeObject(new ErrorServer(errorTrajetInexistant));
-                outStream.flush();
-                System.out.println("ERREUR");
-
+            } catch (Plan.PathNotFoundException e) {
+                System.out.println("ERREUR: Trajet inexistant.");
+                return serverErrorFormatted("Trajet inexistant");
             }
         }
+    }
+
+    /**
+     * Gere la reponse du pour la sugestion de station en fonction du nom
+     *
+     * @param inputLine entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
+     */
+    private static Serializable handleSearchRequest(String[] inputArgs) throws IOException {
+        if (inputArgs.length < 3 || inputArgs[1].isBlank()) {
+            System.out.println("RECHERCHE DE STATION PAS BONNE");
+            return serverErrorFormatted("Station manquante ou vide");
+        }
+
+        String stationToSearch = inputArgs[1].trim();
+        SuggestionStations.SuggestionKind kind = SuggestionKind.ofString(inputArgs[2].trim());
+        if (kind == null) {
+            return serverErrorFormatted(
+                    "Impossible de analyser le type de search <Arrival| Depart>");
+        }
+        SuggestionStations suggestions = new SuggestionStations(stationToSearch, kind,
+                App.getInstanceOfMap().getStationsInfo());
+
+        return suggestions;
     }
 
     // Implement Runnable
@@ -132,12 +179,16 @@ class RequestHandler implements Runnable {
     public void run() {
         try {
             while (true) {
-                handleClient();
+                Serializable s = handleClient();
+                ObjectOutputStream outStream =
+                        new ObjectOutputStream(clientSocket.getOutputStream());
+                outStream.writeObject(s);
+                outStream.flush();
             }
         } catch (IOException e) {
             try {
                 clientSocket.close();
-            } catch (IOException _exception) {
+            } catch (IOException ignore) {
                 System.out.println("Erreur @run REQQUESTHANDLER");
             }
         }
