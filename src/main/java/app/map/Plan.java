@@ -1,16 +1,12 @@
 package app.map;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.function.ToIntBiFunction;
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
 import app.map.PlanParser.UndefinedLineException;
@@ -184,80 +180,18 @@ public final class Plan {
             throws IllegalArgumentException, PathNotFoundException {
         if (startStation == null || arrivalStation == null)
             throw new IllegalArgumentException();
-        LinkedList<Section> sections = dijkstra(startStation, arrivalStation, Section::distanceTo);
+        List<Section> sections =
+                new Dijkstra(new Plan(this), startStation, arrivalStation, Section::distanceTo)
+                        .getPath();
         return sectionsToRoute(sections);
     }
 
-    /**
-     * Recherche un chemin entre 2 stations en appliquant l'algorithme de dijkstra et renvoie les
-     * sections du trajet laissant que la station d'arrivé dans arrivals
-     *
-     * @param start la station (sommet) de départ
-     * @param arrival la liste des stations (sommet) d'arrivé possible
-     * @param f la fonction qui associe à une section (arête) son poids
-     * @return map associant une station à la section prendre pour aller à cette station
-     * @throws PathNotFoundException si il n'existe pas de trajet entre les deux stations
-     */
-    private LinkedList<Section> dijkstra(String start, String arrival,
-            ToIntBiFunction<Section, Section> f) throws PathNotFoundException {
-        HashMap<String, Integer> distance = new HashMap<>();
-        HashMap<String, Section> previous = new HashMap<>();
-        for (String station : map.keySet()) {
-            distance.put(station, Integer.MAX_VALUE);
-            previous.put(station, null);
-        }
-
-        distance.put(start, 0);
-        PriorityQueue<String> queue =
-                new PriorityQueue<>(map.size(), Comparator.comparingInt(distance::get));
-        queue.addAll(map.keySet());
-
-        String u = null;
-        while (!queue.isEmpty() && (!arrival.equals(u = queue.poll()))
-                && distance.get(u) != Integer.MAX_VALUE) {
-            for (Section section : map.get(u)) {
-                Section current = previous.get(u);
-                if (current == null) {
-                    current = new Section(section.getStart(), section.getStart(), section.getLine(),
-                            0, 0);
-                }
-                String v = section.getArrival().getName();
-                int w = distance.get(u) + f.applyAsInt(current, section);
-                if (distance.get(v) > w) {
-                    distance.put(v, w);
-                    previous.put(v, section);
-                    queue.remove(v);
-                    queue.add(v);
-                }
-            }
-        }
-        if (!arrival.equals(u))
-            throw new PathNotFoundException();
-        return dijkstraResultToList(previous, start, u);
-    }
-
-    private LinkedList<Section> dijkstraResultToList(HashMap<String, Section> path, String start,
-            String arrival) throws PathNotFoundException {
-        LinkedList<Section> orderedPath = new LinkedList<>();
-        String previous = arrival;
-        while (!previous.equals(start)) {
-            Section section = path.get(previous);
-            if (section == null)
-                throw new PathNotFoundException();
-            orderedPath.add(section);
-            previous = section.getStart().getName();
-        }
-        Collections.reverse(orderedPath);
-        return orderedPath;
-    }
-
-    private LinkedList<Section> sectionsToRoute(LinkedList<Section> sections) {
+    private List<Section> sectionsToRoute(List<Section> sections) {
         if (sections == null || sections.isEmpty())
             return sections;
 
-        LinkedList<Section> route = new LinkedList<>();
-        Section first = sections.getFirst();
-
+        List<Section> route = new LinkedList<>();
+        Section first = sections.get(0);
         Station start = first.getStart();
         Station arrival = first.getArrival();
         String line = lines.get(first.getLine()).getName();
@@ -273,7 +207,7 @@ public final class Plan {
             } else {
                 Section toAdd = new Section(start, arrival, line, distance, duration);
                 toAdd.setTime(time);
-                route.addLast(toAdd);
+                route.add(toAdd);
                 start = s.getStart();
                 arrival = s.getArrival();
                 line = lines.get(s.getLine()).getName();
@@ -284,7 +218,7 @@ public final class Plan {
         }
         Section toAdd = new Section(start, arrival, line, distance, duration);
         toAdd.setTime(time);
-        route.addLast(toAdd);
+        route.add(toAdd);
         return route;
     }
 }
