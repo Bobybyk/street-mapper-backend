@@ -12,6 +12,7 @@ import app.map.Map;
 import app.server.data.ErrorServer;
 import app.server.data.Route;
 import app.server.data.SuggestionStations;
+import app.server.data.SuggestionStations.SuggestionKind;
 
 /**
  * Classe réprésentant les réponses du server.
@@ -154,13 +155,17 @@ class RequestHandler implements Runnable {
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     private static Serializable handleSearchRequest(String[] inputArgs) throws IOException {
-        if ( inputArgs.length < 2 || inputArgs[1].isBlank() ) {
+        if ( inputArgs.length < 3 || inputArgs[1].isBlank() ) {
             System.out.println("RECHERCHE DE STATION PAS BONNE");
             return serverErrorFormatted("Station manquante ou vide");
         }
 
         String stationToSearch = inputArgs[1].trim();
-        SuggestionStations suggestions = new SuggestionStations(stationToSearch, App.getInstanceOfMap().getStationsInfo() );
+        SuggestionStations.SuggestionKind kind = SuggestionKind.ofString(inputArgs[2].trim());
+        if (kind == null) {
+            return serverErrorFormatted("Impossible de analyser le type de search <Arrival| Depart>");
+        }
+        SuggestionStations suggestions = new SuggestionStations(stationToSearch, kind, App.getInstanceOfMap().getStationsInfo() );
         
         return suggestions;
     }

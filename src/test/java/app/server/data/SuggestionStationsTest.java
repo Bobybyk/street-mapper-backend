@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Timeout;
 
 import app.map.StationInfo;
+import app.server.data.SuggestionStations.SuggestionKind;
 import app.map.Map;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -27,7 +28,7 @@ public class SuggestionStationsTest {
     }
 
     public static SuggestionStations createSuggestionStations(String prefix) throws Exception {
-        return new SuggestionStations(prefix, stations);
+        return new SuggestionStations(prefix, SuggestionKind.DEPART, stations);
     }
 
     public static StationInfo createStationInfo(String stationName, String... lines) {
