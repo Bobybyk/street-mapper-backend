@@ -43,17 +43,13 @@ public final class Plan {
      * @param p un plan à copier
      */
     public Plan(Plan p) {
-
-        HashMap<String, List<Section>> test =
-                p.map.entrySet().stream().reduce(new HashMap<>(), (acc, e) -> {
-                    acc.put(e.getKey(), e.getValue().stream().map(Section::new).toList());
-                    return acc;
-                }, (acc, m) -> {
-                    acc.putAll(m);
-                    return acc;
-                });
-
-        this.map = test;
+        this.map = p.map.entrySet().stream().reduce(new HashMap<>(), (acc, e) -> {
+            acc.put(e.getKey(), e.getValue().stream().map(Section::new).toList());
+            return acc;
+        }, (acc, m) -> {
+            acc.putAll(m);
+            return acc;
+        });
         this.lines = new HashMap<>(p.lines);
         this.stations = new HashMap<>(p.stations);
     }
