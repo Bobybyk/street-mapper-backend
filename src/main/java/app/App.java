@@ -3,37 +3,40 @@
  */
 package app;
 
-import app.map.Map;
-import app.server.Server;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import app.map.Plan;
+import app.map.PlanParser;
+import app.server.Server;
 
 public class App {
 
     /**
      * Commentaire d'erreur en static pour la gestion de fichier
      */
-    private final static String errorIllegalArgument = "[Erreur] Arguments invalides. Arguments Attendus : java App <file>";
-    private final static String errorFileNotExist = "[Erreur] Fichier introuvable ou est un repertoire";
+    private final static String errorIllegalArgument =
+            "[Erreur] Arguments invalides. Arguments Attendus : java App <file>";
+    private final static String errorFileNotExist =
+            "[Erreur] Fichier introuvable ou est un repertoire";
     private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
     private final static String errorServeurStart = "[Erreur] Le serveur n'a pas demarré";
 
 
-    private final static String succesMapCreate = "Object Map crée avec succes ";
+    private final static String succesMapCreae = "Object Map crée avec succes ";
 
-    private static Map map = null;
+    private static Plan map = null;
 
     /**
      * Cette fonction permet de recup l'instance de map
+     *
      * @return L'object Map
      */
-    public static Map getInstanceOfMap(){
-        if(map == null) {
+    public static Plan getInstanceOfMap() {
+        if (map == null) {
             try {
-                return new Map("dev_ressources/map_data_client.csv");
-            } catch (FileNotFoundException | Map.IncorrectFileFormatException e) {
+                return PlanParser.planFromSectionCSV("dev_ressources/map_data_client.csv");
+            } catch (FileNotFoundException | PlanParser.IncorrectFileFormatException e) {
                 System.out.println("Erreur map introuvable");
             }
         }
@@ -41,29 +44,31 @@ public class App {
     }
 
     public static void main(String[] args) {
-       if(argsIsOk(args)) {
-           final File file = new File(args[0]);
-           if (!file.exists() || file.isDirectory()) print(errorFileNotExist);
-           else {
-               try {
-                   map = new Map(file.getPath());
-                   System.out.println(succesMapCreate);
-                   final Server server = new Server("localhost", 12345);
-                   server.start();
-               } catch (FileNotFoundException e) {
-                   print(errorFileNotExist);
-               } catch (Map.IncorrectFileFormatException e) {
-                   print(errorIncorrectFile);
-               } catch (IOException e) {
-                   print(errorServeurStart);
-               }
-           }
-       }
+        if (argsIsOk(args)) {
+            final File file = new File(args[0]);
+            if (!file.exists() || file.isDirectory())
+                print(errorFileNotExist);
+            else {
+                try {
+                    map = PlanParser.planFromSectionCSV(file.getPath());
+                    System.out.println(succesMapCreae);
+                    final Server server = new Server("localhost", 12345);
+                    server.start();
+                } catch (FileNotFoundException e) {
+                    print(errorFileNotExist);
+                } catch (PlanParser.IncorrectFileFormatException e) {
+                    print(errorIncorrectFile);
+                } catch (IOException e) {
+                    print(errorServeurStart);
+                }
+            }
+        }
     }
 
     /**
      * Cette fonction renvoie un vrai si les arguments sont correctes s'ils respectent le formatage
      * ou faux si les arguments ne respectent pas le formatage
+     *
      * @param args l'ensemble des arguments
      * @return boolean
      */
@@ -75,14 +80,16 @@ public class App {
             print(errorIllegalArgument);
             return false;
         }
-            return true;
-        }
+        return true;
+    }
 
     /**
      * Fonction d'affichage
+     *
      * @param msg le tableau des messages pour les faire afficher
      */
-    private static void print(String... msg){
-        for (String line: msg) System.out.println(line);
+    private static void print(String... msg) {
+        for (String line : msg)
+            System.out.println(line);
     }
 }

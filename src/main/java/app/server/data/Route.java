@@ -1,10 +1,9 @@
 package app.server.data;
 
-import app.map.Section;
-
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.List;
+import app.map.Section;
 
 
 /**
@@ -13,17 +12,15 @@ import java.util.LinkedList;
 public class Route implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
-    private final LinkedList<Section> pathDistOpt;
+    private final List<Section> pathDistOpt;
 
-    public Route(LinkedList<Section> pathDistOpt) {
+    public Route(List<Section> pathDistOpt) {
         this.pathDistOpt = pathDistOpt;
     }
 
-    public LinkedList<Section> getPathDistOpt() {
+    public List<Section> getPathDistOpt() {
         return pathDistOpt;
     }
-
 }
-

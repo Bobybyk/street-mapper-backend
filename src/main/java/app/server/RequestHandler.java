@@ -6,18 +6,16 @@ import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
-
 import app.App;
-import app.map.Map;
+import app.map.Plan;
 import app.server.data.ErrorServer;
 import app.server.data.Route;
 import app.server.data.SuggestionStations;
 import app.server.data.SuggestionStations.SuggestionKind;
 
 /**
- * Classe réprésentant les réponses du server.
- * Actuellement le server réagit à un mot clef lu dans la chaine de caractèrere envoyé par le client
- * et agit en conséquence.
+ * Classe réprésentant les réponses du server. Actuellement le server réagit à un mot clef lu dans
+ * la chaine de caractèrere envoyé par le client et agit en conséquence.
  */
 class RequestHandler implements Runnable {
 
@@ -29,7 +27,7 @@ class RequestHandler implements Runnable {
 
     /**
      * Nom de la commande correspondant la recherche de stations par leur nom.
-     * 
+     *
      * <p>
      * Command structure: SEARCH;nom de station
      */
@@ -40,10 +38,9 @@ class RequestHandler implements Runnable {
      *
      * @see ServerActionCallback
      */
-    private static final java.util.Map<String, ServerActionCallback> requestActions = java.util.Map.of(
-            ROUTE_KEY, RequestHandler::handleRouteRequest,
-            SEARCH_KEY, RequestHandler::handleSearchRequest
-    );
+    private static final java.util.Map<String, ServerActionCallback> requestActions =
+            java.util.Map.of(ROUTE_KEY, RequestHandler::handleRouteRequest, SEARCH_KEY,
+                    RequestHandler::handleSearchRequest);
 
     /**
      * Caractère utilisé pour sépérarer les arguments de la requête
@@ -70,6 +67,7 @@ class RequestHandler implements Runnable {
 
     /**
      * Forme un message d'erreur
+     *
      * @param reason Message decrivant le message l'erreur
      * @return
      */
@@ -79,9 +77,9 @@ class RequestHandler implements Runnable {
 
     /**
      * Cree un {@code ErrorServer} en formattant {@code reason}
-     * 
+     *
      * @param reason Message decrivant le message l'erreur
-     * 
+     *
      * @see #errorMessageFormat()
      */
     private static ErrorServer serverErrorFormatted(String reason) {
@@ -91,7 +89,8 @@ class RequestHandler implements Runnable {
     /**
      * Lit le contenu du socket
      *
-     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
     private Serializable handleClient() throws IOException {
         BufferedReader in = new BufferedReader(clientInputStreamReader);
@@ -103,7 +102,7 @@ class RequestHandler implements Runnable {
             e.printStackTrace();
         }
         if (message == null)
-           return serverErrorFormatted("Message est null");
+            return serverErrorFormatted("Message est null");
 
         return handleLine(message);
     }
@@ -111,8 +110,9 @@ class RequestHandler implements Runnable {
     /**
      * Execute l'action en fonction requête lu dans la chaine de caractère
      *
-     * @param clientLine   Ligne (chaine de caractere) lue dans le sockets
-     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     * @param clientLine Ligne (chaine de caractere) lue dans le sockets
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
     private Serializable handleLine(String clientLine) throws IOException {
         String[] splittedLine = clientLine.split(charSplitter);
@@ -128,8 +128,9 @@ class RequestHandler implements Runnable {
     /**
      * Gere la reponse du renvoie d'un trajet au client
      *
-     * @param  inputArgs   entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
-     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     * @param inputArgs entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
     private static Serializable handleRouteRequest(String[] inputArgs) throws IOException {
         if (inputArgs.length != 3) {
@@ -137,11 +138,12 @@ class RequestHandler implements Runnable {
             return serverErrorFormatted("Trajet départ ou arrivé manquant.");
         } else {
             try {
-                Route trajet = new Route(App.getInstanceOfMap().findPathDistOpt(inputArgs[1], inputArgs[2]));
+                Route trajet = new Route(
+                        App.getInstanceOfMap().findPathDistOpt(inputArgs[1], inputArgs[2]));
                 System.out.println("TRAJET");
                 return trajet;
 
-            } catch (Map.PathNotFoundException e) {
+            } catch (Plan.PathNotFoundException e) {
                 System.out.println("ERREUR: Trajet inexistant.");
                 return serverErrorFormatted("Trajet inexistant");
             }
@@ -150,9 +152,10 @@ class RequestHandler implements Runnable {
 
     /**
      * Gere la reponse du pour la sugestion de station en fonction du nom
-     * 
-     * @param inputLine    entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
-     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     *
+     * @param inputLine entrée de l'utilisateur séparé par {@link RequestHandler#charSplitter}
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
     private static Serializable handleSearchRequest(String[] inputArgs) throws IOException {
         if ( inputArgs.length < 3 || inputArgs[1].isBlank() ) {
@@ -176,7 +179,8 @@ class RequestHandler implements Runnable {
         try {
             while (true) {
                 Serializable s = handleClient();
-                ObjectOutputStream outStream = new ObjectOutputStream(clientSocket.getOutputStream());
+                ObjectOutputStream outStream =
+                        new ObjectOutputStream(clientSocket.getOutputStream());
                 outStream.writeObject(s);
                 outStream.flush();
             }
@@ -190,4 +194,3 @@ class RequestHandler implements Runnable {
     }
 
 }
-
