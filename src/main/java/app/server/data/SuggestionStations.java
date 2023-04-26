@@ -15,12 +15,32 @@ import app.map.StationInfo;
  */
 public class SuggestionStations implements Serializable {
 
+    public static enum SuggestionKind {
+        DEPART,
+        ARRIVAL;
+
+        /**
+         * Retourne l'énumération correspondant à {@code s}, {@code null} sinon
+         * @param s Nom de l'énumération
+         * @return cas correspondant au nom de l'énumération
+         */
+        public static SuggestionKind ofString(String s){
+            return switch(s) {
+                case "DEPART" -> DEPART;
+                case "ARRIVAL" -> ARRIVAL;
+                default -> null;
+            };
+        }
+    }
+
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     private Set<StationInfo> stations;
+    private SuggestionKind kind;
 
-    public SuggestionStations(String prefixStation, Collection<? extends StationInfo> collection) {
+    public SuggestionStations(String prefixStation, SuggestionKind kind, Collection <? extends StationInfo> collection) {
+        this.kind = kind;
         Collator insenstiveStringComparator = Collator.getInstance();
         insenstiveStringComparator.setStrength(Collator.PRIMARY);
 
@@ -40,6 +60,10 @@ public class SuggestionStations implements Serializable {
 
     public Set<StationInfo> getStations() {
         return stations;
+    }
+
+    public SuggestionKind getKind() {
+        return kind;
     }
 
 }
