@@ -52,7 +52,7 @@ public class App {
                 try {
                     map = PlanParser.planFromSectionCSV(file.getPath());
                     System.out.println(succesMapCreae);
-                    final Server server = new Server("localhost", 12345);
+                    final Server server = new Server("localhost", 12345, true);
                     server.start();
                 } catch (FileNotFoundException e) {
                     print(errorFileNotExist);

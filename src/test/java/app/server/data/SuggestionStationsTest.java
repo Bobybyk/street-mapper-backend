@@ -9,11 +9,9 @@ import org.junit.jupiter.api.Timeout;
 
 import app.map.StationInfo;
 import app.server.data.SuggestionStations.SuggestionKind;
-import app.map.Plan;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import app.map.PlanParser;
-import app.map.StationInfo;
 
 public class SuggestionStationsTest {
 

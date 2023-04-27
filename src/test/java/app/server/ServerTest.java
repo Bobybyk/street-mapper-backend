@@ -80,7 +80,7 @@ public class ServerTest {
      * @throws IOException erreur du serveur
      */
     private static Server initServer() throws IOException {
-        Server server = new Server(HOST, PORT, incommingConnection);
+        Server server = new Server(HOST, PORT, false, incommingConnection);
         Thread threadServer = new Thread(server::start);
         threadServer.start();
         return server;

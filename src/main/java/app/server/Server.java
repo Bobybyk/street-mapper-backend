@@ -46,31 +46,51 @@ public class Server {
      */
     private final ExecutorService threadPool;
 
+    private ServerConsole serverConsole;
+
+    private Thread consoleThread;
+
     /**
      * 
      * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
      * @param port                   Numero du port sur lequel le server doit etre lié
+     * @param withConsole            Determine si l'entrée standart doit etre ecoutée
      * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer 
      * @param poolSize               Nombre de threads que le server peut utiliser
      * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public Server(String host, int port, int maxIncommingConnection, int poolSize) throws UnknownHostException, IOException {
+    public Server(String host, int port, boolean withConsole, int maxIncommingConnection, int poolSize) throws UnknownHostException, IOException {
         this.isRunning = false;
         this.threadPool = Executors.newFixedThreadPool(poolSize);
         this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection), InetAddress.getByName(host));
+        this.serverConsole = withConsole ? new ServerConsole(): null;
+        this.consoleThread = withConsole ? new Thread(serverConsole): null;
     }
 
     /**
      * 
      * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
      * @param port                   Numero du port sur lequel le server doit etre lié
+     * @param withConsole            Determine si l'entrée standart doit etre ecoutée
      * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer 
      * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public Server(String host, int port, int maxIncommingConnection) throws UnknownHostException, IOException {
-        this(host, port, maxIncommingConnection, DEFAULT_POOL_SIZE);
+    public Server(String host, int port, boolean withConsole, int maxIncommingConnection) throws UnknownHostException, IOException {
+        this(host, port, withConsole, maxIncommingConnection, DEFAULT_POOL_SIZE);
+    }
+
+    /**
+     * 
+     * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
+     * @param port                   Numero du port sur lequel le server doit etre lié
+     * @param withConsole            Determine si l'entrée standart doit etre ecoutée
+     * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
+     * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     */
+    public Server(String host, int port, boolean withConsole) throws UnknownHostException, IOException {
+        this(host, port, withConsole, MAX_INCOMMING_CONNECTION);
     }
 
     /**
@@ -81,7 +101,7 @@ public class Server {
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     public Server(String host, int port) throws UnknownHostException, IOException {
-        this(host, port, MAX_INCOMMING_CONNECTION);
+        this(host, port, false, MAX_INCOMMING_CONNECTION);
     }
 
     /**
@@ -89,6 +109,7 @@ public class Server {
      */
     public void start() {
         isRunning = true;
+        startConsole();
         while ( isRunning() ) {
             try {
                 Socket clientSocket = serverSocket.accept();
@@ -102,6 +123,18 @@ public class Server {
         }
 
         tearDown();
+    }
+
+    private void startConsole() {
+        if (consoleThread != null) {
+            consoleThread.start();
+        }
+    }
+
+    private void stopConsole() throws InterruptedException {
+        if (consoleThread != null)
+         consoleThread.join(AWAIT_TIME_BEFORE_DYING);
+
     }
 
     /**
@@ -125,11 +158,13 @@ public class Server {
      */
     private void tearDown() {
         try {
+            stopConsole();
             if (!threadPool.awaitTermination(AWAIT_TIME_BEFORE_DYING, TimeUnit.SECONDS) ) {
                 threadPool.shutdownNow();
             }
         } catch (InterruptedException e) {
             threadPool.shutdownNow();
+            consoleThread.interrupt();
         }
     }
 }
