@@ -24,16 +24,17 @@ public class PlanParserTest {
 
     private static final String MAP_DATA_ALL = "map_data_all";
 
-    private Plan map;
-    private Plan map_all;
-
     private static String getPath(String filename) {
         if (filename == null)
             return null;
         return "src/test/resources/" + filename + ".csv";
     }
 
-  
+    private Plan initMap(String filename)
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
+        return PlanParser.planFromSectionCSV(getPath(filename));
+    }
+
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void nullFileName() {
@@ -61,7 +62,7 @@ public class PlanParserTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void sameSectionInMapAndLines()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
-        Plan map = PlanParser.planFromSectionCSV(getPath(MAP_DATA));
+        Plan map = initMap(MAP_DATA);
         BinaryOperator<ArrayList<Section>> accumulator = (l1, l2) -> {
             l1.addAll(l2);
             return l1;
@@ -71,7 +72,15 @@ public class PlanParserTest {
         List<Section> inLines = map.getLines().values().stream().map(Line::getSections)
                 .map(ArrayList::new).reduce(new ArrayList<>(), accumulator);
         assertTrue(inLines.containsAll(inMap) && inMap.containsAll(inLines),
-                "map and lines field contains the sames sections");
+                "Map and lines field contains the sames sections");
+    }
+
+    private Plan addTimeHelper(String mapFilename, String timeFilename)
+            throws FileNotFoundException, IncorrectFileFormatException, UndefinedLineException,
+            StartStationNotFoundException, DifferentStartException {
+        Plan map = initMap(mapFilename);
+        PlanParser.addTimeFromCSV(map, getPath(timeFilename));
+        return map;
     }
 
     @Test
@@ -79,22 +88,22 @@ public class PlanParserTest {
     public void addTimeToLines()
             throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException,
             UndefinedLineException, StartStationNotFoundException, DifferentStartException {
-        PlanParser.addTimeFromCSV(map_all, getPath("time_data"));
-        assertEquals(15, map_all.getLines().get("5 variant 2").getDepartures().size(),
-                "nombre de départ de cette ligne");
+        Plan map = addTimeHelper(MAP_DATA_ALL, "time_data");
+        assertEquals(15, map.getLines().get("5 variant 2").getDepartures().size(),
+                "Add time to line");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void nullFileNameTime() throws FileNotFoundException, IncorrectFileFormatException {
-        assertThrows(IllegalArgumentException.class, () -> PlanParser.addTimeFromCSV(map, null),
+        assertThrows(IllegalArgumentException.class, () -> addTimeHelper(MAP_DATA, null),
                 "null file name");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void notFoundFileTime() throws FileNotFoundException, IncorrectFileFormatException {
-        assertThrows(FileNotFoundException.class, () -> PlanParser.addTimeFromCSV(map, "test"),
+        assertThrows(FileNotFoundException.class, () -> addTimeHelper(MAP_DATA, "test"),
                 "File not found");
     }
 
@@ -103,7 +112,7 @@ public class PlanParserTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void incorrectTimeFileFormat(String filename)
             throws FileNotFoundException, IncorrectFileFormatException {
-        assertThrows(IncorrectFileFormatException.class,
-                () -> PlanParser.addTimeFromCSV(map, getPath(filename)), "Incorrect file format");
+        assertThrows(IncorrectFileFormatException.class, () -> addTimeHelper(MAP_DATA, filename),
+                "Incorrect file format");
     }
 }

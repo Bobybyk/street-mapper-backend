@@ -14,7 +14,7 @@ public class DijkstraTest {
 
     private static final String MAP_DATA = "map_data";
 
-    private static final String MAP_DATA_ALL = "map_data_all";
+    private static final String MAP_DATA_ALL = "map_data_fix_dist_time";
 
     private static final String TIME_DATA_ALL = "time_data_all";
 
@@ -24,16 +24,16 @@ public class DijkstraTest {
         return "src/test/resources/" + filename + ".csv";
     }
 
-    private Plan initMap()
+    private Plan initMap(String filename)
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
-        return PlanParser.planFromSectionCSV(getPath(MAP_DATA));
+        return PlanParser.planFromSectionCSV(getPath(filename));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithNullStart()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
-        Plan map = initMap();
+        Plan map = initMap(MAP_DATA);
         assertThrows(IllegalArgumentException.class,
                 () -> map.findPathOpt(null, "test", null, true), "Find path from null station");
     }
@@ -42,14 +42,14 @@ public class DijkstraTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithNullArrival()
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
-        Plan map = initMap();
+        Plan map = initMap(MAP_DATA);
         assertThrows(IllegalArgumentException.class,
                 () -> map.findPathOpt("test", null, null, true), "Find path to null station");
     }
 
     private void pathNotFoundHelper(String start, String arrival)
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
-        Plan map = initMap();
+        Plan map = initMap(MAP_DATA);
         assertThrows(PathNotFoundException.class, () -> map.findPathOpt(start, arrival, null, true),
                 "Path not found from " + start + " to " + arrival);
     }
@@ -78,7 +78,7 @@ public class DijkstraTest {
     private void findPathHelper(String start, String arrival, int nbLine)
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Plan map = PlanParser.planFromSectionCSV(getPath(MAP_DATA_ALL));
+        Plan map = initMap(MAP_DATA_ALL);
         List<Section> trajet = map.findPathOpt(start, arrival, null, true);
         assertEquals(nbLine, trajet.size(), start + " to " + arrival);
     }
@@ -122,6 +122,6 @@ public class DijkstraTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathBMaisonBlancheToPigalle() throws FileNotFoundException,
             IllegalArgumentException, IncorrectFileFormatException, PathNotFoundException {
-        findPathHelper("Maison Blanche", "Pigalle", 5);
+        findPathHelper("Maison Blanche", "Pigalle", 6);
     }
 }
