@@ -49,6 +49,7 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
                 : String.format("%02d:%02d:%02d", hour, minute, second);
     }
 
+
     /**
      * @return le temps à partir de minuit en secondes
      */
@@ -58,7 +59,7 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
 
     @Override
     public int compareTo(Time time) {
-        return time.toSeconds() - toSeconds();
+        return toSeconds() - time.toSeconds();
     }
 
     /**

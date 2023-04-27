@@ -232,4 +232,43 @@ public final class Plan {
         route.add(toAdd);
         return route;
     }
+
+    public HashMap<String, LinkedList<Time>> departuresFromStation(Station station) {
+
+        List<Section> sectionsFromStation = map.get(station.getName());
+        HashMap<String, LinkedList<Section>> sectionTable = new HashMap<>();
+        for (Section s : sectionsFromStation) {
+            Line line = lines.get(s.getLine());
+            sectionTable.putIfAbsent(line.getName() + " variant " + line.getVariant(),
+                    new LinkedList<>());
+        }
+        for (Section s : sectionsFromStation) {
+            Line line = lines.get(s.getLine());
+            sectionTable.get(line.getName() + " variant " + line.getVariant()).addLast(s);
+        }
+
+        HashMap<String, LinkedList<Time>> timeTable = new HashMap<>();
+        for (Section s : sectionsFromStation) {
+            Line line = lines.get(s.getLine());
+            timeTable.putIfAbsent(line.getName() + " variant " + line.getVariant(),
+                    line.getDepartureTimeFromStation(s));
+        }
+
+        return timeTable;
+    }
+
+    public HashMap<String, LinkedList<Time>> departuresFromStationFromTime(Station station,
+            Time start) {
+        HashMap<String, LinkedList<Time>> timeTable = departuresFromStation(station);
+        HashMap<String, LinkedList<Time>> timeTableFiltered = new HashMap<>();
+        for (String s : timeTable.keySet()) {
+            LinkedList<Time> timeList = new LinkedList<>();
+            for (Time t : timeTable.get(s)) {
+                if (start.compareTo(t) < 0)
+                    timeList.addLast(t);
+            }
+            timeTableFiltered.put(s, timeList);
+        }
+        return timeTableFiltered;
+    }
 }
