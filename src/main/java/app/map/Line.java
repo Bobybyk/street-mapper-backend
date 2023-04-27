@@ -10,14 +10,14 @@ import java.util.Optional;
  */
 public final class Line {
 
-    public static class StartStationNotFoundException extends Exception {
+    static class StartStationNotFoundException extends Exception {
         public StartStationNotFoundException(String station, String line, String variant) {
             super(String.format("La station %s n'est pas sur la ligne %s variant %s", station, line,
                     variant));
         }
     }
 
-    public static class DifferentStartException extends Exception {
+    static class DifferentStartException extends Exception {
         public DifferentStartException(String line, String variant, String s1, String s2) {
             super(String.format(
                     "Il y plusieurs stations de départ pour la ligne %s variant %s : %s et %s",
@@ -144,14 +144,14 @@ public final class Line {
 
     /**
      * @param section la section dont l'horaire est à déterminée
-     * @param time    l'horaire minimal
-     * @return l'horaire du prochain départ à section après time, `null` si time est
-     *         `null` ou departures et vide
+     * @param time l'horaire minimal
+     * @return l'horaire du prochain départ à section après time, `null` si time est `null` ou
+     *         departures et vide
      */
     public Time getNextTime(Section section, Time time) {
-        if (time == null || departures.isEmpty())
-            return null;
         int durationFromDeparture = sections.get(section);
+        if (time == null || departures.isEmpty() || durationFromDeparture == -1)
+            return null;
         for (Time t : departures) {
             Time departTime = t.addDuration(durationFromDeparture);
             if (time.compareTo(departTime) > 0)

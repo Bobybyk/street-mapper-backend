@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
+import app.map.Plan.UndefinedLineException;
 
 public final class PlanParser {
 
@@ -17,10 +18,9 @@ public final class PlanParser {
         }
     }
 
-
-    public static class UndefinedLineException extends Exception {
-        public UndefinedLineException(String line) {
-            super(String.format("La line %s n'existe pas dans la carte", line));
+    public static class InconsistentDataException extends Exception {
+        public InconsistentDataException(String line) {
+            super(line);
         }
     }
 
@@ -123,13 +123,10 @@ public final class PlanParser {
      * @param fileName le nom du fichier à parser
      * @throws FileNotFoundException si le fichier n'a pas été trouvé
      * @throws IncorrectFileFormatException si le format du fichier est incorrect
-     * @throws UndefinedLineException si la ligne n'existe pas dans la map
-     * @throws StartStationNotFoundException si la ligne n'existe pas sur la ligne
-     * @throws DifferentStartException s'il y a plusieurs station de départ pour une même ligne
+     * @throws InconsistentDataException si les données du fichier ne correspondent pas avec le plan
      */
     public static void addTimeFromCSV(Plan plan, String fileName)
-            throws FileNotFoundException, IncorrectFileFormatException, UndefinedLineException,
-            StartStationNotFoundException, DifferentStartException {
+            throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
         if (plan == null || fileName == null)
             throw new IllegalArgumentException();
         File file = new File(fileName);
@@ -139,6 +136,9 @@ public final class PlanParser {
             }
         } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
             throw new IncorrectFileFormatException(file.getName());
+        } catch (UndefinedLineException | StartStationNotFoundException
+                | DifferentStartException e) {
+            throw new InconsistentDataException(e.getMessage());
         }
     }
 

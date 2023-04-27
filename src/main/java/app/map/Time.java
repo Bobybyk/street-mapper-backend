@@ -16,7 +16,7 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
     /**
      * Créer un nouveau temps
      *
-     * @param hour   le nombre des heures entre 0 et 23
+     * @param hour le nombre des heures entre 0 et 23
      * @param minute le nombre des minutes entre 0 et 59
      * @param second le nombre des secondes entre 0 et 59
      * @throws IllegalArgumentException si les valeurs sont incorrectes
@@ -27,7 +27,7 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
     }
 
     public Time(int duration) {
-        this(duration / 3600, (duration / 60) % 60, duration % 60);
+        this((duration / 3600) % 24, (duration / 60) % 60, duration % 60);
     }
 
     /**

@@ -11,10 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import app.map.Line.DifferentStartException;
-import app.map.Line.StartStationNotFoundException;
+import app.map.PlanParser.InconsistentDataException;
 import app.map.PlanParser.IncorrectFileFormatException;
-import app.map.PlanParser.UndefinedLineException;
 
 public class PlanParserTest {
 
@@ -76,8 +74,7 @@ public class PlanParserTest {
     }
 
     private Plan addTimeHelper(String mapFilename, String timeFilename)
-            throws FileNotFoundException, IncorrectFileFormatException, UndefinedLineException,
-            StartStationNotFoundException, DifferentStartException {
+            throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
         Plan map = initMap(mapFilename);
         PlanParser.addTimeFromCSV(map, getPath(timeFilename));
         return map;
@@ -108,14 +105,14 @@ public class PlanParserTest {
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void addUndefinedLine() {
-        assertThrows(UndefinedLineException.class, () -> addTimeHelper(MAP_DATA, "time_data"),
+        assertThrows(InconsistentDataException.class, () -> addTimeHelper(MAP_DATA, "time_data"),
                 "Add time to a not existing line");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void addStartStationNotFound() {
-        assertThrows(StartStationNotFoundException.class,
+        assertThrows(InconsistentDataException.class,
                 () -> addTimeHelper(MAP_DATA, "time_unknow_station"),
                 "Add time to a not existing station");
     }
@@ -123,15 +120,15 @@ public class PlanParserTest {
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void addDifferentStart() {
-        assertThrows(DifferentStartException.class, () -> addTimeHelper(MAP_DATA, "time_two_start"),
+        assertThrows(InconsistentDataException.class,
+                () -> addTimeHelper(MAP_DATA, "time_two_start"),
                 "Add two different start station for same line");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addTimeToLines()
-            throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException,
-            UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+    public void addTimeToLines() throws IllegalArgumentException, FileNotFoundException,
+            IncorrectFileFormatException, InconsistentDataException {
         Plan map = addTimeHelper(MAP_DATA_ALL, "time_data");
         assertEquals(15, map.getLines().get("5 variant 2").getDepartures().size(),
                 "Add time to line");

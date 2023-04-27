@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.function.ToIntBiFunction;
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
-import app.map.PlanParser.UndefinedLineException;
 
 public final class Plan {
     /**
@@ -123,6 +122,12 @@ public final class Plan {
     private void addStationInfo(String stationName, String lineName) {
         StationInfo info = stations.computeIfAbsent(stationName, StationInfo::new);
         info.addLine(lineName);
+    }
+
+    static class UndefinedLineException extends Exception {
+        public UndefinedLineException(String line) {
+            super(String.format("La line %s n'existe pas dans la carte", line));
+        }
     }
 
     /**
