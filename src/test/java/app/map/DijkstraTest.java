@@ -40,8 +40,7 @@ public class DijkstraTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullArrival()
-            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
+    public void findPathWithNullArrival() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Plan map = initMap(MAP_DATA);
         assertThrows(IllegalArgumentException.class,
                 () -> map.findPathOpt("test", null, null, true), "Find path to null station");

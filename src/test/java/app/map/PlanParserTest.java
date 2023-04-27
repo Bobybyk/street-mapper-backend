@@ -85,24 +85,14 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addTimeToLines()
-            throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException,
-            UndefinedLineException, StartStationNotFoundException, DifferentStartException {
-        Plan map = addTimeHelper(MAP_DATA_ALL, "time_data");
-        assertEquals(15, map.getLines().get("5 variant 2").getDepartures().size(),
-                "Add time to line");
-    }
-
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
-    public void nullFileNameTime() throws FileNotFoundException, IncorrectFileFormatException {
+    public void nullFileNameTime() {
         assertThrows(IllegalArgumentException.class, () -> addTimeHelper(MAP_DATA, null),
                 "null file name");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void notFoundFileTime() throws FileNotFoundException, IncorrectFileFormatException {
+    public void notFoundFileTime() {
         assertThrows(FileNotFoundException.class, () -> addTimeHelper(MAP_DATA, "test"),
                 "File not found");
     }
@@ -110,9 +100,40 @@ public class PlanParserTest {
     @ParameterizedTest
     @ValueSource(strings = {"time_station_missing", "time_bad_time_format", "time_line_missing"})
     @Timeout(DEFAULT_TIMEOUT)
-    public void incorrectTimeFileFormat(String filename)
-            throws FileNotFoundException, IncorrectFileFormatException {
+    public void incorrectTimeFileFormat(String filename) {
         assertThrows(IncorrectFileFormatException.class, () -> addTimeHelper(MAP_DATA, filename),
                 "Incorrect file format");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void addUndefinedLine() {
+        assertThrows(UndefinedLineException.class, () -> addTimeHelper(MAP_DATA, "time_data"),
+                "Add time to a not existing line");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void addStartStationNotFound() {
+        assertThrows(StartStationNotFoundException.class,
+                () -> addTimeHelper(MAP_DATA, "time_unknow_station"),
+                "Add time to a not existing station");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void addDifferentStart() {
+        assertThrows(DifferentStartException.class, () -> addTimeHelper(MAP_DATA, "time_two_start"),
+                "Add two different start station for same line");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void addTimeToLines()
+            throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException,
+            UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+        Plan map = addTimeHelper(MAP_DATA_ALL, "time_data");
+        assertEquals(15, map.getLines().get("5 variant 2").getDepartures().size(),
+                "Add time to line");
     }
 }
