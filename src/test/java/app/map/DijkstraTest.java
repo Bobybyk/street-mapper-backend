@@ -16,8 +16,6 @@ public class DijkstraTest {
 
     private static final String MAP_DATA_ALL = "map_data_fix_dist_time";
 
-    private static final String TIME_DATA_ALL = "time_data_all";
-
     private String getPath(String filename) {
         if (filename == null)
             return null;
@@ -40,7 +38,8 @@ public class DijkstraTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullArrival() throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
+    public void findPathWithNullArrival()
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Plan map = initMap(MAP_DATA);
         assertThrows(IllegalArgumentException.class,
                 () -> map.findPathOpt("test", null, null, true), "Find path to null station");
@@ -74,53 +73,80 @@ public class DijkstraTest {
         pathNotFoundHelper("Commerce", "Lourmel");
     }
 
-    private void findPathHelper(String start, String arrival, int nbLine)
+    private void findPathMapWithoutTimeHelper(String start, String arrival, int nbLine, Time time,
+            boolean distOpt) throws FileNotFoundException, IllegalArgumentException,
+            IncorrectFileFormatException, PathNotFoundException {
+        Plan map = initMap(MAP_DATA_ALL);
+        List<Section> trajet = map.findPathOpt(start, arrival, time, distOpt);
+        assertEquals(nbLine, trajet.size(), String.format("%s to %s from %s with %s optimisation",
+                start, arrival, time, distOpt ? " distance" : "time"));
+    }
+
+    private void findPathMapWithoutTimeHelper(String start, String arrival, int nbLine, Time time)
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
             PathNotFoundException {
-        Plan map = initMap(MAP_DATA_ALL);
-        List<Section> trajet = map.findPathOpt(start, arrival, null, true);
-        assertEquals(nbLine, trajet.size(), start + " to " + arrival);
+        findPathMapWithoutTimeHelper(start, arrival, nbLine, time, true);
+    }
+
+    private void findPathMapWithoutTimeHelper(String start, String arrival, int nbLine)
+            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException,
+            PathNotFoundException {
+        findPathMapWithoutTimeHelper(start, arrival, nbLine, null);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathSameLine() throws FileNotFoundException, IllegalArgumentException,
             IncorrectFileFormatException, PathNotFoundException {
-        findPathHelper("Lourmel", "Commerce", 1);
+        findPathMapWithoutTimeHelper("Lourmel", "Commerce", 1);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath2Line() throws FileNotFoundException, IllegalArgumentException,
             IncorrectFileFormatException, PathNotFoundException {
-        findPathHelper("Cité", "Hôtel de Ville", 2);
+        findPathMapWithoutTimeHelper("Cité", "Hôtel de Ville", 2);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath3Line() throws FileNotFoundException, IllegalArgumentException,
             IncorrectFileFormatException, PathNotFoundException {
-        findPathHelper("Alma - Marceau", "Invalides", 3);
+        findPathMapWithoutTimeHelper("Alma - Marceau", "Invalides", 3);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathNordToLyon() throws FileNotFoundException, IllegalArgumentException,
             IncorrectFileFormatException, PathNotFoundException {
-        findPathHelper("Gare du Nord", "Gare de Lyon", 4);
+        findPathMapWithoutTimeHelper("Gare du Nord", "Gare de Lyon", 4);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathNordToLyonStartTime() throws FileNotFoundException,
+            IllegalArgumentException, IncorrectFileFormatException, PathNotFoundException {
+        findPathMapWithoutTimeHelper("Gare du Nord", "Gare de Lyon", 4, new Time(9, 34, 23));
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathNordToLyonTimeOpt() throws FileNotFoundException, IllegalArgumentException,
+            IncorrectFileFormatException, PathNotFoundException {
+        findPathMapWithoutTimeHelper("Gare du Nord", "Gare de Lyon", 4, new Time(17, 58, 32), true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathBercyToParmentier() throws FileNotFoundException, IllegalArgumentException,
             IncorrectFileFormatException, PathNotFoundException {
-        findPathHelper("Bercy", "Parmentier", 4);
+        findPathMapWithoutTimeHelper("Bercy", "Parmentier", 4);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathBMaisonBlancheToPigalle() throws FileNotFoundException,
             IllegalArgumentException, IncorrectFileFormatException, PathNotFoundException {
-        findPathHelper("Maison Blanche", "Pigalle", 6);
+        findPathMapWithoutTimeHelper("Maison Blanche", "Pigalle", 6);
     }
 }
