@@ -138,14 +138,17 @@ class RequestHandler implements Runnable {
             return serverErrorFormatted("Trajet départ ou arrivé manquant.");
         } else {
             try {
-                Route trajet = new Route(
-                        App.getInstanceOfMap().findPathDistOpt(inputArgs[1], inputArgs[2]));
+                Plan p = App.getPlanAsReader();
+                Route trajet = new Route(p.findPathDistOpt(inputArgs[1], inputArgs[2]));
+                App.releasePlan();
                 System.out.println("TRAJET");
                 return trajet;
 
             } catch (Plan.PathNotFoundException e) {
                 System.out.println("ERREUR: Trajet inexistant.");
                 return serverErrorFormatted("Trajet inexistant");
+            } catch ( InterruptedException e) {
+                return serverErrorFormatted("le thread de recuperation de map a ete interrompu");
             }
         }
     }
@@ -168,9 +171,16 @@ class RequestHandler implements Runnable {
         if (kind == null) {
             return serverErrorFormatted("Impossible de analyser le type de search <Arrival| Depart>");
         }
-        SuggestionStations suggestions = new SuggestionStations(stationToSearch, kind, App.getInstanceOfMap().getStationsInfo() );
-        
-        return suggestions;
+
+        try {
+            Plan p = App.getPlanAsReader();
+            SuggestionStations suggestions = new SuggestionStations(stationToSearch, kind, p.getStationsInfo() );
+            App.releasePlan();
+            return suggestions;
+        } catch (InterruptedException e) {
+            return serverErrorFormatted("le thread de recuperation de plan a ete interrompu");
+        }
+
     }
 
     // Implement Runnable

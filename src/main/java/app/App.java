@@ -6,6 +6,8 @@ package app;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
+
 import app.map.Plan;
 import app.map.PlanParser;
 import app.server.Server;
@@ -26,6 +28,10 @@ public class App {
     private final static String succesMapCreae = "Object Map crée avec succes ";
 
     private static Plan map = null;
+
+    private static int nbReader = 0;
+    private static Semaphore readerSemaphore = new Semaphore(10);
+    private static Semaphore writerSemaphore = new Semaphore(1);
 
     /**
      * Cette fonction permet de recup l'instance de map
@@ -65,6 +71,35 @@ public class App {
         }
     }
 
+    public static void updatePlan(Plan plan) throws InterruptedException {
+        writerSemaphore.acquire();
+        map = plan;
+        writerSemaphore.release();
+    }
+
+    public static Plan getPlanAsReader() throws InterruptedException {
+        readerSemaphore.acquire();
+
+        nbReader += 1;
+
+        if (nbReader == 1){
+            // Force l'absence d'ecrivain
+            writerSemaphore.acquire();
+        }
+        readerSemaphore.release();
+        return getInstanceOfMap();
+    }
+
+
+    public static void releasePlan() throws InterruptedException {
+        readerSemaphore.acquire();
+        nbReader -= 1;
+        if (nbReader == 0) {
+            writerSemaphore.release();
+        }
+        readerSemaphore.release();
+    }
+
     /**
      * Cette fonction renvoie un vrai si les arguments sont correctes s'ils respectent le formatage
      * ou faux si les arguments ne respectent pas le formatage
@@ -73,10 +108,7 @@ public class App {
      * @return boolean
      */
     public static boolean argsIsOk(String[] args) {
-        if (args.length < 1) {
-            print(errorIllegalArgument);
-            return false;
-        } else if (args.length > 3) {
+        if (args.length < 1 || args.length > 3) {
             print(errorIllegalArgument);
             return false;
         }

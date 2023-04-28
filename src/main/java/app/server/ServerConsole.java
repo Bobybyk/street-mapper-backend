@@ -1,20 +1,35 @@
 package app.server;
 
+import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
+import app.App;
+import app.map.Plan;
+import app.map.PlanParser;
+import app.map.PlanParser.IncorrectFileFormatException;
+
 
 interface ServerCommand {
-    void execute(String... args) throws IllegalArgumentException;
+    void execute(String... args) throws IllegalArgumentException, FileNotFoundException;
 }
 
 class SCUpdateMapFile implements ServerCommand {
     @Override
-    public void execute(String... args) {
+    public void execute(String... args) throws IllegalArgumentException, FileNotFoundException {
         if (args.length != 2) 
-        throw new IllegalArgumentException("UpdateMap s'attend à recevoir uniquement le chemin vers le nouveau fichier");
+            throw new IllegalArgumentException("UpdateMap s'attend à recevoir uniquement le chemin vers le nouveau fichier");
         String filePath = args[1];
+        try {
+            Plan plan = PlanParser.planFromSectionCSV(filePath);
+            App.updatePlan(plan);
+
+        } catch ( IncorrectFileFormatException e) {
+            throw new IllegalArgumentException(e.getMessage());
+        } catch (InterruptedException e ) {
+            throw new IllegalArgumentException(e.getMessage());
+        }
     }
 }
 
@@ -44,7 +59,11 @@ class ServerConsole implements Runnable {
         if (command == null) {
             write("Unknwon command : " + command + "\n");
         } else {
-            command.execute(args);
+            try {
+                command.execute(args);
+            } catch (IllegalArgumentException | FileNotFoundException e) {
+                write(e.getMessage().concat("\n"));
+            }
         }
     }
 
