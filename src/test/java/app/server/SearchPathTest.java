@@ -1,4 +1,4 @@
-package app.map;
+package app.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,11 +6,17 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import app.map.Plan;
 import app.map.Plan.PathNotFoundException;
+import app.map.PlanParser;
 import app.map.PlanParser.InconsistentDataException;
 import app.map.PlanParser.IncorrectFileFormatException;
+import app.map.Section;
+import app.map.Time;
+import app.server.data.ErrorServer;
+import app.server.data.Route;
 
-public class DijkstraTest {
+public class SearchPathTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
     private static final String MAP_DATA = "map_data";
@@ -36,7 +42,7 @@ public class DijkstraTest {
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Plan map = initMap(MAP_DATA);
         assertThrows(IllegalArgumentException.class,
-                () -> map.findPathOpt(null, "test", null, true), "Find path from null station");
+                () -> new SearchPath(map, null, "test", null, true), "Find path from null station");
     }
 
     @Test
@@ -45,13 +51,15 @@ public class DijkstraTest {
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Plan map = initMap(MAP_DATA);
         assertThrows(IllegalArgumentException.class,
-                () -> map.findPathOpt("test", null, null, true), "Find path to null station");
+                () -> new SearchPath(map, "test", null, null, true), "Find path to null station");
     }
 
     private void pathNotFoundHelper(String start, String arrival)
             throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
         Plan map = initMap(MAP_DATA);
-        assertThrows(PathNotFoundException.class, () -> map.findPathOpt(start, arrival, null, true),
+        assertEquals("Trajet inexistant",
+                ((ErrorServer) new SearchPath(map, start, arrival, null, true).execute())
+                        .getError(),
                 "Path not found from " + start + " to " + arrival);
     }
 
@@ -82,7 +90,8 @@ public class DijkstraTest {
         Plan map = initMap(MAP_DATA_ALL);
         if (timedMap)
             PlanParser.addTimeFromCSV(map, getPath(TIME_DATA_ALL));
-        List<Section> trajet = map.findPathOpt(start, arrival, time, distOpt);
+        Route route = (Route) new SearchPath(map, start, arrival, time, distOpt).execute();
+        List<Section> trajet = route.getPathDistOpt();
         for (Section s : trajet)
             System.out.println(s);
         assertEquals(nbLine, trajet.size(), String.format("%s to %s from %s with %s optimisation",

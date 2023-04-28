@@ -3,11 +3,9 @@ package app.map;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.ToIntBiFunction;
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
 
@@ -151,6 +149,26 @@ public final class Plan {
         l.addDepartureTime(time[0], time[1]);
     }
 
+    /**
+     * Calcule le temps nécessaire entre la station de départ et toutes les autres stations de
+     * chaque ligne, les résultats sont mis dans sections. Si la station de départ n'est pas
+     * définie, ne fait rien.
+     */
+    public void updateSectionsTime() {
+        lines.values().stream().forEach(Line::updateSectionsTime);
+    }
+
+    /**
+     * Met à jour l'horaire de départ d'une section à partir d'un horaire
+     *
+     * @param section une section à mettre à jour
+     * @param time l'horaire minimal
+     */
+    public void updateSectionTime(Section section, Time time) {
+        Line l = lines.get(section.getLine());
+        section.setTime(l.getNextTime(section, time));
+    }
+
     public Map<String, List<Section>> getMap() {
         return new HashMap<>(map);
     }
@@ -171,104 +189,5 @@ public final class Plan {
         public PathNotFoundException() {
             super();
         }
-    }
-
-    /**
-     * Calcule un trajet optimisé en distance ou en temps entre 2 stations et renvoie la liste des
-     * sections du trajet
-     *
-     * @param startStation le nom de la station de départ
-     * @param arrivalStation le nom de la station d'arrivé
-     * @param departTime l'horaire de départ du trajet
-     * @param distance optimisation en distance si {@code true} sinon en temps
-     * @return la liste des sections du trajet
-     * @throws IllegalArgumentException si start ou arrival est `null`
-     * @throws PathNotFoundException si il n'existe pas de trajet entre les deux stations
-     */
-    public List<Section> findPathOpt(String startStation, String arrivalStation, Time departTime,
-            boolean distance) throws IllegalArgumentException, PathNotFoundException {
-        if (startStation == null || arrivalStation == null)
-            throw new IllegalArgumentException();
-        ToIntBiFunction<Section, Section> getWeight =
-                distance ? Section::distanceTo : Section::durationTo;
-        List<Section> sections =
-                new Dijkstra(new Plan(this), startStation, arrivalStation, departTime, getWeight)
-                        .getPath();
-        return sectionsToRoute(sections);
-    }
-
-    private List<Section> sectionsToRoute(List<Section> sections) {
-        if (sections == null || sections.isEmpty())
-            return sections;
-
-        List<Section> route = new LinkedList<>();
-        Section first = sections.get(0);
-        Station start = first.getStart();
-        Station arrival = first.getArrival();
-        String line = lines.get(first.getLine()).getName();
-        Time time = first.getTime();
-        int distance = first.getDistance();
-        int duration = first.getDuration();
-
-        for (Section s : sections) {
-            if (line.equals(lines.get(s.getLine()).getName())) {
-                arrival = s.getArrival();
-                distance += s.getDistance();
-                duration += s.getDuration();
-            } else {
-                Section toAdd = new Section(start, arrival, line, distance, duration);
-                toAdd.setTime(time);
-                route.add(toAdd);
-                start = s.getStart();
-                arrival = s.getArrival();
-                line = lines.get(s.getLine()).getName();
-                time = s.getTime();
-                distance = s.getDistance();
-                duration = s.getDuration();
-            }
-        }
-        Section toAdd = new Section(start, arrival, line, distance, duration);
-        toAdd.setTime(time);
-        route.add(toAdd);
-        return route;
-    }
-
-    public HashMap<String, LinkedList<Time>> departuresFromStation(Station station) {
-
-        List<Section> sectionsFromStation = map.get(station.getName());
-        HashMap<String, LinkedList<Section>> sectionTable = new HashMap<>();
-        for (Section s : sectionsFromStation) {
-            Line line = lines.get(s.getLine());
-            sectionTable.putIfAbsent(line.getName() + " variant " + line.getVariant(),
-                    new LinkedList<>());
-        }
-        for (Section s : sectionsFromStation) {
-            Line line = lines.get(s.getLine());
-            sectionTable.get(line.getName() + " variant " + line.getVariant()).addLast(s);
-        }
-
-        HashMap<String, LinkedList<Time>> timeTable = new HashMap<>();
-        for (Section s : sectionsFromStation) {
-            Line line = lines.get(s.getLine());
-            timeTable.putIfAbsent(line.getName() + " variant " + line.getVariant(),
-                    line.getDepartureTimeFromStation(s));
-        }
-
-        return timeTable;
-    }
-
-    public HashMap<String, LinkedList<Time>> departuresFromStationFromTime(Station station,
-            Time start) {
-        HashMap<String, LinkedList<Time>> timeTable = departuresFromStation(station);
-        HashMap<String, LinkedList<Time>> timeTableFiltered = new HashMap<>();
-        for (String s : timeTable.keySet()) {
-            LinkedList<Time> timeList = new LinkedList<>();
-            for (Time t : timeTable.get(s)) {
-                if (start.compareTo(t) < 0)
-                    timeList.addLast(t);
-            }
-            timeTableFiltered.put(s, timeList);
-        }
-        return timeTableFiltered;
     }
 }

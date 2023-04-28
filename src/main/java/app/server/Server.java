@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * Classe représetant le server avec lequel le client communique pour recupérer les Informations dont il a besoin
+ * Classe représetant le server avec lequel le client communique pour recupérer les Informations
+ * dont il a besoin
  */
 public class Server {
 
@@ -22,12 +23,13 @@ public class Server {
     private static final int DEFAULT_POOL_SIZE = 10; // Totalement abitraire pour l'instant
 
     /**
-     * Nombres de connexions simultanées que le server gère 
+     * Nombres de connexions simultanées que le server gère
      */
     private static final int MAX_INCOMMING_CONNECTION = 3; // Totalement abitraire pour l'instant
 
     /**
-     * Nombres de secondes laissées aux threads lancés pour se terminer avant la fermeture de tous les threads
+     * Nombres de secondes laissées aux threads lancés pour se terminer avant la fermeture de tous
+     * les threads
      */
     private static final long AWAIT_TIME_BEFORE_DYING = 5; // Totalement abitraire pour l'instant
 
@@ -37,7 +39,7 @@ public class Server {
     private ServerSocket serverSocket;
 
     /**
-     * Determine si le server est toujours en train de tourner, et donc à accepter de connexions 
+     * Determine si le server est toujours en train de tourner, et donc à accepter de connexions
      */
     private boolean isRunning;
 
@@ -47,38 +49,44 @@ public class Server {
     private final ExecutorService threadPool;
 
     /**
-     * 
-     * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
-     * @param port                   Numero du port sur lequel le server doit etre lié
-     * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer 
-     * @param poolSize               Nombre de threads que le server peut utiliser
-     * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
-     * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     *
+     * @param host Nom de l'adresse sur laquelle le server doit etre lié
+     * @param port Numero du port sur lequel le server doit etre lié
+     * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer
+     * @param poolSize Nombre de threads que le server peut utiliser
+     * @throws UnknownHostException si aucune adresse pour le {@code host} ne pouvait etre trouvée
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
-    public Server(String host, int port, int maxIncommingConnection, int poolSize) throws UnknownHostException, IOException {
+    public Server(String host, int port, int maxIncommingConnection, int poolSize)
+            throws UnknownHostException, IOException {
         this.isRunning = false;
         this.threadPool = Executors.newFixedThreadPool(poolSize);
-        this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection), InetAddress.getByName(host));
+        this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection),
+                InetAddress.getByName(host));
     }
 
     /**
-     * 
-     * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
-     * @param port                   Numero du port sur lequel le server doit etre lié
-     * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer 
-     * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
-     * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     *
+     * @param host Nom de l'adresse sur laquelle le server doit etre lié
+     * @param port Numero du port sur lequel le server doit etre lié
+     * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer
+     * @throws UnknownHostException si aucune adresse pour le {@code host} ne pouvait etre trouvée
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
-    public Server(String host, int port, int maxIncommingConnection) throws UnknownHostException, IOException {
+    public Server(String host, int port, int maxIncommingConnection)
+            throws UnknownHostException, IOException {
         this(host, port, maxIncommingConnection, DEFAULT_POOL_SIZE);
     }
 
     /**
-     * 
-     * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
-     * @param port                   Numero du port sur lequel le server doit etre lié
-     * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
-     * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     *
+     * @param host Nom de l'adresse sur laquelle le server doit etre lié
+     * @param port Numero du port sur lequel le server doit etre lié
+     * @throws UnknownHostException si aucune adresse pour le {@code host} ne pouvait etre trouvée
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
     public Server(String host, int port) throws UnknownHostException, IOException {
         this(host, port, MAX_INCOMMING_CONNECTION);
@@ -89,10 +97,10 @@ public class Server {
      */
     public void start() {
         isRunning = true;
-        while ( isRunning() ) {
+        while (isRunning()) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                RequestHandler requestHandler = new RequestHandler(clientSocket);
+                ClientHandler requestHandler = new ClientHandler(clientSocket);
                 threadPool.execute(requestHandler);
             } catch (SocketTimeoutException e) {
                 System.out.println("Erreur timeout");
@@ -113,7 +121,7 @@ public class Server {
     }
 
     /**
-     * 
+     *
      * @return si the server est en train de tourner
      */
     public boolean isRunning() {
@@ -125,7 +133,7 @@ public class Server {
      */
     private void tearDown() {
         try {
-            if (!threadPool.awaitTermination(AWAIT_TIME_BEFORE_DYING, TimeUnit.SECONDS) ) {
+            if (!threadPool.awaitTermination(AWAIT_TIME_BEFORE_DYING, TimeUnit.SECONDS)) {
                 threadPool.shutdownNow();
             }
         } catch (InterruptedException e) {
@@ -133,5 +141,3 @@ public class Server {
         }
     }
 }
-
-

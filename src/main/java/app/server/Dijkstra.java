@@ -1,4 +1,4 @@
-package app.map;
+package app.server;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,17 +8,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.function.ToIntBiFunction;
+import app.map.Plan;
+import app.map.Section;
+import app.map.Time;
 import app.map.Plan.PathNotFoundException;
 
 public final class Dijkstra {
     /**
+     * Le plan du réseau
+     */
+    private final Plan plan;
+    /**
      * Le graphe : les sommets sont les noms des stations et les arêtes sont les sections
      */
     private final Map<String, List<Section>> map;
-    /**
-     * Map où chaque nom (avec variant) de ligne est associée à sa ligne
-     */
-    private final Map<String, Line> lines;
     /**
      * Le sommet de départ
      */
@@ -67,8 +70,8 @@ public final class Dijkstra {
             ToIntBiFunction<Section, Section> getWeight) {
         if (plan == null || start == null || arrival == null || getWeight == null)
             throw new IllegalArgumentException();
+        this.plan = plan;
         this.map = plan.getMap();
-        this.lines = plan.getLines();
         this.start = start;
         this.arrival = arrival;
         this.departTime = departTime;
@@ -141,7 +144,7 @@ public final class Dijkstra {
                         0);
                 current.setTime(departTime);
             }
-            updateSectionTime(section, current.getTime());
+            plan.updateSectionTime(section, current.getTime());
             String v = section.getArrival().getName();
             int w = distance.get(u) + getWeight.applyAsInt(current, section);
             if (distance.get(v) > w) {
@@ -171,16 +174,4 @@ public final class Dijkstra {
         Collections.reverse(orderedPath);
         result = orderedPath;
     }
-
-    /**
-     * Met à jour l'horaire de départ d'une section à partir d'un horaire
-     *
-     * @param section une section à mettre à jour
-     * @param time l'horaire minimal
-     */
-    private void updateSectionTime(Section section, Time time) {
-        Line l = lines.get(section.getLine());
-        section.setTime(l.getNextTime(section, time));
-    }
-
 }

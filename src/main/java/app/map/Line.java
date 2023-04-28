@@ -48,9 +48,9 @@ public final class Line {
      */
     private final HashMap<Section, Integer> sections;
     /**
-     * le temps d'attente entre chaque section à chaque arret (en secondes)
+     * le temps d'attente entre chaque section à chaque arrêt (en secondes)
      */
-    private static final int waitingTime = 20;
+    private static final int WAITING_TIME = 20;
 
     /**
      * Créer une nouvelle ligne vide.
@@ -73,7 +73,7 @@ public final class Line {
      * associé `start`.
      *
      * @param stationName le nom de la station de départ de la ligne
-     * @throws StartStationNotFoundException s'il n'y a pas de section commencant à une station à ce
+     * @throws StartStationNotFoundException s'il n'y a pas de section commençant à une station à ce
      *         nom
      * @throws DifferentStartException s'il y a déjà une section de départ qui ne commence pas par à
      *         la même station
@@ -162,6 +162,7 @@ public final class Line {
      * @param section la section dont l'horaire est à déterminée
      * @param time l'horaire minimal
      * @return l'horaire du prochain départ à section après time, `null` si time est `null` ou
+     *         departures est vide
      */
     public Time getNextTime(Section section, Time time) {
         int durationFromDeparture = sections.get(section);
@@ -169,7 +170,7 @@ public final class Line {
             return null;
         for (Time t : departures) {
             Time departTime = t.addDuration(durationFromDeparture);
-            if (time.compareTo(departTime) > 0)
+            if (time.compareTo(departTime) < 0)
                 return departTime;
         }
         return departures.get(0).addDuration(durationFromDeparture);
@@ -185,7 +186,7 @@ public final class Line {
         while (nbSectionDone < nbSections) {
             for (Section s : getSections()) {
                 if (s.getStart().getName().equals(curentSection.getArrival().getName())) {
-                    sections.put(s, sections.get(curentSection) + s.getDuration() + waitingTime);
+                    sections.put(s, sections.get(curentSection) + s.getDuration() + WAITING_TIME);
                     curentSection = s;
                 }
                 nbSectionDone++;
@@ -196,11 +197,11 @@ public final class Line {
     /**
      * renvoit la list des horaires de la station d'arrivé de la section
      *
-     * @param section   la section qui a la station visé en arrivé
+     * @param section la section qui a la station visé en arrivé
      */
     public LinkedList<Time> getDepartureTimeFromStation(Section section) {
         LinkedList<Time> timeTable = new LinkedList<>();
-        int timeToStation = sections.get(section).intValue()+waitingTime;
+        int timeToStation = sections.get(section).intValue() + WAITING_TIME;
         for (Time t : departures) {
             timeTable.addLast(t.addDuration(timeToStation));
         }
