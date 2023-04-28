@@ -1,12 +1,32 @@
 package app.server;
 
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+
+
+interface ServerCommand {
+    void execute(String... args) throws IllegalArgumentException;
+}
+
+class SCUpdateMapFile implements ServerCommand {
+    @Override
+    public void execute(String... args) {
+        if (args.length != 2) 
+        throw new IllegalArgumentException("UpdateMap s'attend à recevoir uniquement le chemin vers le nouveau fichier");
+        String filePath = args[1];
+    }
+}
 
 class ServerConsole implements Runnable {
 
     public static final String argsSplitter = " ";
     public static final String PROMPT = "server >>> ";
+
+    public static final Map<String, ServerCommand> commands = 
+        Map.of(
+            "update-map", new SCUpdateMapFile()
+        );
 
     private boolean isRunning;
     private Scanner scanner;
@@ -14,13 +34,18 @@ class ServerConsole implements Runnable {
     public ServerConsole() {
         isRunning = false;
         scanner = new Scanner(System.in);
+        // this.server = server;
     }
-
 
     public void dispatchFromInput(String line) {
         String[] args = line.split(argsSplitter);
         String commandString = args[0];
-        ServerCommand command = ServerCommand.ofString(commandString);
+        ServerCommand command = commands.get(commandString);
+        if (command == null) {
+            write("Unknwon command : " + command + "\n");
+        } else {
+            command.execute(args);
+        }
     }
 
     private void write(Object o) {
@@ -48,15 +73,4 @@ class ServerConsole implements Runnable {
     }
 }
 
-enum ServerCommand {
-    UPDATE_TIME,
-    UPDATE_MAP;
 
-    public static ServerCommand ofString(String s) {
-        return switch (s.toLowerCase()) {
-            case "update-time" -> UPDATE_TIME;
-            case "update-map" -> UPDATE_MAP;
-            default -> null;
-        };
-    }
-};
