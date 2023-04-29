@@ -3,11 +3,10 @@
  */
 package app;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 
 public class AppTest {
@@ -16,21 +15,21 @@ public class AppTest {
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testArgOk(){
+    public void testArgOk() {
         String[] strings = {"ROUTE", "JAURES", "OURQ"};
         assertTrue(App.argsIsOk(strings));
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testNotArgOk(){
-        String[] strings = {"ROUTE", "JAURES", "PARIS", "MARSEILLE"};
+    public void testNotArgOk() {
+        String[] strings = {"ROUTE", "JAURES", "PARIS", "MARSEILLE", "OURQ"};
         assertFalse(App.argsIsOk(strings));
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testNotArgOkNoArgument(){
+    public void testNotArgOkNoArgument() {
         String[] strings = {};
         assertFalse(App.argsIsOk(strings));
     }
