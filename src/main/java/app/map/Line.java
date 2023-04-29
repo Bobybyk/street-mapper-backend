@@ -2,7 +2,6 @@ package app.map;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +38,10 @@ public final class Line {
      * La section de départ
      */
     private Section start;
+    /**
+     * La dernière de section
+     */
+    private Section last;
     /**
      * La liste des horaires de départ de la section de départ
      */
@@ -112,6 +115,10 @@ public final class Line {
      */
     public Section getStart() {
         return start;
+    }
+
+    public Section getLast() {
+        return last;
     }
 
     /**
@@ -211,21 +218,24 @@ public final class Line {
         while (section != null && sections.get(section) == null) {
             duration += WAITING_TIME + section.getDuration();
             sections.put(section, duration);
+            last = section;
             section = getNextSection(section);
         }
     }
 
     /**
-     * renvoit la list des horaires de la station d'arrivé de la section
-     *
-     * @param section la section qui a la station visé en arrivé
+     * @param section une section
+     * @param envoie la liste des horaires de départ de la section
      */
-    public LinkedList<Time> getDepartureTimeFromStation(Section section) {
-        LinkedList<Time> timeTable = new LinkedList<>();
-        int timeToStation = sections.get(section).intValue() + WAITING_TIME;
-        for (Time t : departures) {
-            timeTable.addLast(t.addDuration(timeToStation));
+    public List<Time> getDepartureTime(Section section) {
+        List<Time> times = new ArrayList<>();
+        Integer durationToArrival = sections.get(section);
+        if (durationToArrival != null) {
+            int duration = durationToArrival - section.getDuration();
+            for (Time t : departures) {
+                times.add(t.addDuration(duration));
+            }
         }
-        return timeTable;
+        return times;
     }
 }

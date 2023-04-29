@@ -30,6 +30,10 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
         this((duration / 3600) % 24, (duration / 60) % 60, duration % 60);
     }
 
+    public Time(int hour, int minute) {
+        this(hour, minute, 0);
+    }
+
     /**
      * Ajoute des secondes au temps et renvoie le nouveau temps.
      *
