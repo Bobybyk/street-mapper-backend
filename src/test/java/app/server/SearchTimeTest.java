@@ -1,14 +1,11 @@
 package app.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import java.io.FileNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import app.map.Line;
 import app.map.Plan;
 import app.map.PlanParser;
-import app.map.PlanParser.InconsistentDataException;
-import app.map.PlanParser.IncorrectFileFormatException;
 import app.map.Station;
 import app.map.Time;
 
@@ -25,16 +22,13 @@ public class SearchTimeTest {
         return "src/test/resources/" + filename + ".csv";
     }
 
-    private Plan initMap(String filename)
-            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
+    private Plan initMap(String filename) throws Exception {
         return PlanParser.planFromSectionCSV(getPath(filename));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testDeparturesFromStation()
-            throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException,
-            IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
+    public void testDeparturesFromStation() throws Exception {
 
         Plan map = initMap(MAP_DATA_ALL);
         PlanParser.addTimeFromCSV(map, getPath("time_data_ligne8"));
@@ -50,9 +44,7 @@ public class SearchTimeTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testDeparturesFromStationFromTime()
-            throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException,
-            IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
+    public void testDeparturesFromStationFromTime() throws Exception {
 
         Plan map = initMap(MAP_DATA_ALL);
         PlanParser.addTimeFromCSV(map, getPath("time_data_ligne8"));

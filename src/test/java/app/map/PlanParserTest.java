@@ -11,9 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import app.map.Line.DifferentStartException;
-import app.map.Line.StartStationNotFoundException;
-import app.map.Plan.UndefinedLineException;
 import app.map.PlanParser.InconsistentDataException;
 import app.map.PlanParser.IncorrectFileFormatException;
 
@@ -31,8 +28,7 @@ public class PlanParserTest {
         return "src/test/resources/" + filename + ".csv";
     }
 
-    private Plan initMap(String filename)
-            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
+    private Plan initMap(String filename) throws Exception {
         return PlanParser.planFromSectionCSV(getPath(filename));
     }
 
@@ -61,8 +57,7 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void sameSectionInMapAndLines()
-            throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
+    public void sameSectionInMapAndLines() throws Exception {
         Plan map = initMap(MAP_DATA);
         BinaryOperator<ArrayList<Section>> accumulator = (l1, l2) -> {
             l1.addAll(l2);
@@ -78,16 +73,13 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void nbOfSectionsInLine()
-            throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException,
-            UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+    public void nbOfSectionsInLine() throws Exception {
         Plan map = initMap(MAP_DATA);
         assertEquals(36, map.getLines().get("8 variant 1").getSections().size(),
                 "nombre de sections de cette ligne");
     }
 
-    private Plan addTimeHelper(String mapFilename, String timeFilename)
-            throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
+    private Plan addTimeHelper(String mapFilename, String timeFilename) throws Exception {
         Plan map = initMap(mapFilename);
         PlanParser.addTimeFromCSV(map, getPath(timeFilename));
         return map;
@@ -140,8 +132,7 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addTimeToLines() throws IllegalArgumentException, FileNotFoundException,
-            IncorrectFileFormatException, InconsistentDataException {
+    public void addTimeToLines() throws Exception {
         Plan map = addTimeHelper(MAP_DATA_ALL, "time_data");
         assertEquals(15, map.getLines().get("5 variant 2").getDepartures().size(),
                 "Add time to line");
@@ -149,9 +140,7 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testUpdateSectionsTimeLourmel()
-            throws FileNotFoundException, IncorrectFileFormatException,
-            StartStationNotFoundException, DifferentStartException, InconsistentDataException {
+    public void testUpdateSectionsTimeLourmel() throws Exception {
         Plan map = addTimeHelper("map_data_ligne8", "time_data_ligne8");
         Line line = map.getLines().get("8 variant 1");
         Section section = line.getSection("Lourmel");
@@ -160,9 +149,7 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testUpdateSectionsTimeBoucicaut()
-            throws FileNotFoundException, IncorrectFileFormatException,
-            StartStationNotFoundException, DifferentStartException, InconsistentDataException {
+    public void testUpdateSectionsTimeBoucicaut() throws Exception {
         Plan map = addTimeHelper("map_data_ligne8", "time_data_ligne8");
         Line line = map.getLines().get("8 variant 1");
         Section section = line.getSection("Boucicaut");

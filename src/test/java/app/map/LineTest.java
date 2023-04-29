@@ -2,10 +2,8 @@ package app.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
 
@@ -24,19 +22,22 @@ public class LineTest {
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void addNullSection() {
-        assertThrows(IllegalArgumentException.class, () -> line.addSection(null), "Add null section");
+        assertThrows(IllegalArgumentException.class, () -> line.addSection(null),
+                "Add null section");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void setNullStart() {
-        assertThrows(IllegalArgumentException.class, () -> line.setStart(null), "Set null as start");
+        assertThrows(IllegalArgumentException.class, () -> line.setStart(null),
+                "Set null as start");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void setStartWithNotExistingStation() {
-        assertThrows(StartStationNotFoundException.class, () -> line.setStart("test"), "Start station not in line");
+        assertThrows(StartStationNotFoundException.class, () -> line.setStart("test"),
+                "Start station not in line");
     }
 
     private void initLine() {
@@ -49,8 +50,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setTwoDifferentStart()
-            throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
+    public void setTwoDifferentStart() throws Exception {
         initLine();
         line.setStart("1");
         assertThrows(DifferentStartException.class, () -> {
@@ -60,8 +60,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setStartNotNull()
-            throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
+    public void setStartNotNull() throws Exception {
         initLine();
         Section section = line.getSections().get(1);
         String stationName = section.getStart().getName();
@@ -71,8 +70,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setStartNotNullTwice()
-            throws IllegalArgumentException, StartStationNotFoundException, DifferentStartException {
+    public void setStartNotNullTwice() throws Exception {
         initLine();
         Section section = line.getSections().get(1);
         String stationName = section.getStart().getName();
