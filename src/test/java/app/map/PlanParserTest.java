@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import app.map.Line.DifferentStartException;
+import app.map.Line.StartStationNotFoundException;
+import app.map.Plan.UndefinedLineException;
 import app.map.PlanParser.InconsistentDataException;
 import app.map.PlanParser.IncorrectFileFormatException;
 
@@ -73,6 +76,16 @@ public class PlanParserTest {
                 "Map and lines field contains the sames sections");
     }
 
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void nbOfSectionsInLine()
+            throws IllegalArgumentException, FileNotFoundException, IncorrectFileFormatException,
+            UndefinedLineException, StartStationNotFoundException, DifferentStartException {
+        Plan map = initMap(MAP_DATA);
+        assertEquals(36, map.getLines().get("8 variant 1").getSections().size(),
+                "nombre de sections de cette ligne");
+    }
+
     private Plan addTimeHelper(String mapFilename, String timeFilename)
             throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
         Plan map = initMap(mapFilename);
@@ -132,5 +145,27 @@ public class PlanParserTest {
         Plan map = addTimeHelper(MAP_DATA_ALL, "time_data");
         assertEquals(15, map.getLines().get("5 variant 2").getDepartures().size(),
                 "Add time to line");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void testUpdateSectionsTimeLourmel()
+            throws FileNotFoundException, IncorrectFileFormatException,
+            StartStationNotFoundException, DifferentStartException, InconsistentDataException {
+        Plan map = addTimeHelper("map_data_ligne8", "time_data_ligne8");
+        Line line = map.getLines().get("8 variant 1");
+        Section section = line.getSection("Lourmel");
+        assertEquals(254, line.getSectionsMap().get(section), "durée entre Balard et Lourmel");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void testUpdateSectionsTimeBoucicaut()
+            throws FileNotFoundException, IncorrectFileFormatException,
+            StartStationNotFoundException, DifferentStartException, InconsistentDataException {
+        Plan map = addTimeHelper("map_data_ligne8", "time_data_ligne8");
+        Line line = map.getLines().get("8 variant 1");
+        Section section = line.getSection("Boucicaut");
+        assertEquals(452, line.getSectionsMap().get(section), "durée entre Balard et Boucicaut");
     }
 }

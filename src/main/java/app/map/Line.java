@@ -115,6 +115,16 @@ public final class Line {
     }
 
     /**
+     * @param station la station de départ de la section
+     * @return la section partant de station ou {@code null} s'il n'existe pas
+     */
+    public Section getSection(String station) {
+        Optional<Section> section = sections.keySet().stream()
+                .filter(s -> s.getStart().getName().equals(station)).findAny();
+        return section.orElse(null);
+    }
+
+    /**
      * @return la liste des sections de la ligne
      */
     public List<Section> getSections() {
