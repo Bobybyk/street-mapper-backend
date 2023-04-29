@@ -5,10 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.ToIntBiFunction;
 import app.map.Plan;
-import app.map.Plan.PathNotFoundException;
 import app.map.Section;
 import app.map.Station;
 import app.map.Time;
+import app.server.Dijkstra.PathNotFoundException;
 import app.server.data.ErrorServer;
 import app.server.data.Route;
 
@@ -55,13 +55,13 @@ public class SearchPath implements ServerActionCallback {
         Section first = sections.get(0);
         Station start = first.getStart();
         Station arrival = first.getArrival();
-        String line = map.getLines().get(first.getLine()).getName();
+        String line = map.getLineName(first);
         Time time = first.getTime();
         int distance = first.getDistance();
         int duration = first.getDuration();
 
         for (Section s : sections) {
-            if (line.equals(map.getLines().get(s.getLine()).getName())) {
+            if (line.equals(map.getLineName(s))) {
                 arrival = s.getArrival();
                 distance += s.getDistance();
                 duration += s.getDuration();
@@ -71,7 +71,7 @@ public class SearchPath implements ServerActionCallback {
                 route.add(toAdd);
                 start = s.getStart();
                 arrival = s.getArrival();
-                line = map.getLines().get(s.getLine()).getName();
+                line = map.getLineName(s);
                 time = s.getTime();
                 distance = s.getDistance();
                 duration = s.getDuration();

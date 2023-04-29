@@ -11,7 +11,6 @@ import java.util.function.ToIntBiFunction;
 import app.map.Plan;
 import app.map.Section;
 import app.map.Time;
-import app.map.Plan.PathNotFoundException;
 
 public final class Dijkstra {
     /**
@@ -81,6 +80,16 @@ public final class Dijkstra {
         queue = new PriorityQueue<>(map.size(), Comparator.comparingInt(distance::get));
         this.u = null;
         this.result = null;
+    }
+
+    public static class PathNotFoundException extends Exception {
+        public PathNotFoundException(String start, String arrival) {
+            super(String.format("Pas de chemin trouvé entre %s et %s", start, arrival));
+        }
+
+        public PathNotFoundException() {
+            super();
+        }
     }
 
     /**

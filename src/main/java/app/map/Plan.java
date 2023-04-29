@@ -165,8 +165,11 @@ public final class Plan {
      * @param time l'horaire minimal
      */
     public void updateSectionTime(Section section, Time time) {
-        Line l = lines.get(section.getLine());
-        section.setTime(l.getNextTime(section, time));
+        if (section != null) {
+            Line l = lines.get(section.getLine());
+            if (l != null)
+                section.setTime(l.getNextTime(section, time));
+        }
     }
 
     public Map<String, List<Section>> getMap() {
@@ -181,13 +184,19 @@ public final class Plan {
         return new HashSet<>(stations.values());
     }
 
-    public static class PathNotFoundException extends Exception {
-        public PathNotFoundException(String start, String arrival) {
-            super(String.format("Pas de chemin trouvé entre %s et %s", start, arrival));
+    /**
+     * @param section une section
+     * @return le nom de la ligne (sans variant) à laquelle appartient la section
+     */
+    public String getLineName(Section section) {
+        Line l = lines.get(section.getLine());
+        if (l != null) {
+            return l.getName();
         }
+        return null;
+    }
 
-        public PathNotFoundException() {
-            super();
-        }
+    public Line getLine(Section section) {
+        return lines.get(section.getLine());
     }
 }

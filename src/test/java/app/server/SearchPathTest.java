@@ -7,12 +7,12 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import app.map.Plan;
-import app.map.Plan.PathNotFoundException;
 import app.map.PlanParser;
 import app.map.PlanParser.InconsistentDataException;
 import app.map.PlanParser.IncorrectFileFormatException;
 import app.map.Section;
 import app.map.Time;
+import app.server.Dijkstra.PathNotFoundException;
 import app.server.data.ErrorServer;
 import app.server.data.Route;
 
