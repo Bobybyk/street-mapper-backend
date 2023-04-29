@@ -2,6 +2,7 @@ package app.map;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * Coordonnée GPS en degrés décimaux
@@ -46,5 +47,17 @@ public class Coordinate implements Serializable {
         double y = Math.cos(latitudeR) * Math.cos(c.latitudeR);
         double z = Math.cos(longitudeR - c.longitudeR);
         return (int) Math.round(Math.acos(x + (y * z)) * EARTH_RADIUS);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Coordinate c)
+            return c.latitude == latitude && c.longitude == longitude;
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(latitude, longitude);
     }
 }

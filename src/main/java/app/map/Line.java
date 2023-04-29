@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -123,8 +124,8 @@ public final class Line {
     /**
      * @return l'attribut de type HashMap sections
      */
-    public HashMap<Section, Integer> getSectionsMap() {
-        return sections;
+    public Map<Section, Integer> getSectionsMap() {
+        return new HashMap<>(sections);
     }
 
     /**
@@ -137,7 +138,7 @@ public final class Line {
     public void addSection(Section section) throws IllegalArgumentException {
         if (section == null)
             throw new IllegalArgumentException();
-        sections.put(section, -1);
+        sections.put(section, null);
     }
 
     /**
@@ -165,32 +166,42 @@ public final class Line {
      *         departures est vide
      */
     public Time getNextTime(Section section, Time time) {
-        int durationFromDeparture = sections.get(section);
-        if (time == null || departures.isEmpty() || durationFromDeparture == -1)
+        Integer duration = sections.get(section);
+        if (duration == null || time == null || departures.isEmpty())
             return null;
         for (Time t : departures) {
-            Time departTime = t.addDuration(durationFromDeparture);
+            Time departTime = t.addDuration(duration);
             if (time.compareTo(departTime) < 0)
                 return departTime;
         }
-        return departures.get(0).addDuration(durationFromDeparture);
+        return departures.get(0).addDuration(duration);
     }
 
+    /**
+     * @param section une section
+     * @return la section suivante ou {@code null} s'il n'y en a pas
+     */
+    private Section getNextSection(Section section) {
+        Optional<Section> next = sections.keySet().stream()
+                .filter(s -> s.getStart().equals(section.getArrival())).findAny();
+        return next.orElse(null);
+    }
+
+    /**
+     * Calcule le temps nécessaire entre la station de départ et toutes les autres stations de la
+     * ligne, les résultats sont mis dans {@code sections}. Si la station de départ n'est pas
+     * définie, ne fait rien.
+     */
     public void updateSectionsTime() {
         if (start == null)
             return;
-        Section curentSection = start;
-        int curentTime = curentSection.getDuration();
-        int nbSections = sections.size();
-        int nbSectionDone = 1;
-        while (nbSectionDone < nbSections) {
-            for (Section s : getSections()) {
-                if (s.getStart().getName().equals(curentSection.getArrival().getName())) {
-                    sections.put(s, sections.get(curentSection) + s.getDuration() + WAITING_TIME);
-                    curentSection = s;
-                }
-                nbSectionDone++;
-            }
+        int duration = start.getDuration();
+        sections.put(start, duration);
+        Section section = getNextSection(start);
+        while (section != null && sections.get(section) == null) {
+            duration += WAITING_TIME + section.getDuration();
+            sections.put(section, duration);
+            section = getNextSection(section);
         }
     }
 
