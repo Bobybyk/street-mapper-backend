@@ -1,61 +1,55 @@
 package app.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import app.map.Line;
 import app.map.Plan;
 import app.map.PlanParser;
-import app.map.Station;
 import app.map.Time;
+import app.server.data.StationTime;
 
 public class SearchTimeTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
-    private static final String MAP_DATA = "map_data";
+    private static final String MAP_DATA = "map_data_all";
 
-    private static final String MAP_DATA_ALL = "map_data_fix_dist_time";
+    private static final String TIME_DATA = "time_data_all";
 
-    private String getPath(String filename) {
+    private static Plan map;
+
+    private static String getPath(String filename) {
         if (filename == null)
             return null;
         return "src/test/resources/" + filename + ".csv";
     }
 
-    private Plan initMap(String filename) throws Exception {
-        return PlanParser.planFromSectionCSV(getPath(filename));
+    static SearchTime createSearchTime(String station, Time time) {
+        return new SearchTime(map, station, time);
+    }
+
+    @BeforeAll
+    static void init() throws Exception {
+        map = PlanParser.planFromSectionCSV(getPath(MAP_DATA));
+        PlanParser.addTimeFromCSV(map, getPath(TIME_DATA));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testDeparturesFromStation() throws Exception {
-
-        Plan map = initMap(MAP_DATA_ALL);
-        PlanParser.addTimeFromCSV(map, getPath("time_data_ligne8"));
-        Line huit_variant_1 = map.getLines().get("8 variant 1");
-        huit_variant_1.setStart("Lourmel");
-        huit_variant_1.updateSectionsTime();
-
-        Station station = map.getMap().get("Félix Faure").get(0).getStart();
-
-        assertEquals(17, map.departuresFromStation(station).get("8 variant 1").size(),
-                "nombre d'horaires depuis Félix Faure sur la ligne 8 variant 1");
+    public void timeAtMadeleine() {
+        SearchTime search = createSearchTime("Madeleine", new Time(15, 40));
+        List<StationTime> times = search.execute().getTimes();
+        StationTime expected = new StationTime("12", "Mairie d'Issy", new Time(15, 43, 54));
+        assertEquals(expected, times.get(19), "Times at a Madeleine");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testDeparturesFromStationFromTime() throws Exception {
-
-        Plan map = initMap(MAP_DATA_ALL);
-        PlanParser.addTimeFromCSV(map, getPath("time_data_ligne8"));
-        Line huit_variant_1 = map.getLines().get("8 variant 1");
-        huit_variant_1.setStart("Lourmel");
-        huit_variant_1.updateSectionsTime();
-
-        Station station = map.getMap().get("Félix Faure").get(0).getStart();
-        Time time = new Time(16, 0, 0);
-
-        assertEquals(12, map.departuresFromStationFromTime(station, time).get("8 variant 1").size(),
-                "nombre d'horaires depuis Félix Faure sur la ligne 8 variant 1 depuis 16h");
+    public void timeAtChateletAfterMidnight() {
+        SearchTime search = createSearchTime("Châtelet", new Time(23, 59));
+        List<StationTime> times = search.execute().getTimes();
+        StationTime expected = new StationTime("14", "Mairie de Saint-Ouen", new Time(6, 18, 00));
+        assertEquals(expected, times.get(10), "Times at a Châtelet at 23:59");
     }
 }

@@ -71,14 +71,6 @@ public class PlanParserTest {
                 "Map and lines field contains the sames sections");
     }
 
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
-    public void nbOfSectionsInLine() throws Exception {
-        Plan map = initMap(MAP_DATA);
-        assertEquals(36, map.getLines().get("8 variant 1").getSections().size(),
-                "nombre de sections de cette ligne");
-    }
-
     private Plan addTimeHelper(String mapFilename, String timeFilename) throws Exception {
         Plan map = initMap(mapFilename);
         PlanParser.addTimeFromCSV(map, getPath(timeFilename));
@@ -136,23 +128,5 @@ public class PlanParserTest {
         Plan map = addTimeHelper(MAP_DATA_ALL, "time_data");
         assertEquals(15, map.getLines().get("5 variant 2").getDepartures().size(),
                 "Add time to line");
-    }
-
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
-    public void testUpdateSectionsTimeLourmel() throws Exception {
-        Plan map = addTimeHelper("map_data_ligne8", "time_data_ligne8");
-        Line line = map.getLines().get("8 variant 1");
-        Section section = line.getSection("Lourmel");
-        assertEquals(254, line.getSectionsMap().get(section), "durée entre Balard et Lourmel");
-    }
-
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
-    public void testUpdateSectionsTimeBoucicaut() throws Exception {
-        Plan map = addTimeHelper("map_data_ligne8", "time_data_ligne8");
-        Line line = map.getLines().get("8 variant 1");
-        Section section = line.getSection("Boucicaut");
-        assertEquals(452, line.getSectionsMap().get(section), "durée entre Balard et Boucicaut");
     }
 }

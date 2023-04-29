@@ -2,6 +2,7 @@ package app.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import app.map.Line.DifferentStartException;
@@ -89,9 +90,38 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addDepartureTimeTw() {
+    public void addDepartureTimeTwice() {
         line.addDepartureTime(12, 34);
         line.addDepartureTime(12, 34);
         assertEquals(1, line.getDepartures().size(), "Add the same departure time twice");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void updateSectionTime() throws Exception {
+        Station t1 = new Station("1", 0, 0);
+        Station t2 = new Station("2", 0, 0);
+        Station t3 = new Station("3", 0, 0);
+        line.addSection(new Section(t1, t2, "test variant 0", 0, 10));
+        Section section = new Section(t2, t3, "test variant 0", 0, 15);
+        line.addSection(section);
+        line.setStart("1");
+        line.updateSectionsTime();
+        Map<Section, Integer> times = line.getSectionsMap();
+        assertEquals(45, times.get(section), "Time from start");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void updateSectionTimeSetLast() throws Exception {
+        Station t1 = new Station("1", 0, 0);
+        Station t2 = new Station("2", 0, 0);
+        Station t3 = new Station("3", 0, 0);
+        line.addSection(new Section(t1, t2, "test variant 0", 0, 10));
+        Section section = new Section(t2, t3, "test variant 0", 0, 15);
+        line.addSection(section);
+        line.setStart("1");
+        line.updateSectionsTime();
+        assertEquals(section, line.getLast(), "Find last section");
     }
 }
