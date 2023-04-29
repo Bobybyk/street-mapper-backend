@@ -22,7 +22,7 @@ public class Station implements Serializable {
     }
 
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     public String getName() {
         return name;
