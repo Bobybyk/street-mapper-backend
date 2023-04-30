@@ -1,11 +1,9 @@
 package app.server;
 
 import java.io.Serializable;
-import java.util.LinkedList;
 import java.util.List;
 import app.map.Plan;
 import app.map.Section;
-import app.map.Station;
 import app.map.Time;
 import app.server.Dijkstra.PathNotFoundException;
 import app.server.data.ErrorServer;
@@ -49,36 +47,6 @@ public class SearchPath implements ServerActionCallback {
     private Route sectionsToRoute(List<Section> sections) {
         if (sections == null || sections.isEmpty())
             return new Route(sections);
-
-        List<Section> route = new LinkedList<>();
-        Section first = sections.get(0);
-        Station start = first.getStart();
-        Station arrival = first.getArrival();
-        String line = map.getLineName(first);
-        Time time = first.getTime();
-        int distance = first.getDistance();
-        int duration = first.getDuration();
-
-        for (Section s : sections) {
-            if (line.equals(map.getLineName(s))) {
-                arrival = s.getArrival();
-                distance += s.getDistance();
-                duration += s.getDuration();
-            } else {
-                Section toAdd = new Section(start, arrival, line, distance, duration);
-                toAdd.setTime(time);
-                route.add(toAdd);
-                start = s.getStart();
-                arrival = s.getArrival();
-                line = map.getLineName(s);
-                time = s.getTime();
-                distance = s.getDistance();
-                duration = s.getDuration();
-            }
-        }
-        Section toAdd = new Section(start, arrival, line, distance, duration);
-        toAdd.setTime(time);
-        route.add(toAdd);
-        return new Route(route);
+        return new Route(sections.stream().map(s -> s.changeLine(map.getLineName(s))).toList());
     }
 }

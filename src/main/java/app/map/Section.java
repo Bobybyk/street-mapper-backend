@@ -44,6 +44,10 @@ public class Section implements Serializable {
         this(s.start, s.arrival, s.line, s.distance, s.duration);
     }
 
+    public Section changeLine(String line) {
+        return new Section(start, arrival, line, distance, duration);
+    }
+
     public Station getStart() {
         return start;
     }
