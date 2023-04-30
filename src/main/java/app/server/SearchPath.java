@@ -3,7 +3,6 @@ package app.server;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.ToIntBiFunction;
 import app.map.Plan;
 import app.map.Section;
 import app.map.Station;
@@ -21,9 +20,9 @@ public class SearchPath implements ServerActionCallback {
     private final String start;
     private final String arrival;
     private final Time depart;
-    private final ToIntBiFunction<Section, Section> getWeight;
+    private final boolean distOpt;
 
-    public SearchPath(Plan map, String start, String arrival, Time depart, boolean distance)
+    public SearchPath(Plan map, String start, String arrival, Time depart, boolean distOpt)
             throws IllegalArgumentException {
         if (map == null || start == null || arrival == null)
             throw new IllegalArgumentException();
@@ -31,7 +30,7 @@ public class SearchPath implements ServerActionCallback {
         this.start = start;
         this.arrival = arrival;
         this.depart = depart;
-        getWeight = distance ? Section::distanceTo : Section::durationTo;
+        this.distOpt = distOpt;
     }
 
     /**
@@ -40,7 +39,7 @@ public class SearchPath implements ServerActionCallback {
      */
     public Serializable execute() {
         try {
-            List<Section> sections = new Dijkstra(map, start, arrival, depart, getWeight).getPath();
+            List<Section> sections = new Dijkstra(map, start, arrival, depart, distOpt).getPath();
             return sectionsToRoute(sections);
         } catch (PathNotFoundException e) {
             return new ErrorServer("Trajet inexistant");

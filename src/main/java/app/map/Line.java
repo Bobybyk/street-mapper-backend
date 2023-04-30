@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Classe représentant une ligne
@@ -45,7 +47,7 @@ public final class Line {
     /**
      * La liste des horaires de départ de la section de départ
      */
-    private final ArrayList<Time> departures;
+    private final SortedSet<Time> departures;
     /**
      * Chaque section est associée à la durée nécessaire pour arriver à la fin de la section depuis
      * le début de la section de départ
@@ -69,7 +71,7 @@ public final class Line {
         this.variant = variant;
         this.start = null;
         sections = new HashMap<>();
-        departures = new ArrayList<>();
+        departures = new TreeSet<>();
     }
 
     /**
@@ -186,12 +188,13 @@ public final class Line {
         Integer duration = sections.get(section);
         if (duration == null || time == null || departures.isEmpty())
             return null;
+        duration -= section.getDuration();
         for (Time t : departures) {
             Time departTime = t.addDuration(duration);
-            if (time.compareTo(departTime) < 0)
+            if (time.compareTo(departTime) <= 0)
                 return departTime;
         }
-        return departures.get(0).addDuration(duration);
+        return departures.first().addDuration(duration);
     }
 
     /**

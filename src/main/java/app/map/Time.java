@@ -70,7 +70,7 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
      * @param time
      * @return le temps en seconde nécessaire pour atteindre time
      */
-    public int durationBetween(Time time) {
+    public int durationTo(Time time) {
         int t1 = toSeconds();
         int t2 = time.toSeconds();
         int diff = t2 - t1;

@@ -60,8 +60,8 @@ public class Section implements Serializable {
         return time;
     }
 
-    private Time getArrivalTime() {
-        return time.addDuration(duration);
+    public Time getArrivalTime() {
+        return time == null ? null : time.addDuration(duration);
     }
 
     public void setTime(Time time) {
@@ -96,7 +96,7 @@ public class Section implements Serializable {
         if (nextSection == null)
             throw new IllegalArgumentException();
         return arrival.durationBetween(nextSection.start)
-                + time.durationBetween(nextSection.getArrivalTime());
+                + getArrivalTime().durationTo(nextSection.getArrivalTime());
     }
 
     public int getDuration() {

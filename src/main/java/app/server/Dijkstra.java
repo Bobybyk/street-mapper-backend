@@ -34,6 +34,10 @@ public final class Dijkstra {
      */
     private final Time departTime;
     /**
+     * Optimisation en distance ou en temps
+     */
+    private boolean distOpt;
+    /**
      * La fonction qui calcule le poids d'une arrête à partir de la dernière arête traitée
      */
     private final ToIntBiFunction<Section, Section> getWeight;
@@ -65,16 +69,16 @@ public final class Dijkstra {
      * @param departTime l'horaire de départ
      * @param getWeight la fonction qui associe à une section (arête) son poids
      */
-    Dijkstra(Plan plan, String start, String arrival, Time departTime,
-            ToIntBiFunction<Section, Section> getWeight) {
-        if (plan == null || start == null || arrival == null || getWeight == null)
+    Dijkstra(Plan plan, String start, String arrival, Time departTime, boolean distOpt) {
+        if (plan == null || start == null || arrival == null)
             throw new IllegalArgumentException();
         this.plan = plan;
         this.map = plan.getMap();
         this.start = start;
         this.arrival = arrival;
         this.departTime = departTime;
-        this.getWeight = getWeight;
+        this.distOpt = distOpt;
+        this.getWeight = distOpt ? Section::distanceTo : Section::durationTo;
         distance = new HashMap<>();
         previous = new HashMap<>();
         queue = new PriorityQueue<>(map.size(), Comparator.comparingInt(distance::get));
@@ -126,7 +130,6 @@ public final class Dijkstra {
     private void init() {
         for (String station : map.keySet()) {
             distance.put(station, Integer.MAX_VALUE);
-            previous.put(station, null);
         }
         distance.put(start, 0);
         queue.addAll(map.keySet());
@@ -147,20 +150,21 @@ public final class Dijkstra {
      */
     private void loop() {
         for (Section section : map.get(u)) {
-            Section current = previous.get(u);
-            if (current == null) {
-                current = new Section(section.getStart(), section.getStart(), section.getLine(), 0,
-                        0);
-                current.setTime(departTime);
+            Section prev = previous.get(u);
+            if (prev == null) {
+                prev = new Section(section.getStart(), section.getStart(), "", 0, 0);
+                prev.setTime(departTime);
             }
-            plan.updateSectionTime(section, current.getTime());
-            String v = section.getArrival().getName();
-            int w = distance.get(u) + getWeight.applyAsInt(current, section);
-            if (distance.get(v) > w) {
-                distance.put(v, w);
-                previous.put(v, section);
-                queue.remove(v);
-                queue.add(v);
+            plan.updateSectionTime(section, prev.getArrivalTime());
+            if (distOpt || section.getTime() != null) {
+                String v = section.getArrival().getName();
+                int w = distance.get(u) + getWeight.applyAsInt(prev, section);
+                if (distance.get(v) > w) {
+                    distance.put(v, w);
+                    previous.put(v, section);
+                    queue.remove(v);
+                    queue.add(v);
+                }
             }
         }
     }
