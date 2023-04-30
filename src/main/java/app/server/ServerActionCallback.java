@@ -16,5 +16,5 @@ public interface ServerActionCallback {
      * @return             L'objet {@code Serializable} à renvoyer au client
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public Serializable execute(String[] args) throws IOException;
+    public Serializable execute(Server server, String[] args) throws IOException;
 }

@@ -8,7 +8,11 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import app.map.Plan;
+import app.map.PlanParser;
 
 
 /**
@@ -50,6 +54,8 @@ public class Server {
 
     private Thread consoleThread;
 
+    private SynchronizedPlan synchronizedPlan;
+
     /**
      * 
      * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
@@ -66,6 +72,12 @@ public class Server {
         this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection), InetAddress.getByName(host));
         this.serverConsole = withConsole ? new ServerConsole(): null;
         this.consoleThread = withConsole ? new Thread(serverConsole): null;
+        try {
+            Plan p = PlanParser.planFromSectionCSV("dev_ressources/map_data_client.csv");
+            synchronizedPlan = new SynchronizedPlan(p);
+        } catch (Exception e) {
+            synchronizedPlan = null;
+        }
     }
 
     /**
@@ -113,7 +125,7 @@ public class Server {
         while ( isRunning() ) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                RequestHandler requestHandler = new RequestHandler(clientSocket);
+                RequestHandler requestHandler = new RequestHandler(this, clientSocket);
                 threadPool.execute(requestHandler);
             } catch (SocketTimeoutException e) {
                 System.out.println("Erreur timeout");
@@ -167,6 +179,87 @@ public class Server {
             consoleThread.interrupt();
         }
     }
+
+    public <T> T mapPlan(MapUser<T> user) throws InterruptedException, Exception {
+        return synchronizedPlan.map(user);
+    }
+
+    public void updateMap(Plan newPlan) throws InterruptedException, Exception {
+        synchronizedPlan.updateMap(newPlan);
+        return;
+    }
+
 }
 
+@FunctionalInterface
+interface MapUser<T> {
+    T apply(Plan p) throws Exception ;
+}
 
+class SynchronizedPlan {
+
+    private Plan plan;
+    private Semaphore readerSemaphore;
+    private Semaphore writerSemaphore;
+    private Semaphore readTry;
+    private Semaphore ressourceSemaphore;
+
+    private int readcount;
+    private int writecount;
+
+    SynchronizedPlan(Plan plan) {
+        this.plan = plan;
+        readerSemaphore = new Semaphore(1);
+        writerSemaphore = new Semaphore(1);
+        readTry = new Semaphore(1);
+        ressourceSemaphore = new Semaphore(1);
+
+        readcount = 0;
+        writecount = 0;
+    }
+
+    public <T> T map(MapUser<T> user) throws InterruptedException, Exception  {
+        readTry.acquire();
+        readerSemaphore.acquire();
+        readcount++;
+        if (readcount == 1) {
+            ressourceSemaphore.acquire();;
+        }
+        readerSemaphore.release();
+        readTry.release();     
+        T res = user.apply(plan);
+
+        readerSemaphore.acquire();
+        readcount--;
+        if (readcount == 0) {
+            ressourceSemaphore.release();
+        }
+        readerSemaphore.release();
+        return res;
+    }
+
+    public void updateMap(Plan newPlan) throws InterruptedException {
+        System.out.println("Try to update map");
+        writerSemaphore.acquire();
+        writecount += 1;
+        if (writecount == 1) {
+            readTry.acquire();
+        }
+        writerSemaphore.release();
+        ressourceSemaphore.acquire();
+
+        System.out.println("New plan");
+
+        this.plan = newPlan;
+
+        ressourceSemaphore.release();
+        writerSemaphore.acquire();
+        writecount--;
+        if (writecount == 0) {
+            readTry.release();
+        }
+
+        writerSemaphore.release();
+        System.out.println("Released Writer");
+    }
+}
