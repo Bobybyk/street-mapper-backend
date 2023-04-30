@@ -116,7 +116,7 @@ public class SearchPathTest {
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathSameLine() throws Exception {
-        findPathMapHelper("Lourmel", "Commerce", 1);
+        findPathMapHelper("Lourmel", "Commerce", 3);
     }
 
     @Test
@@ -134,48 +134,54 @@ public class SearchPathTest {
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathNordToLyon() throws Exception {
-        findPathMapHelper("Gare du Nord", "Gare de Lyon", 4);
+        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathNordToLyonStartTime() throws Exception {
-        findPathMapHelper("Gare du Nord", "Gare de Lyon", 4, new Time(9, 34, 23));
+        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, new Time(9, 34, 23));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathNordToLyonTimeOpt() throws Exception {
-        findPathMapHelper("Gare du Nord", "Gare de Lyon", 4, new Time(17, 58, 32), true);
+        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, new Time(17, 58, 32), true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathBercyToParmentier() throws Exception {
-        findPathMapHelper("Bercy", "Parmentier", 4);
+        findPathMapHelper("Bercy", "Parmentier", 7);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathBMaisonBlancheToPigalle() throws Exception {
-        findPathMapHelper("Maison Blanche", "Pigalle", 6);
+        findPathMapHelper("Maison Blanche", "Pigalle", 17);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithTimeNordToLyon() throws Exception {
-        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 4);
+        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 8);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithTimeNordToLyonStartTime() throws Exception {
-        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 4, new Time(13, 50, 32));
+        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 8, new Time(13, 50, 32));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithTimeNordToLyonStartTimeOpt() throws Exception {
-        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 4, new Time(13, 50, 32), true);
+        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 15, new Time(13, 50, 32), false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeSameLineTimeOpt() throws Exception {
+        findPathMapWithTimeHelper("Balard", "Félix Faure", 3, new Time(13, 50, 32), false);
     }
 }

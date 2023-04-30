@@ -117,11 +117,72 @@ public class LineTest {
         Station t1 = new Station("1", 0, 0);
         Station t2 = new Station("2", 0, 0);
         Station t3 = new Station("3", 0, 0);
-        line.addSection(new Section(t1, t2, "test variant 0", 0, 10));
-        Section section = new Section(t2, t3, "test variant 0", 0, 15);
-        line.addSection(section);
+        Section s1 = new Section(t1, t2, "test variant 0", 0, 10);
+        Section s2 = new Section(t2, t3, "test variant 0", 0, 15);
+        line.addSection(s1);
+        line.addSection(s2);
         line.setStart("1");
         line.updateSectionsTime();
-        assertEquals(section, line.getLast(), "Find last section");
+        assertEquals(s2, line.getLast(), "Find last section");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void getNextTimeFromStart() throws Exception {
+        Station t1 = new Station("1", 0, 0);
+        Station t2 = new Station("2", 0, 0);
+        Station t3 = new Station("3", 0, 0);
+        Section s1 = new Section(t1, t2, "test variant 0", 0, 10);
+        Section s2 = new Section(t2, t3, "test variant 0", 0, 15);
+        line.addSection(s1);
+        line.addSection(s2);
+        line.setStart("1");
+        line.updateSectionsTime();
+        line.addDepartureTime(15, 20);
+        line.addDepartureTime(15, 30);
+        assertEquals(new Time(15, 20), line.getNextTime(s1, new Time(15, 20)),
+                "Find departure time after 15:20");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void getNextTimeFirstDepart() throws Exception {
+        Station t1 = new Station("1", 0, 0);
+        Station t2 = new Station("2", 0, 0);
+        Station t3 = new Station("3", 0, 0);
+        Section s1 = new Section(t1, t2, "test variant 0", 0, 10);
+        Section s2 = new Section(t2, t3, "test variant 0", 0, 15);
+        line.addSection(s1);
+        line.addSection(s2);
+        line.setStart("1");
+        line.updateSectionsTime();
+        for (Map.Entry<Section, Integer> entry : line.getSectionsMap().entrySet()) {
+            System.out.println("section = " + entry.getKey() + " value " + entry.getValue());
+        }
+        line.addDepartureTime(15, 20);
+        line.addDepartureTime(15, 30);
+        assertEquals(new Time(15, 20, 30), line.getNextTime(s2, new Time(15, 20)),
+                "Find departure time after 15:20");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void getNextTime() throws Exception {
+        Station t1 = new Station("1", 0, 0);
+        Station t2 = new Station("2", 0, 0);
+        Station t3 = new Station("3", 0, 0);
+        Section s1 = new Section(t1, t2, "test variant 0", 0, 10);
+        Section s2 = new Section(t2, t3, "test variant 0", 0, 15);
+        line.addSection(s1);
+        line.addSection(s2);
+        line.setStart("1");
+        line.updateSectionsTime();
+        for (Map.Entry<Section, Integer> entry : line.getSectionsMap().entrySet()) {
+            System.out.println("section = " + entry.getKey() + " value " + entry.getValue());
+        }
+        line.addDepartureTime(15, 20);
+        line.addDepartureTime(15, 30);
+        assertEquals(new Time(15, 30, 30), line.getNextTime(s2, new Time(15, 21)),
+                "Find departure time after 15:20");
     }
 }
