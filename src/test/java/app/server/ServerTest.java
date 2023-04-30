@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import app.map.PlanParser.IncorrectFileFormatException;
 import app.server.data.ErrorServer;
 import org.junit.jupiter.api.*;
 
@@ -25,6 +26,7 @@ public class ServerTest {
     private static final String SUGGESTION_VALID_ARRIVAL = "SEARCH;GARE1;ARRIVAL";
     private static final String SUGGESTION_INVALID_2ARG = "SEARCH;GARE1;afhja";
     private static final String SUGGESTION_EMPTY = "SEARCH; ";
+    private static final String CSV_MAP = "dev_ressources/map_data_client.csv";
 
     private static final int PORT = 12334;
     private static final int incommingConnection = 3;
@@ -41,7 +43,7 @@ public class ServerTest {
             server = initServer();
             clientSocket = new Socket(HOST, PORT);
             out = new PrintWriter(clientSocket.getOutputStream());
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException | IncorrectFileFormatException e) {
             System.out.println("Erreur Test init socket / serveur ");
         }
     }
@@ -78,9 +80,11 @@ public class ServerTest {
      *
      * @return le server creer
      * @throws IOException erreur du serveur
+     * @throws IncorrectFileFormatException
+     * @throws IllegalArgumentException
      */
-    private static Server initServer() throws IOException {
-        Server server = new Server(HOST, PORT, false, incommingConnection);
+    private static Server initServer() throws IOException, IllegalArgumentException, IncorrectFileFormatException {
+        Server server = new Server(CSV_MAP, PORT, false, incommingConnection);
         Thread threadServer = new Thread(server::start);
         threadServer.start();
         return server;

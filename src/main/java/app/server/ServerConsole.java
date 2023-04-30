@@ -4,30 +4,30 @@ import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-
-import app.App;
 import app.map.Plan;
 import app.map.PlanParser;
 import app.map.PlanParser.IncorrectFileFormatException;
 
 
 interface ServerCommand {
-    void execute(String... args) throws IllegalArgumentException, FileNotFoundException;
+    void execute(Server server, String... args) throws IllegalArgumentException, FileNotFoundException;
 }
 
 class SCUpdateMapFile implements ServerCommand {
     @Override
-    public void execute(String... args) throws IllegalArgumentException, FileNotFoundException {
+    public void execute(Server server, String... args) throws IllegalArgumentException, FileNotFoundException {
         if (args.length != 2) 
             throw new IllegalArgumentException("UpdateMap s'attend à recevoir uniquement le chemin vers le nouveau fichier");
         String filePath = args[1];
         try {
+        
             Plan plan = PlanParser.planFromSectionCSV(filePath);
-            App.updatePlan(plan);
-
+            server.updateMap(plan);
         } catch ( IncorrectFileFormatException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (InterruptedException e ) {
+            throw new IllegalArgumentException(e.getMessage());
+        } catch (Exception e) {
             throw new IllegalArgumentException(e.getMessage());
         }
     }
@@ -45,11 +45,12 @@ class ServerConsole implements Runnable {
 
     private boolean isRunning;
     private Scanner scanner;
+    private Server server;
 
-    public ServerConsole() {
+    public ServerConsole(Server server) {
         isRunning = false;
         scanner = new Scanner(System.in);
-        // this.server = server;
+        this.server = server;
     }
 
     public void dispatchFromInput(String line) {
@@ -60,7 +61,7 @@ class ServerConsole implements Runnable {
             write("Unknwon command : " + command + "\n");
         } else {
             try {
-                command.execute(args);
+                command.execute(server, args);
             } catch (IllegalArgumentException | FileNotFoundException e) {
                 write(e.getMessage().concat("\n"));
             }

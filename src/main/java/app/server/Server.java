@@ -1,7 +1,7 @@
 package app.server;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import app.map.Plan;
 import app.map.PlanParser;
+import app.map.PlanParser.IncorrectFileFormatException;
 
 
 /**
@@ -56,6 +57,7 @@ public class Server {
 
     private SynchronizedPlan synchronizedPlan;
 
+
     /**
      * 
      * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
@@ -66,18 +68,29 @@ public class Server {
      * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public Server(String host, int port, boolean withConsole, int maxIncommingConnection, int poolSize) throws UnknownHostException, IOException {
+    public Server(Plan p, int port, boolean withConsole, int maxIncommingConnection, int poolSize) throws UnknownHostException, IOException {
         this.isRunning = false;
         this.threadPool = Executors.newFixedThreadPool(poolSize);
-        this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection), InetAddress.getByName(host));
-        this.serverConsole = withConsole ? new ServerConsole(): null;
+        this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection));
+        this.serverConsole = withConsole ? new ServerConsole(this): null;
         this.consoleThread = withConsole ? new Thread(serverConsole): null;
-        try {
-            Plan p = PlanParser.planFromSectionCSV("dev_ressources/map_data_client.csv");
-            synchronizedPlan = new SynchronizedPlan(p);
-        } catch (Exception e) {
-            synchronizedPlan = null;
-        }
+        synchronizedPlan = new SynchronizedPlan(p);
+
+    }
+
+    /**
+     * 
+     * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
+     * @param port                   Numero du port sur lequel le server doit etre lié
+     * @param withConsole            Determine si l'entrée standart doit etre ecoutée
+     * @param maxIncommingConnection Nombre de connexions simultanées que le server peut gérer 
+     * @param poolSize               Nombre de threads que le server peut utiliser
+     * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
+     * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     */
+    public Server(String csvMapPath, int port, boolean withConsole, int maxIncommingConnection, int poolSize) throws UnknownHostException, IOException, 
+        FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
+            this( PlanParser.planFromSectionCSV(csvMapPath), port, withConsole, maxIncommingConnection, poolSize);
     }
 
     /**
@@ -89,8 +102,9 @@ public class Server {
      * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public Server(String host, int port, boolean withConsole, int maxIncommingConnection) throws UnknownHostException, IOException {
-        this(host, port, withConsole, maxIncommingConnection, DEFAULT_POOL_SIZE);
+    public Server(String csvMapPath, int port, boolean withConsole, int maxIncommingConnection) throws UnknownHostException, IOException, 
+    FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
+        this(csvMapPath, port, withConsole, maxIncommingConnection, DEFAULT_POOL_SIZE);
     }
 
     /**
@@ -101,8 +115,9 @@ public class Server {
      * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public Server(String host, int port, boolean withConsole) throws UnknownHostException, IOException {
-        this(host, port, withConsole, MAX_INCOMMING_CONNECTION);
+    public Server(String csvMapPath, int port, boolean withConsole) throws UnknownHostException, IOException, 
+    FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
+        this(csvMapPath, port, withConsole, MAX_INCOMMING_CONNECTION);
     }
 
     /**
@@ -112,8 +127,9 @@ public class Server {
      * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public Server(String host, int port) throws UnknownHostException, IOException {
-        this(host, port, false, MAX_INCOMMING_CONNECTION);
+    public Server(String csvMapPath, int port) throws UnknownHostException, IOException, 
+    FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
+        this(csvMapPath, port, false, MAX_INCOMMING_CONNECTION);
     }
 
     /**

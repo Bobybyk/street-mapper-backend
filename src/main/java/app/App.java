@@ -6,9 +6,6 @@ package app;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.concurrent.Semaphore;
-
-import app.map.Plan;
 import app.map.PlanParser;
 import app.server.Server;
 
@@ -27,38 +24,17 @@ public class App {
 
     private final static String succesMapCreae = "Object Map crée avec succes ";
 
-    private static Plan map = null;
-
-    private static int nbReader = 0;
-    private static Semaphore readerSemaphore = new Semaphore(10);
-    private static Semaphore writerSemaphore = new Semaphore(1);
-
-    /**
-     * Cette fonction permet de recup l'instance de map
-     *
-     * @return L'object Map
-     */
-    public static Plan getInstanceOfMap() {
-        if (map == null) {
-            try {
-                return PlanParser.planFromSectionCSV("dev_ressources/map_data_client.csv");
-            } catch (FileNotFoundException | PlanParser.IncorrectFileFormatException e) {
-                System.out.println("Erreur map introuvable");
-            }
-        }
-        return map;
-    }
-
+    // PlanParser.planFromSectionCSV("dev_ressources/map_data_client.csv");
+    
     public static void main(String[] args) {
         if (argsIsOk(args)) {
             final File file = new File(args[0]);
             if (!file.exists() || file.isDirectory())
                 print(errorFileNotExist);
             else {
-                try {
-                    map = PlanParser.planFromSectionCSV(file.getPath());
+                try {                    
+                    final Server server = new Server(file.getPath(), 12345, true);
                     System.out.println(succesMapCreae);
-                    final Server server = new Server("localhost", 12345, true);
                     server.start();
                 } catch (FileNotFoundException e) {
                     print(errorFileNotExist);
@@ -70,36 +46,6 @@ public class App {
             }
         }
     }
-
-    public static void updatePlan(Plan plan) throws InterruptedException {
-        writerSemaphore.acquire();
-        map = plan;
-        writerSemaphore.release();
-    }
-
-    public static Plan getPlanAsReader() throws InterruptedException {
-        readerSemaphore.acquire();
-
-        nbReader += 1;
-
-        if (nbReader == 1){
-            // Force l'absence d'ecrivain
-            writerSemaphore.acquire();
-        }
-        readerSemaphore.release();
-        return getInstanceOfMap();
-    }
-
-
-    public static void releasePlan() throws InterruptedException {
-        readerSemaphore.acquire();
-        nbReader -= 1;
-        if (nbReader == 0) {
-            writerSemaphore.release();
-        }
-        readerSemaphore.release();
-    }
-
     /**
      * Cette fonction renvoie un vrai si les arguments sont correctes s'ils respectent le formatage
      * ou faux si les arguments ne respectent pas le formatage

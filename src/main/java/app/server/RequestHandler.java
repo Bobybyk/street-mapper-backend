@@ -52,8 +52,8 @@ class RequestHandler implements Runnable {
     private final Socket clientSocket;
 
     /**
-     * 
-     */
+     * Instance du server qui a créé le {@code RequestHandler}
+    */
     private Server server;
 
     /**
@@ -62,6 +62,7 @@ class RequestHandler implements Runnable {
     private InputStreamReader clientInputStreamReader;
 
     /**
+     * @param server       Instance du server qui a créé le RequestHandler
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      */
     RequestHandler(Server server, Socket clientSocket) throws IOException {
