@@ -8,7 +8,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import app.map.Plan;
@@ -55,7 +54,7 @@ public class Server {
 
     private Thread consoleThread;
 
-    private SynchronizedPlan synchronizedPlan;
+    private Plan plan;
 
 
     /**
@@ -74,8 +73,7 @@ public class Server {
         this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection));
         this.serverConsole = withConsole ? new ServerConsole(this): null;
         this.consoleThread = withConsole ? new Thread(serverConsole): null;
-        synchronizedPlan = new SynchronizedPlan(p);
-
+        this.plan = p;
     }
 
     /**
@@ -161,7 +159,7 @@ public class Server {
 
     private void stopConsole() throws InterruptedException {
         if (consoleThread != null)
-         consoleThread.join(AWAIT_TIME_BEFORE_DYING);
+            consoleThread.join(AWAIT_TIME_BEFORE_DYING);
 
     }
 
@@ -196,128 +194,18 @@ public class Server {
         }
     }
 
-    public <T> T mapPlan(MapUser<T> user) throws InterruptedException, Exception {
-        return synchronizedPlan.map(user);
+    public synchronized Plan getPlan() {
+        return plan;
     }
 
-    public void updateMap(Plan newPlan) throws InterruptedException, Exception {
-        synchronizedPlan.updateMap(newPlan);
+    public synchronized void updateMap(Plan newPlan) {
+        plan = newPlan;
     }
 
-    public void updateTime(String timeFilePath) throws InterruptedException, Exception {
-        synchronizedPlan.updateTime(timeFilePath);
+    public synchronized void updateTime(String timeFilePath) {
+        // 
     }
 
 }
 
-@FunctionalInterface
-interface MapUser<T> {
-    T apply(Plan p) throws Exception;
-}
 
-class SynchronizedPlan {
-
-    /**
-     * Le plan
-     */
-    private Plan plan;
-
-    /**
-     * Sempaohore protegeant l'access à la variable {@code readcount}
-     */
-    private Semaphore readerSemaphore;
-
-    /**
-     * Sempaohore protegeant l'access à la variable {@code writecount}
-     */
-    private Semaphore writerSemaphore;
-
-
-    /**
-     * Semaphore pretant d'indiquer d'un ecrivain veut ecrire
-     */
-    private Semaphore readTry;
-
-    /**
-     * Semaphore protegeant l'access au plan
-     */
-    private Semaphore ressourceSemaphore;
-
-    /**
-     * Nombre de lecteurs en cours
-     */
-    private int readcount;
-
-    /**
-     * Nombre d'ecrivains en cours
-     */
-    private int writecount;
-
-    SynchronizedPlan(Plan plan) {
-        this.plan = plan;
-        readerSemaphore = new Semaphore(1);
-        writerSemaphore = new Semaphore(1);
-        readTry = new Semaphore(1);
-        ressourceSemaphore = new Semaphore(1);
-
-        readcount = 0;
-        writecount = 0;
-    }
-
-    public <T> T map(MapUser<T> user) throws InterruptedException, Exception  {
-        readTry.acquire();
-        readerSemaphore.acquire();
-        readcount++;
-        if (readcount == 1) {
-            ressourceSemaphore.acquire();;
-        }
-        readerSemaphore.release();
-        readTry.release();     
-        T res = user.apply(plan);
-
-        readerSemaphore.acquire();
-        readcount--;
-        if (readcount == 0) {
-            ressourceSemaphore.release();
-        }
-        readerSemaphore.release();
-        return res;
-    }
-
-    private void acquireWriterRessource() throws InterruptedException, Exception {
-        writerSemaphore.acquire();
-        writecount += 1;
-        if (writecount == 1) {
-            readTry.acquire();
-        }
-        writerSemaphore.release();
-        ressourceSemaphore.acquire();
-    }
-
-    private void releaseWriterRessource() throws InterruptedException, Exception {
-        ressourceSemaphore.release();
-        writerSemaphore.acquire();
-        writecount--;
-        if (writecount == 0) {
-            readTry.release();
-        }
-
-        writerSemaphore.release();
-    }
-
-    public void updateTime(String path) throws InterruptedException, Exception {
-        acquireWriterRessource();
-
-       // Update Time when 28-diskratime merged
-
-        releaseWriterRessource();
-    }
-
-    public void updateMap(Plan newPlan) throws InterruptedException, Exception {
-        acquireWriterRessource();
-
-        this.plan = newPlan;
-
-        releaseWriterRessource();
-    }
-}

@@ -127,7 +127,7 @@ class RequestHandler implements Runnable {
         if (callback == null) {
             return serverErrorFormatted("Serveur erreur");
         } else {
-            return callback.execute(server, splittedLine);
+            return callback.execute(server.getPlan(), splittedLine);
         }
     }
 
@@ -138,28 +138,20 @@ class RequestHandler implements Runnable {
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
      *         socket
      */
-    private static Serializable handleRouteRequest(Server server, String[] inputArgs) throws IOException {
+    private static Serializable handleRouteRequest(Plan plan, String[] inputArgs) throws IOException {
         if (inputArgs.length != 3) {
             System.out.println("TRAJET PAS BON");
             return serverErrorFormatted("Trajet départ ou arrivé manquant.");
-        } else {
-            try {
-                Route trajet = server.mapPlan(plan -> {
-                    return new Route(plan.findPathDistOpt(inputArgs[1], inputArgs[2]));
-                });
-                System.out.println("TRAJET");
-                return trajet;
-
-            } catch (Exception e) {
-                if (e instanceof Plan.PathNotFoundException) {
-                    return serverErrorFormatted("Trajet inexistant");
-                } else if (e instanceof InterruptedException) {
-                    return serverErrorFormatted("le thread de recuperation de map a ete interrompu");
-                } else {
-                    return serverErrorFormatted(e.getMessage());
-                }
-            }
+        } 
+        
+        try {
+            return new Route(plan.findPathDistOpt(inputArgs[1], inputArgs[2]));
+        } catch (Plan.PathNotFoundException e) {
+            return serverErrorFormatted("Trajet inexistant");
+        } catch (IllegalArgumentException e) {
+            return serverErrorFormatted("le thread de recuperation de map a ete interrompu");
         }
+            
     }
 
     /**
@@ -169,7 +161,7 @@ class RequestHandler implements Runnable {
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
      *         socket
      */
-    private static Serializable handleSearchRequest(Server server, String[] inputArgs) throws IOException {
+    private static Serializable handleSearchRequest(Plan plan, String[] inputArgs) throws IOException {
         if ( inputArgs.length < 3 || inputArgs[1].isBlank() ) {
             System.out.println("RECHERCHE DE STATION PAS BONNE");
             return serverErrorFormatted("Station manquante ou vide");
@@ -180,16 +172,8 @@ class RequestHandler implements Runnable {
         if (kind == null) {
             return serverErrorFormatted("Impossible de analyser le type de search <Arrival| Depart>");
         }
-        try {
-            SuggestionStations suggestions = server.mapPlan(plan -> new SuggestionStations(stationToSearch, kind, plan.getStationsInfo()));
-            return suggestions;
-        } catch (InterruptedException e) {
-            return serverErrorFormatted("le thread de recuperation de plan a ete interrompu");
-        } catch (Exception e) {
-            // Ne devrait pas etre atteint puisque [Plan.getStationsInfo()] ne leve pas d'exception
-            return serverErrorFormatted(e.getMessage());
-        }
-
+        SuggestionStations suggestions = new SuggestionStations(stationToSearch, kind, plan.getStationsInfo());
+        return suggestions;
     }
 
     // Implement Runnable

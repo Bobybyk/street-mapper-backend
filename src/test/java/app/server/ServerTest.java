@@ -26,7 +26,6 @@ public class ServerTest {
     private static final String SUGGESTION_VALID_ARRIVAL = "SEARCH;GARE1;ARRIVAL";
     private static final String SUGGESTION_INVALID_2ARG = "SEARCH;GARE1;afhja";
     private static final String SUGGESTION_EMPTY = "SEARCH; ";
-    private static final String CSV_MAP = "dev_ressources/map_data_client.csv";
 
     private static final int PORT = 12334;
     private static final int incommingConnection = 3;
@@ -36,6 +35,14 @@ public class ServerTest {
     private static Socket clientSocket = null;
     private static PrintWriter out = null;
     private static ObjectInputStream in = null;
+
+    private static final String MAP_DATA_ALL = "map_data_all";
+
+    private static String getPath(String filename) {
+        if (filename == null)
+            return null;
+        return "src/test/resources/" + filename + ".csv";
+    }
 
     @BeforeAll
     static void init() {
@@ -84,7 +91,7 @@ public class ServerTest {
      * @throws IllegalArgumentException
      */
     private static Server initServer() throws IOException, IllegalArgumentException, IncorrectFileFormatException {
-        Server server = new Server(CSV_MAP, PORT, false, incommingConnection);
+        Server server = new Server(getPath(MAP_DATA_ALL), PORT, false, incommingConnection);
         Thread threadServer = new Thread(server::start);
         threadServer.start();
         return server;
