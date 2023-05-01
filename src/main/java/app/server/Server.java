@@ -142,7 +142,7 @@ public class Server {
         while ( isRunning() ) {
             try {
                 Socket clientSocket = serverSocket.accept();
-                RequestHandler requestHandler = new RequestHandler(this, clientSocket);
+                ClientHandler requestHandler = new ClientHandler(this, clientSocket);
                 threadPool.execute(requestHandler);
             } catch (SocketTimeoutException e) {
                 System.out.println("Erreur timeout");

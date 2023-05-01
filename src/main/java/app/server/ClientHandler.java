@@ -24,11 +24,17 @@ class ClientHandler implements Runnable {
     private InputStreamReader clientInputStreamReader;
 
     /**
+     * Instance du server qui a créé le {@code RequestHandler}
+    */
+    private Server server;
+
+    /**
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      */
-    ClientHandler(Socket clientSocket) throws IOException {
+    ClientHandler(Server server, Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
         this.clientInputStreamReader = new InputStreamReader(clientSocket.getInputStream());
+        this.server = server;
     }
 
     /**
@@ -82,7 +88,7 @@ class ClientHandler implements Runnable {
      */
     private Serializable handleLine(String clientLine) throws IOException {
         try {
-            ServerActionCallback callback = RequestParser.getServerActionCallback(clientLine);
+            ServerActionCallback callback = RequestParser.getServerActionCallback(server.getPlan(), clientLine);
             return callback.execute();
         } catch (RequestParser.ParsingException e) {
             return serverErrorFormatted(e.getMessage());

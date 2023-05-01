@@ -1,7 +1,6 @@
 package app.server;
 
 import java.util.Map;
-import app.App;
 import app.map.Plan;
 import app.map.Time;
 import app.server.data.SuggestionStations.SuggestionKind;
@@ -44,7 +43,7 @@ public class RequestParser {
 
     @FunctionalInterface
     private static interface Handler {
-        ServerActionCallback handle(String[] args) throws ParsingException;
+        ServerActionCallback handle(Plan plan, String[] args) throws ParsingException;
     }
 
     private static final Map<String, Handler> handler =
@@ -52,13 +51,15 @@ public class RequestParser {
                     RequestParser::handleSearchRequest, TIME_KEY, RequestParser::handleTimeRequest);
 
 
-    static ServerActionCallback getServerActionCallback(String args) throws ParsingException {
+    static ServerActionCallback getServerActionCallback(Plan plan, String args) throws ParsingException {
         String[] splittedLine = args.split(CHAR_SPLITTER);
         String requestKey = splittedLine[0];
         Handler handle = handler.get(requestKey);
-        if (handle != null)
-            return handle.handle(splittedLine);
-        throw new ParsingException("Requete non reconnu");
+        if (handle == null)
+            throw new ParsingException("Requete non reconnu");
+            
+        return handle.handle(plan, splittedLine);
+        
     }
 
     /**
@@ -67,7 +68,7 @@ public class RequestParser {
      * @param inputArgs entrée de l'utilisateur séparé par {@link RequestParser#charSplitter}
      * @throws ParsingException
      */
-    private static ServerActionCallback handleRouteRequest(String[] inputArgs)
+    private static ServerActionCallback handleRouteRequest(Plan plan, String[] inputArgs)
             throws ParsingException {
         if (inputArgs.length != 5 && inputArgs.length != 6) {
             System.out.println("TRAJET PAS BON");
@@ -79,7 +80,7 @@ public class RequestParser {
             int[] time = Parser.parse2IntSep(inputArgs[3], ":");
             boolean distOpt = !inputArgs[4].equals(TIME_KEY);
             boolean foot = inputArgs.length == 6 && inputArgs[5].equals(FOOT_KEY);
-            return new SearchPath(new Plan(App.getInstanceOfMap()), start, arrival,
+            return new SearchPath(new Plan(plan), start, arrival,
                     new Time(time[0], time[1]), distOpt);
         }
     }
@@ -90,7 +91,7 @@ public class RequestParser {
      * @param inputLine entrée de l'utilisateur séparé par {@link ClientHandler#charSplitter}
      * @throws ParsingException
      */
-    private static ServerActionCallback handleSearchRequest(String[] inputArgs)
+    private static ServerActionCallback handleSearchRequest(Plan p, String[] inputArgs)
             throws ParsingException {
         if (inputArgs.length != 3 || inputArgs[1].isBlank()) {
             System.out.println("RECHERCHE DE STATION PAS BONNE");
@@ -103,10 +104,10 @@ public class RequestParser {
             throw new ParsingException(
                     "Impossible de analyser le type de search <Arrival| Depart>");
         }
-        return new SearchStation(App.getInstanceOfMap().getStationsInfo(), stationToSearch, kind);
+        return new SearchStation(p.getStationsInfo(), stationToSearch, kind);
     }
 
-    private static ServerActionCallback handleTimeRequest(String[] inputArgs)
+    private static ServerActionCallback handleTimeRequest(Plan plan, String[] inputArgs)
             throws ParsingException {
         if (inputArgs.length != 3 || inputArgs[1].isBlank()) {
             System.out.println("RECHERCHE HORAIRE PAS BONNE");
@@ -116,7 +117,7 @@ public class RequestParser {
         try {
             int[] time = Parser.parse2IntSep(inputArgs[2], ":");
             Time t = new Time(time[0], time[1], 0);
-            return new SearchTime(App.getInstanceOfMap(), station, t);
+            return new SearchTime(plan, station, t);
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
             throw new ParsingException("Time mal formé");
         }
