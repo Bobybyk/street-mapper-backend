@@ -65,18 +65,31 @@ public final class Line {
      * @param variant le nom du variant
      */
     public Line(String name, String variant) {
+        this(name, variant, new HashMap<>());
+    }
+
+    /**.
+     * @param name le nom de la ligne
+     * @param variant le nom du variant
+     * @param sections une map associant une section à sa duree pour arriver à sa fin de la section de départ
+     */
+    public Line(String name, String variant, Map<Section, Integer> sections) {
         if (name == null)
             throw new IllegalArgumentException();
         this.name = name;
         this.variant = variant;
         this.start = null;
         this.last = null;
-        sections = new HashMap<>();
-        departures = new TreeSet<>();
+        this.sections = new HashMap<>(sections);
+        this.departures = new TreeSet<>();
     }
 
-    public Line(Line line){
-        this(line.name, line.variant);
+    /**
+     * Cree une nouvelle Line en remettant aux valeures initiales {@code start}, {@code last} et {@code departures}
+     * @return la nouvelle line créée
+     */
+    public Line resetTime(){
+        return new Line(this.name, this.variant, this.sections);
     }
 
     /**

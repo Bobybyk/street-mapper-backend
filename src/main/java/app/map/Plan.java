@@ -45,7 +45,7 @@ public final class Plan {
             return acc;
         });
         this.lines = p.lines.entrySet().stream().reduce(new HashMap<>(), (acc, entry) -> {
-            acc.put(entry.getKey(), new Line(entry.getValue()) );
+            acc.put(entry.getKey(), entry.getValue().resetTime() );
             return acc;
         }, (acc, m) -> {
             acc.putAll(m);
