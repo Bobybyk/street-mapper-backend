@@ -44,7 +44,13 @@ public final class Plan {
             acc.putAll(m);
             return acc;
         });
-        this.lines = new HashMap<>(p.lines);
+        this.lines = p.lines.entrySet().stream().reduce(new HashMap<>(), (acc, entry) -> {
+            acc.put(entry.getKey(), new Line(entry.getValue()) );
+            return acc;
+        }, (acc, m) -> {
+            acc.putAll(m);
+            return acc;
+        });
         this.stations = new HashMap<>(p.stations);
     }
 

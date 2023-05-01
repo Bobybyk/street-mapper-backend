@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import app.map.PlanParser;
+import app.map.PlanParser.InconsistentDataException;
 import app.server.Server;
 
 public class App {
@@ -29,27 +30,33 @@ public class App {
     // PlanParser.planFromSectionCSV("dev_ressources/map_data_client.csv");
     
     public static void main(String[] args) {
-        if (argsIsOk(args)) {
-            final File mapFile = new File(args[0]);
-            final File timeFile = new File(args[1]);
-            if (!mapFile.exists() || mapFile.isDirectory()
-                    || timeFile != null && (!timeFile.exists() || timeFile.isDirectory()))
-                print(errorFileNotExist);
-            else {
-                try {                    
-                    final Server server = new Server(mapFile.getPath(), PORT, true);
-                    server.updateTime(timeFile.getPath());
-                    server.start();
-                } catch (FileNotFoundException e) {
-                    print(errorFileNotExist);
-                } catch (PlanParser.IncorrectFileFormatException e) {
-                    print(errorIncorrectFile);
-                } catch (IOException e) {
-                    print(errorServeurStart);
-                }
-            }
+        if (!argsIsOk(args)) {
+            print(errorIllegalArgument);
+            return;
         }
+
+        final File mapFile = new File(args[0]);
+        final File timeFile = new File(args[1]);
+        if (!areCVSFilesOk(mapFile, timeFile)) {
+            print(errorFileNotExist);
+            return;
+        }
+        
+        try {                    
+            final Server server = new Server(mapFile.getPath(), PORT, true);
+            server.updateTime(timeFile.getPath());
+            server.start();
+        } catch (FileNotFoundException e) {
+            print(errorFileNotExist);
+        } catch (PlanParser.IncorrectFileFormatException e) {
+            print(errorIncorrectFile);
+        } catch (IOException e) {
+            print(errorServeurStart);
+        } catch (InconsistentDataException e) {
+            print(e.getMessage());
+        }  
     }
+
     /**
      * Cette fonction renvoie un vrai si les arguments sont correctes s'ils respectent le formatage
      * ou faux si les arguments ne respectent pas le formatage
@@ -58,11 +65,12 @@ public class App {
      * @return boolean
      */
     public static boolean argsIsOk(String[] args) {
-        if (args.length < 1 || args.length > 4) {
-            print(errorIllegalArgument);
-            return false;
-        }
-        return true;
+        return !(args.length < 1 || args.length > 4);
+    }
+
+    private static boolean areCVSFilesOk(File mapFile, File timeFile) {
+        return !mapFile.exists() || mapFile.isDirectory()
+            || timeFile != null && (!timeFile.exists() || timeFile.isDirectory());
     }
 
     /**

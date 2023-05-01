@@ -3,50 +3,6 @@ package app.server;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-import app.map.Plan;
-import app.map.PlanParser;
-
-
-interface ServerCommand {
-
-    String getdescription();
-    void execute(Server server, String... args) throws IllegalArgumentException, Exception;
-}
-
-class SCUpdateMapFile implements ServerCommand {
-
-    @Override
-    public String getdescription() {
-        return "commande permettant de changer le ficher de plan";
-    }
-
-    @Override
-    public void execute(Server server, String... args) throws IllegalArgumentException, Exception {
-        if (args.length != 2) 
-            throw new IllegalArgumentException("UpdateMap s'attend à recevoir uniquement le chemin vers le nouveau fichier");
-        String filePath = args[1];
-        Plan plan = PlanParser.planFromSectionCSV(filePath);
-        server.updateMap(plan);
-    }
-}
-
-class SCUpdateTimeFile implements ServerCommand {
-
-    @Override
-    public String getdescription() {
-        return "commande permettant de changer les informations de temps au plan";
-    }
-
-    @Override
-    public void execute(Server server, String... args) throws IllegalArgumentException, Exception {
-        if (args.length != 2) 
-            throw new IllegalArgumentException("S'attend à recevoir uniquement le chemin vers le nouveau fichier");
-        String filePath = args[1];
-
-        server.updateTime(filePath);
-    }
-    
-}
 
 class ServerConsole implements Runnable {
 
@@ -69,12 +25,22 @@ class ServerConsole implements Runnable {
         this.server = server;
     }
 
+    private static void write(Object o) {
+        System.out.print(o);
+        System.out.flush();
+    }
+
+    private static void writeln(Object o) {
+        System.out.println(o);
+        System.out.flush();
+    }
+
     private void dispatchFromInput(String line) {
         String[] args = line.split(argsSplitter);
         String commandString = args[0];
         ServerCommand command = commands.get(commandString);
         if (command == null) {
-            writeln("Unknwon command : " + command);
+            writeln("Unknwon command : " + commandString);
             return;
         }
         
@@ -90,17 +56,7 @@ class ServerConsole implements Runnable {
         commands.entrySet()
             .stream()
             .map( entry -> String.format("%s : %s", entry.getKey(), entry.getValue().getdescription()))
-            .forEach(this::writeln);
-    }
-
-    private void write(Object o) {
-        System.out.print(o);
-        System.out.flush();
-    }
-
-    private void writeln(Object o) {
-        System.out.println(o);
-        System.out.flush();
+            .forEach(ServerConsole::writeln);
     }
 
     private void displayPrompt() {

@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import app.map.Plan;
 import app.map.PlanParser;
+import app.map.PlanParser.InconsistentDataException;
 import app.map.PlanParser.IncorrectFileFormatException;
 
 
@@ -205,8 +206,10 @@ public class Server {
         plan = newPlan;
     }
 
-    public synchronized void updateTime(String timeFilePath) {
-        // 
+    public synchronized void updateTime(String timeFilePath) throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
+        Plan copyPlan = new Plan(getPlan());
+        PlanParser.addTimeFromCSV(copyPlan, timeFilePath);
+        updateMap(copyPlan);
     }
 
 }

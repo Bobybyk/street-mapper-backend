@@ -102,7 +102,7 @@ public class RequestParser {
         SuggestionKind kind = SuggestionKind.ofString(inputArgs[2].trim());
         if (kind == null) {
             throw new ParsingException(
-                    "Impossible de analyser le type de search <Arrival| Depart>");
+                    "Impossible d'analyser le type de search <Arrival| Depart>");
         }
         return new SearchStation(p.getStationsInfo(), stationToSearch, kind);
     }

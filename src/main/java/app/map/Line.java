@@ -70,8 +70,13 @@ public final class Line {
         this.name = name;
         this.variant = variant;
         this.start = null;
+        this.last = null;
         sections = new HashMap<>();
         departures = new TreeSet<>();
+    }
+
+    public Line(Line line){
+        this(line.name, line.variant);
     }
 
     /**
