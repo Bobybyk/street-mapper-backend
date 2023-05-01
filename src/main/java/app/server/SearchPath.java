@@ -35,6 +35,7 @@ public class SearchPath implements ServerActionCallback {
      * Calcule un trajet optimisé en distance ou en temps entre 2 stations et renvoie la liste des
      * sections du trajet
      */
+    @Override
     public Serializable execute() {
         try {
             List<Section> sections = new Dijkstra(map, start, arrival, depart, distOpt).getPath();

@@ -1,5 +1,6 @@
 package app.server;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +25,8 @@ public class SearchTime implements ServerActionCallback {
         this.time = time;
     }
 
-    public DepartureTimes execute() {
+    @Override
+    public Serializable execute() {
         List<StationTime> allTime = departuresFromStation();
         allTime.sort(Comparator.comparing(StationTime::getTime, Time::compareTo));
         List<StationTime> afterTime = new ArrayList<>(allTime.stream()

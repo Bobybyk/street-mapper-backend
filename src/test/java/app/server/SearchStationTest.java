@@ -10,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import app.map.PlanParser;
 import app.map.StationInfo;
+import app.server.data.SuggestionStations;
 import app.server.data.SuggestionStations.SuggestionKind;
 
 public class SearchStationTest {
@@ -41,7 +42,7 @@ public class SearchStationTest {
     @ValueSource(strings = {"cret", "CRÉt", "CrÉt"})
     public void testMultipleStationWithPrefixIgnoreCaseSpecialChar(String prefix) throws Exception {
         SearchStation s = createSearchStation(prefix);
-        Set<StationInfo> set = s.execute().getStations();
+        Set<StationInfo> set = ((SuggestionStations) s.execute()).getStations();
         StationInfo creteilPref = createStationInfo("Créteil - Préfecture", "8");
         StationInfo creteilUni = createStationInfo("Créteil - Université", "8");
         StationInfo creteilEcha = createStationInfo("Créteil - L'Échat", "8");
@@ -56,7 +57,7 @@ public class SearchStationTest {
     @ValueSource(strings = {"Châtelet", "Chatelet", "chatEl"})
     public void testChatelet(String prefix) throws Exception {
         SearchStation s = createSearchStation(prefix);
-        Set<StationInfo> set = s.execute().getStations();
+        Set<StationInfo> set = ((SuggestionStations) s.execute()).getStations();
         StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
 
         assertTrue(set.size() == 1 && set.contains(chatelet));
@@ -67,7 +68,7 @@ public class SearchStationTest {
     @ValueSource(strings = {"Gare de", "GARE DE", "GaRE De"})
     public void testGareDe(String prefix) throws Exception {
         SearchStation s = createSearchStation(prefix);
-        Set<StationInfo> set = s.execute().getStations();
+        Set<StationInfo> set = ((SuggestionStations) s.execute()).getStations();
 
         var gareDeEst = createStationInfo("Gare de l'Est", "4", "5", "7");
 

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Timeout;
 import app.map.Plan;
 import app.map.PlanParser;
 import app.map.Time;
+import app.server.data.DepartureTimes;
 import app.server.data.StationTime;
 
 public class SearchTimeTest {
@@ -39,7 +40,7 @@ public class SearchTimeTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void timeAtMadeleine() {
         SearchTime search = createSearchTime("Madeleine", new Time(15, 40));
-        List<StationTime> times = search.execute().getTimes();
+        List<StationTime> times = ((DepartureTimes) search.execute()).getTimes();
         StationTime expected = new StationTime("12", "Mairie d'Issy", new Time(15, 43, 54));
         assertEquals(expected, times.get(19), "Times at a Madeleine");
     }
@@ -48,7 +49,7 @@ public class SearchTimeTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void timeAtChateletAfterMidnight() {
         SearchTime search = createSearchTime("Châtelet", new Time(23, 59));
-        List<StationTime> times = search.execute().getTimes();
+        List<StationTime> times = ((DepartureTimes) search.execute()).getTimes();
         StationTime expected = new StationTime("14", "Mairie de Saint-Ouen", new Time(6, 18, 00));
         assertEquals(expected, times.get(10), "Times at a Châtelet at 23:59");
     }

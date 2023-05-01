@@ -51,12 +51,10 @@ public class RequestParser {
 
     static ServerActionCallback getServerActionCallback(String args) throws ParsingException {
         String[] splittedLine = args.split(CHAR_SPLITTER);
-        if (splittedLine.length != 0) {
-            String requestKey = splittedLine[0];
-            Handler handle = handler.get(requestKey);
-            if (handle != null)
-                return handle.handle(splittedLine);
-        }
+        String requestKey = splittedLine[0];
+        Handler handle = handler.get(requestKey);
+        if (handle != null)
+            return handle.handle(splittedLine);
         throw new ParsingException("Requete non reconnu");
     }
 

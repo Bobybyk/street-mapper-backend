@@ -1,5 +1,6 @@
 package app.server;
 
+import java.io.Serializable;
 import java.text.Collator;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,7 +19,8 @@ public class SearchStation implements ServerActionCallback {
         this.kind = kind;
     }
 
-    public SuggestionStations execute() {
+    @Override
+    public Serializable execute() {
         Collator insenstiveStringComparator = Collator.getInstance();
         insenstiveStringComparator.setStrength(Collator.PRIMARY);
         Set<StationInfo> stations = stationsInfo.stream()
