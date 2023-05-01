@@ -30,12 +30,15 @@ public class App {
     
     public static void main(String[] args) {
         if (argsIsOk(args)) {
-            final File file = new File(args[0]);
-            if (!file.exists() || file.isDirectory())
+            final File mapFile = new File(args[0]);
+            final File timeFile = new File(args[1]);
+            if (!mapFile.exists() || mapFile.isDirectory()
+                    || timeFile != null && (!timeFile.exists() || timeFile.isDirectory()))
                 print(errorFileNotExist);
             else {
                 try {                    
-                    final Server server = new Server(file.getPath(), PORT, true);
+                    final Server server = new Server(mapFile.getPath(), PORT, true);
+                    server.updateTime(timeFile.getPath());
                     server.start();
                 } catch (FileNotFoundException e) {
                     print(errorFileNotExist);
@@ -55,7 +58,7 @@ public class App {
      * @return boolean
      */
     public static boolean argsIsOk(String[] args) {
-        if (args.length < 1 || args.length > 3) {
+        if (args.length < 1 || args.length > 4) {
             print(errorIllegalArgument);
             return false;
         }

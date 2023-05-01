@@ -1,16 +1,17 @@
 package app.server;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
 import app.map.PlanParser.IncorrectFileFormatException;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import app.server.data.ErrorServer;
-import org.junit.jupiter.api.*;
-
 import app.server.data.Route;
 import app.server.data.SuggestionStations;
 
@@ -18,7 +19,7 @@ public class ServerTest {
 
     private static final String HOST = "localhost";
     private static final String ROUTE_REQUEST_WRONG = "ROUTE;GARE1;GARE2";
-    private static final String ROUTE_REQUEST_RIGHT = "ROUTE;Pyramides;Bercy";
+    private static final String ROUTE_REQUEST_RIGHT = "ROUTE;Pyramides;Bercy;14:45;DISTANCE;";
 
     private static final String NULL_REQUEST = null;
     private static final String EMPTY_REQUEST = "";
@@ -70,9 +71,9 @@ public class ServerTest {
     /**
      * Envoye une requete au server et retourne l'objet qui correspond à la reponse du server
      *
-     * @param request      la requete a envoyé
+     * @param request la requete a envoyé
      * @return objet renvoyé par le server
-     * @throws IOException            erreur du serveur
+     * @throws IOException erreur du serveur
      * @throws ClassNotFoundException class introuvable
      */
     private static Object sendRequest(String request) throws IOException, ClassNotFoundException {
@@ -97,7 +98,7 @@ public class ServerTest {
         return server;
     }
 
-   @Test
+    @Test
     @Timeout(value = TIMEOUT)
     public void testServerIsRunning() {
         assertTrue(server.isRunning());
@@ -185,4 +186,3 @@ public class ServerTest {
     }
 
 }
-

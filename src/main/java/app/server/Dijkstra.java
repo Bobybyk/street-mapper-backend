@@ -1,4 +1,4 @@
-package app.map;
+package app.server;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -8,9 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.function.ToIntBiFunction;
-import app.map.Plan.PathNotFoundException;
+import app.map.Plan;
+import app.map.Section;
+import app.map.Time;
 
 public final class Dijkstra {
+    /**
+     * Le plan du réseau
+     */
+    private final Plan plan;
     /**
      * Le graphe : les sommets sont les noms des stations et les arêtes sont les sections
      */
@@ -24,9 +30,17 @@ public final class Dijkstra {
      */
     private final String arrival;
     /**
+     * L'horaire de départ
+     */
+    private final Time departTime;
+    /**
+     * Optimisation en distance ou en temps
+     */
+    private boolean distOpt;
+    /**
      * La fonction qui calcule le poids d'une arrête à partir de la dernière arête traitée
      */
-    private final ToIntBiFunction<Section, Section> f;
+    private final ToIntBiFunction<Section, Section> getWeight;
     /**
      * Associe chaque sommet à sa distance par rapport au sommet de départ
      */
@@ -49,22 +63,37 @@ public final class Dijkstra {
     private List<Section> result;
 
     /**
-     * @param start le sommet de
-     * @param arrival la liste des stations (sommet) d'arrivé possible
-     * @param f la fonction qui associe à une section (arête) son poids
+     * @param plan le plan à utiliser
+     * @param start le sommet de départ
+     * @param arrival le sommet d'arrivé
+     * @param departTime l'horaire de départ
+     * @param getWeight la fonction qui associe à une section (arête) son poids
      */
-    Dijkstra(Plan plan, String start, String arrival, ToIntBiFunction<Section, Section> f) {
-        if (plan == null || start == null || arrival == null || f == null)
+    Dijkstra(Plan plan, String start, String arrival, Time departTime, boolean distOpt) {
+        if (plan == null || start == null || arrival == null)
             throw new IllegalArgumentException();
+        this.plan = plan;
         this.map = plan.getMap();
         this.start = start;
         this.arrival = arrival;
-        this.f = f;
+        this.departTime = departTime;
+        this.distOpt = distOpt;
+        this.getWeight = distOpt ? Section::distanceTo : Section::durationTo;
         distance = new HashMap<>();
         previous = new HashMap<>();
         queue = new PriorityQueue<>(map.size(), Comparator.comparingInt(distance::get));
         this.u = null;
         this.result = null;
+    }
+
+    public static class PathNotFoundException extends Exception {
+        public PathNotFoundException(String start, String arrival) {
+            super(String.format("Pas de chemin trouvé entre %s et %s", start, arrival));
+        }
+
+        public PathNotFoundException() {
+            super();
+        }
     }
 
     /**
@@ -101,7 +130,6 @@ public final class Dijkstra {
     private void init() {
         for (String station : map.keySet()) {
             distance.put(station, Integer.MAX_VALUE);
-            previous.put(station, null);
         }
         distance.put(start, 0);
         queue.addAll(map.keySet());
@@ -122,18 +150,21 @@ public final class Dijkstra {
      */
     private void loop() {
         for (Section section : map.get(u)) {
-            Section current = previous.get(u);
-            if (current == null) {
-                current = new Section(section.getStart(), section.getStart(), section.getLine(), 0,
-                        0);
+            Section prev = previous.get(u);
+            if (prev == null) {
+                prev = new Section(section.getStart(), section.getStart(), "", 0, 0);
+                prev.setTime(departTime);
             }
-            String v = section.getArrival().getName();
-            int w = distance.get(u) + f.applyAsInt(current, section);
-            if (distance.get(v) > w) {
-                distance.put(v, w);
-                previous.put(v, section);
-                queue.remove(v);
-                queue.add(v);
+            plan.updateSectionTime(section, prev.getArrivalTime());
+            if (distOpt || section.getTime() != null) {
+                String v = section.getArrival().getName();
+                int w = distance.get(u) + getWeight.applyAsInt(prev, section);
+                if (distance.get(v) > w) {
+                    distance.put(v, w);
+                    previous.put(v, section);
+                    queue.remove(v);
+                    queue.add(v);
+                }
             }
         }
     }

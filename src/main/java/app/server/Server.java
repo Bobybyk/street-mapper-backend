@@ -16,7 +16,8 @@ import app.map.PlanParser.IncorrectFileFormatException;
 
 
 /**
- * Classe représetant le server avec lequel le client communique pour recupérer les Informations dont il a besoin
+ * Classe représetant le server avec lequel le client communique pour recupérer les Informations
+ * dont il a besoin
  */
 public class Server {
 
@@ -26,12 +27,13 @@ public class Server {
     private static final int DEFAULT_POOL_SIZE = 10; // Totalement abitraire pour l'instant
 
     /**
-     * Nombres de connexions simultanées que le server gère 
+     * Nombres de connexions simultanées que le server gère
      */
     private static final int MAX_INCOMMING_CONNECTION = 3; // Totalement abitraire pour l'instant
 
     /**
-     * Nombres de secondes laissées aux threads lancés pour se terminer avant la fermeture de tous les threads
+     * Nombres de secondes laissées aux threads lancés pour se terminer avant la fermeture de tous
+     * les threads
      */
     private static final long AWAIT_TIME_BEFORE_DYING = 5; // Totalement abitraire pour l'instant
 
@@ -41,7 +43,7 @@ public class Server {
     private ServerSocket serverSocket;
 
     /**
-     * Determine si le server est toujours en train de tourner, et donc à accepter de connexions 
+     * Determine si le server est toujours en train de tourner, et donc à accepter de connexions
      */
     private boolean isRunning;
 
@@ -119,11 +121,12 @@ public class Server {
     }
 
     /**
-     * 
-     * @param host                   Nom de l'adresse sur laquelle le server doit etre lié
-     * @param port                   Numero du port sur lequel le server doit etre lié
-     * @throws UnknownHostException  si aucune adresse pour le {@code host} ne pouvait etre trouvée
-     * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
+     *
+     * @param host Nom de l'adresse sur laquelle le server doit etre lié
+     * @param port Numero du port sur lequel le server doit etre lié
+     * @throws UnknownHostException si aucune adresse pour le {@code host} ne pouvait etre trouvée
+     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
+     *         socket
      */
     public Server(String csvMapPath, int port) throws UnknownHostException, IOException, 
     FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
@@ -172,7 +175,7 @@ public class Server {
     }
 
     /**
-     * 
+     *
      * @return si the server est en train de tourner
      */
     public boolean isRunning() {
@@ -207,5 +210,3 @@ public class Server {
     }
 
 }
-
-
