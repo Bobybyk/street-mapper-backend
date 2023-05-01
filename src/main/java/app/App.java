@@ -23,11 +23,6 @@ public class App {
             "[Erreur] Fichier introuvable ou est un repertoire";
     private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
     private final static String errorServeurStart = "[Erreur] Le serveur n'a pas demarré";
-
-
-    // private final static String succesMapCreae = "Object Map crée avec succes ";
-
-    // PlanParser.planFromSectionCSV("dev_ressources/map_data_client.csv");
     
     public static void main(String[] args) {
         if (!argsIsOk(args)) {
@@ -36,15 +31,17 @@ public class App {
         }
 
         final File mapFile = new File(args[0]);
-        final File timeFile = new File(args[1]);
-        if (!areCVSFilesOk(mapFile, timeFile)) {
+        if (!isCVSFileOk(mapFile)) {
             print(errorFileNotExist);
             return;
         }
         
         try {                    
             final Server server = new Server(mapFile.getPath(), PORT, true);
-            server.updateTime(timeFile.getPath());
+            if (hasCsvTimeFile(args)) {
+                final File timeFile = new File(args[1]);
+                server.updateTime(timeFile.getPath());
+            }
             server.start();
         } catch (FileNotFoundException e) {
             print(errorFileNotExist);
@@ -68,9 +65,12 @@ public class App {
         return !(args.length < 1 || args.length > 4);
     }
 
-    private static boolean areCVSFilesOk(File mapFile, File timeFile) {
-        return !mapFile.exists() || mapFile.isDirectory()
-            || timeFile != null && (!timeFile.exists() || timeFile.isDirectory());
+    public static boolean hasCsvTimeFile(String[] args) {
+        return args.length == 3;
+    }
+
+    private static boolean isCVSFileOk(File mapFile) {
+        return mapFile.exists() && !mapFile.isDirectory();
     }
 
     /**
