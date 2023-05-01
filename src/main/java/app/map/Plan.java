@@ -3,13 +3,11 @@ package app.map;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
-import app.map.PlanParser.UndefinedLineException;
 
 public final class Plan {
     /**
@@ -124,6 +122,12 @@ public final class Plan {
         info.addLine(lineName);
     }
 
+    static class UndefinedLineException extends Exception {
+        public UndefinedLineException(String line) {
+            super(String.format("La line %s n'existe pas dans la carte", line));
+        }
+    }
+
     /**
      * Ajoute un horaire de départ d'une ligne au plan
      *
@@ -145,6 +149,29 @@ public final class Plan {
         l.addDepartureTime(time[0], time[1]);
     }
 
+    /**
+     * Calcule le temps nécessaire entre la station de départ et toutes les autres stations de
+     * chaque ligne, les résultats sont mis dans sections. Si la station de départ n'est pas
+     * définie, ne fait rien.
+     */
+    public void updateSectionsTime() {
+        lines.values().stream().forEach(Line::updateSectionsTime);
+    }
+
+    /**
+     * Met à jour l'horaire de départ d'une section à partir d'un horaire
+     *
+     * @param section une section à mettre à jour
+     * @param time l'horaire minimal
+     */
+    public void updateSectionTime(Section section, Time time) {
+        if (section != null) {
+            Line l = lines.get(section.getLine());
+            if (l != null)
+                section.setTime(l.getNextTime(section, time));
+        }
+    }
+
     public Map<String, List<Section>> getMap() {
         return new HashMap<>(map);
     }
@@ -157,68 +184,23 @@ public final class Plan {
         return new HashSet<>(stations.values());
     }
 
-    public static class PathNotFoundException extends Exception {
-        public PathNotFoundException(String start, String arrival) {
-            super(String.format("Pas de chemin trouvé entre %s et %s", start, arrival));
-        }
-
-        public PathNotFoundException() {
-            super();
-        }
-    }
-
     /**
-     * Calcule un trajet entre 2 stations et renvoie la liste des sections du trajet
-     *
-     * @param startStation le nom de la station de départ
-     * @param arrivalStation le nom de la station d'arrivé
-     * @return la liste des sections du trajet
-     * @throws IllegalArgumentException si start ou arrival est `null`
-     * @throws PathNotFoundException si il n'existe pas de trajet entre les deux stations
+     * @param section une section
+     * @return le nom de la ligne (sans variant) à laquelle appartient la section
      */
-    public List<Section> findPathDistOpt(String startStation, String arrivalStation)
-            throws IllegalArgumentException, PathNotFoundException {
-        if (startStation == null || arrivalStation == null)
-            throw new IllegalArgumentException();
-        List<Section> sections =
-                new Dijkstra(new Plan(this), startStation, arrivalStation, Section::distanceTo)
-                        .getPath();
-        return sectionsToRoute(sections);
+    public String getLineName(Section section) {
+        Line l = lines.get(section.getLine());
+        if (l != null) {
+            return l.getName();
+        }
+        return null;
     }
 
-    private List<Section> sectionsToRoute(List<Section> sections) {
-        if (sections == null || sections.isEmpty())
-            return sections;
+    public Line getLine(Section section) {
+        return lines.get(section.getLine());
+    }
 
-        List<Section> route = new LinkedList<>();
-        Section first = sections.get(0);
-        Station start = first.getStart();
-        Station arrival = first.getArrival();
-        String line = lines.get(first.getLine()).getName();
-        Time time = first.getTime();
-        int distance = first.getDistance();
-        int duration = first.getDuration();
-
-        for (Section s : sections) {
-            if (line.equals(lines.get(s.getLine()).getName())) {
-                arrival = s.getArrival();
-                distance += s.getDistance();
-                duration += s.getDuration();
-            } else {
-                Section toAdd = new Section(start, arrival, line, distance, duration);
-                toAdd.setTime(time);
-                route.add(toAdd);
-                start = s.getStart();
-                arrival = s.getArrival();
-                line = lines.get(s.getLine()).getName();
-                time = s.getTime();
-                distance = s.getDistance();
-                duration = s.getDuration();
-            }
-        }
-        Section toAdd = new Section(start, arrival, line, distance, duration);
-        toAdd.setTime(time);
-        route.add(toAdd);
-        return route;
+    public void setLineName(Section section) {
+        section.setLine(getLineName(section));
     }
 }

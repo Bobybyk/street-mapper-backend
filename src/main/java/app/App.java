@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import app.map.Plan;
 import app.map.PlanParser;
+import app.map.PlanParser.InconsistentDataException;
 import app.server.Server;
 
 public class App {
@@ -45,18 +46,22 @@ public class App {
 
     public static void main(String[] args) {
         if (argsIsOk(args)) {
-            final File file = new File(args[0]);
-            if (!file.exists() || file.isDirectory())
+            final File mapFile = new File(args[0]);
+            final File timeFile = new File(args[1]);
+            if (!mapFile.exists() || mapFile.isDirectory()
+                    || timeFile != null && (!timeFile.exists() || timeFile.isDirectory()))
                 print(errorFileNotExist);
             else {
                 try {
-                    map = PlanParser.planFromSectionCSV(file.getPath());
+                    map = PlanParser.planFromSectionCSV(mapFile.getPath());
+                    if (timeFile != null)
+                        PlanParser.addTimeFromCSV(map, timeFile.getPath());
                     System.out.println(succesMapCreae);
                     final Server server = new Server("localhost", 12345);
                     server.start();
                 } catch (FileNotFoundException e) {
                     print(errorFileNotExist);
-                } catch (PlanParser.IncorrectFileFormatException e) {
+                } catch (PlanParser.IncorrectFileFormatException | InconsistentDataException e) {
                     print(errorIncorrectFile);
                 } catch (IOException e) {
                     print(errorServeurStart);
@@ -76,7 +81,7 @@ public class App {
         if (args.length < 1) {
             print(errorIllegalArgument);
             return false;
-        } else if (args.length > 3) {
+        } else if (args.length > 4) {
             print(errorIllegalArgument);
             return false;
         }
