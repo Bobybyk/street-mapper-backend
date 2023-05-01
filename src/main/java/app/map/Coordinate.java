@@ -16,7 +16,7 @@ public class Coordinate implements Serializable {
     private static final int EARTH_RADIUS = 6_371_000;
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     public Coordinate(double latitude, double longitude) {
         this.latitude = latitude;

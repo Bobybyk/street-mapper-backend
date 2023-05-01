@@ -9,14 +9,14 @@ import java.io.Serializable;
 public record Time(int hour, int minute, int second) implements Comparable<Time>, Serializable {
 
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 4L;
 
     private static final int HOUR_IN_A_DAY = 3600 * 24;
 
     /**
      * Créer un nouveau temps
      *
-     * @param hour   le nombre des heures entre 0 et 23
+     * @param hour le nombre des heures entre 0 et 23
      * @param minute le nombre des minutes entre 0 et 59
      * @param second le nombre des secondes entre 0 et 59
      * @throws IllegalArgumentException si les valeurs sont incorrectes
@@ -27,7 +27,11 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
     }
 
     public Time(int duration) {
-        this(duration / 3600, (duration / 60) % 60, duration % 60);
+        this((duration / 3600) % 24, (duration / 60) % 60, duration % 60);
+    }
+
+    public Time(int hour, int minute) {
+        this(hour, minute, 0);
     }
 
     /**
@@ -49,6 +53,7 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
                 : String.format("%02d:%02d:%02d", hour, minute, second);
     }
 
+
     /**
      * @return le temps à partir de minuit en secondes
      */
@@ -58,14 +63,14 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
 
     @Override
     public int compareTo(Time time) {
-        return time.toSeconds() - toSeconds();
+        return toSeconds() - time.toSeconds();
     }
 
     /**
      * @param time
      * @return le temps en seconde nécessaire pour atteindre time
      */
-    public int durationBetween(Time time) {
+    public int durationTo(Time time) {
         int t1 = toSeconds();
         int t2 = time.toSeconds();
         int diff = t2 - t1;
