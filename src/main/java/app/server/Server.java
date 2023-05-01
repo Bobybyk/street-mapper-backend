@@ -204,6 +204,10 @@ public class Server {
         synchronizedPlan.updateMap(newPlan);
     }
 
+    public void updateTime(String timeFilePath) throws InterruptedException, Exception {
+        synchronizedPlan.updateTime(timeFilePath);
+    }
+
 }
 
 @FunctionalInterface
@@ -280,7 +284,7 @@ class SynchronizedPlan {
         return res;
     }
 
-    public void updateMap(Plan newPlan) throws InterruptedException {
+    private void acquireWriterRessource() throws InterruptedException, Exception {
         writerSemaphore.acquire();
         writecount += 1;
         if (writecount == 1) {
@@ -288,9 +292,9 @@ class SynchronizedPlan {
         }
         writerSemaphore.release();
         ressourceSemaphore.acquire();
+    }
 
-        this.plan = newPlan;
-
+    private void releaseWriterRessource() throws InterruptedException, Exception {
         ressourceSemaphore.release();
         writerSemaphore.acquire();
         writecount--;
@@ -299,5 +303,21 @@ class SynchronizedPlan {
         }
 
         writerSemaphore.release();
+    }
+
+    public void updateTime(String path) throws InterruptedException, Exception {
+        acquireWriterRessource();
+
+       // Update Time when 28-diskratime merged
+
+        releaseWriterRessource();
+    }
+
+    public void updateMap(Plan newPlan) throws InterruptedException, Exception {
+        acquireWriterRessource();
+
+        this.plan = newPlan;
+
+        releaseWriterRessource();
     }
 }

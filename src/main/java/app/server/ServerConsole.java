@@ -30,6 +30,24 @@ class SCUpdateMapFile implements ServerCommand {
     }
 }
 
+class SCUpdateTimeFile implements ServerCommand {
+
+    @Override
+    public String getdescription() {
+        return "commande permettant de changer les informations de temps au plan";
+    }
+
+    @Override
+    public void execute(Server server, String... args) throws IllegalArgumentException, Exception {
+        if (args.length != 2) 
+            throw new IllegalArgumentException("S'attend à recevoir uniquement le chemin vers le nouveau fichier");
+        String filePath = args[1];
+
+        server.updateTime(filePath);
+    }
+    
+}
+
 class ServerConsole implements Runnable {
 
     static final String argsSplitter = " ";
@@ -37,7 +55,8 @@ class ServerConsole implements Runnable {
 
     public final Map<String, ServerCommand> commands = 
         Map.of(
-            "update-map", new SCUpdateMapFile()
+            "update-map", new SCUpdateMapFile(),
+            "update-time", new SCUpdateTimeFile()
         );
 
     private boolean isRunning;
