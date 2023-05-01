@@ -202,25 +202,51 @@ public class Server {
 
     public void updateMap(Plan newPlan) throws InterruptedException, Exception {
         synchronizedPlan.updateMap(newPlan);
-        return;
     }
 
 }
 
 @FunctionalInterface
 interface MapUser<T> {
-    T apply(Plan p) throws Exception ;
+    T apply(Plan p) throws Exception;
 }
 
 class SynchronizedPlan {
 
+    /**
+     * Le plan
+     */
     private Plan plan;
+
+    /**
+     * Sempaohore protegeant l'access à la variable {@code readcount}
+     */
     private Semaphore readerSemaphore;
+
+    /**
+     * Sempaohore protegeant l'access à la variable {@code writecount}
+     */
     private Semaphore writerSemaphore;
+
+
+    /**
+     * Semaphore pretant d'indiquer d'un ecrivain veut ecrire
+     */
     private Semaphore readTry;
+
+    /**
+     * Semaphore protegeant l'access au plan
+     */
     private Semaphore ressourceSemaphore;
 
+    /**
+     * Nombre de lecteurs en cours
+     */
     private int readcount;
+
+    /**
+     * Nombre d'ecrivains en cours
+     */
     private int writecount;
 
     SynchronizedPlan(Plan plan) {
@@ -255,7 +281,6 @@ class SynchronizedPlan {
     }
 
     public void updateMap(Plan newPlan) throws InterruptedException {
-        System.out.println("Try to update map");
         writerSemaphore.acquire();
         writecount += 1;
         if (writecount == 1) {
@@ -263,8 +288,6 @@ class SynchronizedPlan {
         }
         writerSemaphore.release();
         ressourceSemaphore.acquire();
-
-        System.out.println("New plan");
 
         this.plan = newPlan;
 
@@ -276,6 +299,5 @@ class SynchronizedPlan {
         }
 
         writerSemaphore.release();
-        System.out.println("Released Writer");
     }
 }

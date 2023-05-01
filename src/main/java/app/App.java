@@ -11,6 +11,8 @@ import app.server.Server;
 
 public class App {
 
+    public static final int PORT = 12345;
+
     /**
      * Commentaire d'erreur en static pour la gestion de fichier
      */
@@ -22,7 +24,7 @@ public class App {
     private final static String errorServeurStart = "[Erreur] Le serveur n'a pas demarré";
 
 
-    private final static String succesMapCreae = "Object Map crée avec succes ";
+    // private final static String succesMapCreae = "Object Map crée avec succes ";
 
     // PlanParser.planFromSectionCSV("dev_ressources/map_data_client.csv");
     
@@ -33,8 +35,7 @@ public class App {
                 print(errorFileNotExist);
             else {
                 try {                    
-                    final Server server = new Server(file.getPath(), 12345, true);
-                    System.out.println(succesMapCreae);
+                    final Server server = new Server(file.getPath(), PORT, true);
                     server.start();
                 } catch (FileNotFoundException e) {
                     print(errorFileNotExist);

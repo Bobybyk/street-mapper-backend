@@ -1,44 +1,41 @@
 package app.server;
 
-import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 import app.map.Plan;
 import app.map.PlanParser;
-import app.map.PlanParser.IncorrectFileFormatException;
 
 
 interface ServerCommand {
-    void execute(Server server, String... args) throws IllegalArgumentException, FileNotFoundException;
+
+    String getdescription();
+    void execute(Server server, String... args) throws IllegalArgumentException, Exception;
 }
 
 class SCUpdateMapFile implements ServerCommand {
+
     @Override
-    public void execute(Server server, String... args) throws IllegalArgumentException, FileNotFoundException {
+    public String getdescription() {
+        return "commande permettant de changer le ficher de plan";
+    }
+
+    @Override
+    public void execute(Server server, String... args) throws IllegalArgumentException, Exception {
         if (args.length != 2) 
             throw new IllegalArgumentException("UpdateMap s'attend à recevoir uniquement le chemin vers le nouveau fichier");
         String filePath = args[1];
-        try {
-        
-            Plan plan = PlanParser.planFromSectionCSV(filePath);
-            server.updateMap(plan);
-        } catch ( IncorrectFileFormatException e) {
-            throw new IllegalArgumentException(e.getMessage());
-        } catch (InterruptedException e ) {
-            throw new IllegalArgumentException(e.getMessage());
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
-        }
+        Plan plan = PlanParser.planFromSectionCSV(filePath);
+        server.updateMap(plan);
     }
 }
 
 class ServerConsole implements Runnable {
 
-    public static final String argsSplitter = " ";
-    public static final String PROMPT = "server >>> ";
+    static final String argsSplitter = " ";
+    static final String PROMPT = "server >>> ";
 
-    public static final Map<String, ServerCommand> commands = 
+    public final Map<String, ServerCommand> commands = 
         Map.of(
             "update-map", new SCUpdateMapFile()
         );
@@ -47,25 +44,34 @@ class ServerConsole implements Runnable {
     private Scanner scanner;
     private Server server;
 
-    public ServerConsole(Server server) {
+    ServerConsole(Server server) {
         isRunning = false;
         scanner = new Scanner(System.in);
         this.server = server;
     }
 
-    public void dispatchFromInput(String line) {
+    private void dispatchFromInput(String line) {
         String[] args = line.split(argsSplitter);
         String commandString = args[0];
         ServerCommand command = commands.get(commandString);
         if (command == null) {
-            write("Unknwon command : " + command + "\n");
-        } else {
-            try {
-                command.execute(server, args);
-            } catch (IllegalArgumentException | FileNotFoundException e) {
-                write(e.getMessage().concat("\n"));
-            }
+            writeln("Unknwon command : " + command);
+            return;
         }
+        
+        try {
+            command.execute(server, args);
+        } catch (Exception e) {
+            writeln(e.getMessage());
+        } 
+
+    }
+
+    private void displayCommand() {
+        commands.entrySet()
+            .stream()
+            .map( entry -> String.format("%s : %s", entry.getKey(), entry.getValue().getdescription()))
+            .forEach(this::writeln);
     }
 
     private void write(Object o) {
@@ -73,13 +79,19 @@ class ServerConsole implements Runnable {
         System.out.flush();
     }
 
-    public void displayPrompt() {
+    private void writeln(Object o) {
+        System.out.println(o);
+        System.out.flush();
+    }
+
+    private void displayPrompt() {
         write(PROMPT);
     }
 
     @Override
     public void run() {
         isRunning = true;
+        displayCommand();
         while (isRunning) {
             try {
                 displayPrompt();
