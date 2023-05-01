@@ -139,8 +139,8 @@ public class Section implements Serializable {
         Station arrival = first.getArrival();
         String line = first.getLine();
         Time time = first.getTime();
-        int distance = first.getDistance();
-        int duration = first.getDuration();
+        int distance = 0;
+        int duration = 0;
 
         for (Section s : sections) {
             if (line.equals(s.getLine())) {
