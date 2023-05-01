@@ -2,6 +2,7 @@ package app.server;
 
 import java.util.Map;
 import app.App;
+import app.map.Plan;
 import app.map.Time;
 import app.server.data.SuggestionStations.SuggestionKind;
 import app.util.Parser;
@@ -29,6 +30,8 @@ public class RequestParser {
      * Nom de la commande pour demander les horaires de passages à une station
      */
     private static final String TIME_KEY = "TIME";
+
+    private static final String FOOT_KEY = "FOOT";
 
 
     static class ParsingException extends Exception {
@@ -66,12 +69,18 @@ public class RequestParser {
      */
     private static ServerActionCallback handleRouteRequest(String[] inputArgs)
             throws ParsingException {
-        if (inputArgs.length != 3) {
+        if (inputArgs.length != 5 && inputArgs.length != 6) {
             System.out.println("TRAJET PAS BON");
             throw new ParsingException("Trajet départ ou arrivé manquant.");
         } else {
             System.out.println("TRAJET");
-            return new SearchPath(App.getInstanceOfMap(), inputArgs[1], inputArgs[2], null, true);
+            String start = inputArgs[1];
+            String arrival = inputArgs[2];
+            int[] time = Parser.parse2IntSep(inputArgs[3], ":");
+            boolean distOpt = !inputArgs[4].equals(TIME_KEY);
+            boolean foot = inputArgs.length == 6 && inputArgs[5].equals(FOOT_KEY);
+            return new SearchPath(new Plan(App.getInstanceOfMap()), start, arrival,
+                    new Time(time[0], time[1]), distOpt);
         }
     }
 

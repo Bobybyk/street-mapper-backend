@@ -48,6 +48,7 @@ public class SearchPath implements ServerActionCallback {
     private Route sectionsToRoute(List<Section> sections) {
         if (sections == null || sections.isEmpty())
             return new Route(sections);
-        return new Route(sections.stream().map(s -> s.changeLine(map.getLineName(s))).toList());
+        sections.stream().forEach(map::setLineName);
+        return new Route(sections);
     }
 }

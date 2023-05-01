@@ -199,4 +199,8 @@ public final class Plan {
     public Line getLine(Section section) {
         return lines.get(section.getLine());
     }
+
+    public void setLineName(Section section) {
+        section.setLine(getLineName(section));
+    }
 }

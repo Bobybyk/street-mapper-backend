@@ -2,6 +2,8 @@ package app.map;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -10,11 +12,11 @@ import java.util.Objects;
 public class Section implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 7L;
+    private static final long serialVersionUID = 8L;
 
     private final Station start;
     private final Station arrival;
-    private final String line; // avec variant
+    private String line;
     private Time time;
     private final int distance; // en mètre
     private final int duration; // en seconde
@@ -44,8 +46,8 @@ public class Section implements Serializable {
         this(s.start, s.arrival, s.line, s.distance, s.duration);
     }
 
-    public Section changeLine(String line) {
-        return new Section(start, arrival, line, distance, duration);
+    public void setLine(String line) {
+        this.line = line;
     }
 
     public Station getStart() {
@@ -125,5 +127,41 @@ public class Section implements Serializable {
         return String.format("ligne %s à %s : %s --> %s (%d m, %s)", line,
                 time != null ? time : "no:tm", start.getName(), arrival.getName(), distance,
                 new Time(duration));
+    }
+
+    public static List<Section> sectionsToTrajet(List<Section> sections) {
+        if (sections == null || sections.isEmpty())
+            return sections;
+
+        List<Section> trajet = new ArrayList<>();
+        Section first = sections.get(0);
+        Station start = first.getStart();
+        Station arrival = first.getArrival();
+        String line = first.getLine();
+        Time time = first.getTime();
+        int distance = first.getDistance();
+        int duration = first.getDuration();
+
+        for (Section s : sections) {
+            if (line.equals(s.getLine())) {
+                arrival = s.getArrival();
+                distance += s.getDistance();
+                duration += s.getDuration();
+            } else {
+                Section toAdd = new Section(start, arrival, line, distance, duration);
+                toAdd.setTime(time);
+                trajet.add(toAdd);
+                start = s.getStart();
+                arrival = s.getArrival();
+                line = s.getLine();
+                time = s.getTime();
+                distance = s.getDistance();
+                duration = s.getDuration();
+            }
+        }
+        Section toAdd = new Section(start, arrival, line, distance, duration);
+        toAdd.setTime(time);
+        trajet.add(toAdd);
+        return trajet;
     }
 }
