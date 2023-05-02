@@ -111,15 +111,8 @@ public class ServerCommandTest {
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
         Object o = sendRequest(stream, out, request);
         if (o instanceof SuggestionStations s) {
-            Set<StationInfo> infos = s.getStations();
-
-            for (StationInfo stationInfo : infos) {
-                System.out.println(stationInfo);
-            }
-            
+            Set<StationInfo> infos = s.getStations();            
             res =  infos.size() == expectedSize && infos.containsAll(Arrays.asList(stationInfos));
-        } else if (o instanceof app.server.data.ErrorServer error) {
-            System.out.println(error.getError());
         }
         return res;
     }
@@ -136,10 +129,6 @@ public class ServerCommandTest {
                 return false;
             StationTime st = times.get(index);
             res = st.equals(time);
-        } else if (o instanceof app.server.data.ErrorServer error) {
-            System.out.println(error.getError());
-        } else {
-            System.out.println(o);
         }
 
         return res;

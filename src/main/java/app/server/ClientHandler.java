@@ -7,6 +7,8 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
 import app.server.data.ErrorServer;
+import app.util.Logger;
+import app.util.Logger.Type;
 
 /**
  * Classe réprésentant les réponses du server. Actuellement le server réagit à un mot clef lu dans
@@ -110,7 +112,7 @@ class ClientHandler implements Runnable {
             try {
                 clientSocket.close();
             } catch (IOException ignore) {
-                System.out.println("Erreur @run REQQUESTHANDLER");
+                Logger.logln(Type.INFO, ignore.getMessage());
             }
         }
     }

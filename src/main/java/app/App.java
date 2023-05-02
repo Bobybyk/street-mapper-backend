@@ -9,6 +9,8 @@ import java.io.IOException;
 import app.map.PlanParser;
 import app.map.PlanParser.InconsistentDataException;
 import app.server.Server;
+import app.util.Logger;
+import app.util.Logger.Type;
 
 public class App {
 
@@ -18,21 +20,21 @@ public class App {
      * Commentaire d'erreur en static pour la gestion de fichier
      */
     private final static String errorIllegalArgument =
-            "[Erreur] Arguments invalides. Arguments Attendus : java App <file>";
+            "Arguments invalides. Arguments Attendus : java App <file>";
     private final static String errorFileNotExist =
-            "[Erreur] Fichier introuvable ou est un repertoire";
-    private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
-    private final static String errorServeurStart = "[Erreur] Le serveur n'a pas demarré";
+            "Fichier introuvable ou est un repertoire";
+    private final static String errorIncorrectFile = "Le fichier est incorrect ";
+    private final static String errorServeurStart = "Le serveur n'a pas demarré";
     
     public static void main(String[] args) {
         if (!argsIsOk(args)) {
-            print(errorIllegalArgument);
+            Logger.logln(Type.ERROR, errorIllegalArgument);
             return;
         }
 
         final File mapFile = new File(args[0]);
         if (!isCVSFileOk(mapFile)) {
-            print(errorFileNotExist);
+            Logger.logln(Type.ERROR, errorFileNotExist);
             return;
         }
         
@@ -44,13 +46,13 @@ public class App {
             
             server.start();
         } catch (FileNotFoundException e) {
-            print(errorFileNotExist);
+            Logger.logln(Type.ERROR, errorFileNotExist);;
         } catch (PlanParser.IncorrectFileFormatException e) {
-            print(errorIncorrectFile);
+            Logger.logln(Type.ERROR, errorIncorrectFile);
         } catch (IOException e) {
-            print(errorServeurStart);
+            Logger.logln(Type.ERROR, errorServeurStart);
         } catch (InconsistentDataException e) {
-            print(e.getMessage());
+            Logger.logln(Type.ERROR, e.getMessage());
         }  
     }
 
@@ -71,15 +73,5 @@ public class App {
 
     private static boolean isCVSFileOk(File mapFile) {
         return mapFile.exists() && !mapFile.isDirectory();
-    }
-
-    /**
-     * Fonction d'affichage
-     *
-     * @param msg le tableau des messages pour les faire afficher
-     */
-    private static void print(String... msg) {
-        for (String line : msg)
-            System.out.println(line);
     }
 }
