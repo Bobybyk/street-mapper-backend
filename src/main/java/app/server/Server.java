@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 import app.map.Plan;
 import app.map.PlanParser;
 import app.map.PlanParser.IncorrectFileFormatException;
+import app.util.Logger;
+import app.util.Logger.Type;
 
 
 /**
@@ -162,9 +164,9 @@ public class Server {
                 ClientHandler requestHandler = new ClientHandler(this, clientSocket);
                 threadPool.execute(requestHandler);
             } catch (SocketTimeoutException e) {
-                System.out.println("Erreur timeout");
+                Logger.logln(Type.INFO, "timeout");
             } catch (IOException e) {
-                System.out.println("Erreur ioexception");
+                Logger.logln(Type.INFO, "ioexception");
             }
         }
 

@@ -4,7 +4,9 @@ import java.util.Map;
 import app.map.Plan;
 import app.map.Time;
 import app.server.data.SuggestionStations.SuggestionKind;
+import app.util.Logger;
 import app.util.Parser;
+import app.util.Logger.Type;
 
 public class RequestParser {
 
@@ -75,10 +77,11 @@ public class RequestParser {
     private static ServerActionCallback handleRouteRequest(Plan plan, String[] inputArgs)
             throws ParsingException {
         if (inputArgs.length != 5 && inputArgs.length != 6) {
-            System.out.println("TRAJET PAS BON");
-            throw new ParsingException("Trajet départ ou arrivé manquant.");
+            String message = "Trajet départ ou arrivé manquant.";
+            Logger.logln(Type.ERROR, message);
+            throw new ParsingException(message);
         } else {
-            System.out.println("TRAJET");
+            Logger.logln(Type.INFO, "TRAJET");
             String start = inputArgs[1];
             String arrival = inputArgs[2];
             int[] time = Parser.parse2IntSep(inputArgs[3], ":");
@@ -98,8 +101,9 @@ public class RequestParser {
     private static ServerActionCallback handleSearchRequest(Plan p, String[] inputArgs)
             throws ParsingException {
         if (inputArgs.length != 3 || inputArgs[1].isBlank()) {
-            System.out.println("RECHERCHE DE STATION PAS BONNE");
-            throw new ParsingException("Station manquante ou vide");
+            String message = "Station manquante ou vide";
+            Logger.logln(Type.ERROR, message);
+            throw new ParsingException(message);
         }
 
         String stationToSearch = inputArgs[1].trim();
@@ -114,8 +118,9 @@ public class RequestParser {
     private static ServerActionCallback handleTimeRequest(Plan plan, String[] inputArgs)
             throws ParsingException {
         if (inputArgs.length != 3 || inputArgs[1].isBlank()) {
-            System.out.println("RECHERCHE HORAIRE PAS BONNE");
-            throw new ParsingException("Station ou horaire manquant");
+            String message = "Station ou horaire manquant";
+            Logger.log(Type.ERROR, message);
+            throw new ParsingException(message);
         }
         String station = inputArgs[1].trim();
         try {
