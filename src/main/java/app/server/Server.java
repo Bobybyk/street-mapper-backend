@@ -52,10 +52,19 @@ public class Server {
      */
     private final ExecutorService threadPool;
 
+    /**
+     * La console du server
+     */
     private ServerConsole serverConsole;
 
+    /**
+     * Le thread de {@code serverConsole}
+     */
     private Thread consoleThread;
 
+    /**
+     * Instance du plan utilisée par le server
+     */
     private Plan plan;
 
 
@@ -209,6 +218,10 @@ public class Server {
         return plan;
     }
 
+    /**
+     * Met à jour le plan du server
+     * @param newPlan le nouveau plan
+     */
     public synchronized void updateMap(Plan newPlan) {
         plan = newPlan;
     }

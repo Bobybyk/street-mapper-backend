@@ -9,13 +9,17 @@ import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import app.map.StationInfo;
+import app.map.Time;
 import app.map.PlanParser.IncorrectFileFormatException;
+import app.server.data.DepartureTimes;
+import app.server.data.StationTime;
 import app.server.data.SuggestionStations;
 
 public class ServerCommandTest {
@@ -24,8 +28,11 @@ public class ServerCommandTest {
     private static final int PORT = 12345;
     private static final String MAP_DATA_ALL = "map_data_all";
     private static final String MAP_DATA_DUMMY = "map_data_dummy";
+    private static final String TIME_DATA = "time_data_all";
     private static final String SUGGESTION_REQUEST_1 = "SEARCH;Chatelet;ARRIVAL";
     private static final String SUGGESTION_REQUEST_2 = "SEARCH;stationA;ARRIVAL";
+    private static final String TIME_REQUEST = "TIME;Avron;6:00";
+
 
     public static StationInfo createStationInfo(String stationName, String... lines) {
         return new StationInfo(stationName, Arrays.asList(lines));
@@ -71,8 +78,13 @@ public class ServerCommandTest {
     }
 
     private static void changeMap(String path) throws IllegalArgumentException, Exception {
-        ServerCommandUpdateMapFile scuf = new ServerCommandUpdateMapFile();
-        scuf.execute(server, "", path );
+        ServerCommandUpdateMapFile scmf = new ServerCommandUpdateMapFile();
+        scmf.execute(server, "", path);
+    }
+
+    private static void changeTimeFile(String path) throws IllegalArgumentException, Exception {
+        ServerCommandUpdateTimeFile sctf = new ServerCommandUpdateTimeFile();
+        sctf.execute(server, "", path);
     }
 
     /**
@@ -91,10 +103,10 @@ public class ServerCommandTest {
     }
 
     private static boolean suggesionTest(Socket clientSocket, String request, int expectedSize, StationInfo... stationInfos) throws IOException, IllegalArgumentException, ClassNotFoundException {
+        boolean res = false;
         InputStream stream = clientSocket.getInputStream();
         PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
         Object o = sendRequest(stream, out, request);
-        boolean res = false;
         if (o instanceof SuggestionStations s) {
             Set<StationInfo> infos = s.getStations();
 
@@ -105,6 +117,28 @@ public class ServerCommandTest {
             res =  infos.size() == expectedSize && infos.containsAll(Arrays.asList(stationInfos));
         } else if (o instanceof app.server.data.ErrorServer error) {
             System.out.println(error.getError());
+        }
+        return res;
+    }
+
+    private static boolean timeTest(Socket clientSocket, String request, int index, StationTime time) throws ClassNotFoundException, IOException {
+        boolean res = false;
+        InputStream stream = clientSocket.getInputStream();
+        PrintWriter out = new PrintWriter(clientSocket.getOutputStream());
+        Object o = sendRequest(stream, out, request);
+        if (o instanceof DepartureTimes departureTimes) {
+            List<StationTime> times = departureTimes.getTimes();
+            int size = times.size();
+            if (index < 0 || index >= size )
+                return false;
+            StationTime st = times.get(index);
+            System.out.println(time);
+            times.forEach(System.out::println);
+            res = st.equals(time);
+        } else if (o instanceof app.server.data.ErrorServer error) {
+            System.out.println(error.getError());
+        } else {
+            System.out.println(o);
         }
 
         return res;
@@ -129,6 +163,26 @@ public class ServerCommandTest {
     }
 
     @Test
+    public void testTimeBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
+        Socket clientSocket = new Socket(HOST, PORT);
+        StationTime nationTime = new StationTime("2", "Avron", new Time(6, 5, 0));
+        boolean res = timeTest(clientSocket, TIME_REQUEST, 0, nationTime);
+        clientSocket.close();
+        assertFalse(res);
+    }
+
+    @Test void testTimeAfterChange() throws Exception {
+
+        changeTimeFile(getPath(TIME_DATA));
+
+        Socket clientSocket = new Socket(HOST, PORT);
+        StationTime nationTime = new StationTime("2", "Porte Dauphine", new Time(6, 5, 0));
+        boolean res = timeTest(clientSocket, TIME_REQUEST, 0, nationTime);
+        clientSocket.close();
+        assertTrue(res);
+    }
+
+    @Test
     public void testSuggestionValueAftereChange() throws Exception {
         changeMap(getPath(MAP_DATA_DUMMY));
 
@@ -137,8 +191,6 @@ public class ServerCommandTest {
         boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_2, 1, stationA);
         clientSocket.close();
         assertTrue(res);
-    }
-
-    
+    }    
     
 }
