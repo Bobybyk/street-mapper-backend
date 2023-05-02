@@ -19,9 +19,10 @@ public class SearchPath implements ServerActionCallback {
     private final String arrival;
     private final Time depart;
     private final boolean distOpt;
+    private final boolean foot;
 
-    public SearchPath(Plan map, String start, String arrival, Time depart, boolean distOpt)
-            throws IllegalArgumentException {
+    public SearchPath(Plan map, String start, String arrival, Time depart, boolean distOpt,
+            boolean foot) throws IllegalArgumentException {
         if (map == null || start == null || arrival == null)
             throw new IllegalArgumentException();
         this.map = map;
@@ -29,6 +30,7 @@ public class SearchPath implements ServerActionCallback {
         this.arrival = arrival;
         this.depart = depart;
         this.distOpt = distOpt;
+        this.foot = foot;
     }
 
     /**
@@ -38,7 +40,8 @@ public class SearchPath implements ServerActionCallback {
     @Override
     public Serializable execute() {
         try {
-            List<Section> sections = new Dijkstra(map, start, arrival, depart, distOpt).getPath();
+            List<Section> sections =
+                    new Dijkstra(map, start, arrival, depart, distOpt, foot).getPath();
             return sectionsToRoute(sections);
         } catch (PathNotFoundException e) {
             return new ErrorServer("Trajet inexistant");

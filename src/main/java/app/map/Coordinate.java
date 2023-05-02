@@ -35,7 +35,7 @@ public class Coordinate implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("(%f, %f)", latitude, longitude);
+        return String.format("(%.15f, %.15f)", latitude, longitude);
     }
 
     /**

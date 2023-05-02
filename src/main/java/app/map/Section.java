@@ -32,7 +32,7 @@ public class Section implements Serializable {
      * @throws IllegalArgumentException si start ou arrival est `null`
      */
     public Section(Station start, Station arrival, String line, int distance, int duration) {
-        if (start == null || arrival == null || line == null)
+        if (start == null || arrival == null)
             throw new IllegalArgumentException();
         this.start = start;
         this.arrival = arrival;
@@ -112,7 +112,8 @@ public class Section implements Serializable {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Section s)
-            return s.start.equals(start) && s.arrival.equals(arrival) && s.line.equals(line)
+            return s.start.equals(start) && s.arrival.equals(arrival)
+                    && (line == s.line || (s.line != null && s.line.equals(line)))
                     && s.distance == distance && s.duration == duration;
         return false;
     }
@@ -124,9 +125,10 @@ public class Section implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("ligne %s à %s : %s --> %s (%d m, %s)", line,
-                time != null ? time : "no:tm", start.getName(), arrival.getName(), distance,
-                new Time(duration));
+        return String.format("%s à %s : %s --> %s (%d m, %s)",
+                line == null ? "à pied" : "ligne " + line, time != null ? time : "no:tm",
+                start.getName(), arrival.getName(), distance, new Time(duration));
+
     }
 
     public static List<Section> sectionsToTrajet(List<Section> sections) {
@@ -143,7 +145,7 @@ public class Section implements Serializable {
         int duration = 0;
 
         for (Section s : sections) {
-            if (line.equals(s.getLine())) {
+            if (line != null && line.equals(s.getLine())) {
                 arrival = s.getArrival();
                 distance += s.getDistance();
                 duration += s.getDuration();

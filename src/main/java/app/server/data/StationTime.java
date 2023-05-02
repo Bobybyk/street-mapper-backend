@@ -39,7 +39,8 @@ public class StationTime implements Serializable {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof StationTime s)
-            return s.line.equals(line) && s.station.equals(station) && s.time.equals(time);
+            return (line == s.line || (s.line != null && s.line.equals(line)))
+                    && s.station.equals(station) && s.time.equals(time);
         return false;
     }
 

@@ -16,9 +16,9 @@ public class Station implements Serializable {
      */
     private static final double WALKING_SPEED = 1.2;
 
-    public Station(String name, double coordinateX, double coordinateY) {
+    public Station(String name, double latitude, double longitude) {
         this.name = name;
-        this.coordinate = new Coordinate(coordinateX, coordinateY);
+        this.coordinate = new Coordinate(latitude, longitude);
     }
 
     @Serial
@@ -50,7 +50,7 @@ public class Station implements Serializable {
      * @return le temps en seconde pour arriver à station en marchant
      */
     public int durationBetween(Station station) {
-        return (int) Math.round(distanceBetween(station) * WALKING_SPEED);
+        return (int) Math.round(distanceBetween(station) / WALKING_SPEED);
     }
 
     @Override

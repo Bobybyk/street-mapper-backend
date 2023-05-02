@@ -16,6 +16,11 @@ public final class Plan {
     private final Map<String, List<Section>> map;
 
     /**
+     * L'ensemble des stations
+     */
+    private Set<Station> stations;
+
+    /**
      * Map où chaque nom (avec variant) de ligne est associée sa ligne
      */
     private final Map<String, Line> lines;
@@ -23,12 +28,13 @@ public final class Plan {
     /**
      * Map ou le nom de la station est associé à ses informations
      */
-    private final Map<String, StationInfo> stations;
+    private final Map<String, StationInfo> stationsInfo;
 
     public Plan() {
         map = new HashMap<>();
         lines = new HashMap<>();
-        stations = new HashMap<>();
+        stations = new HashSet<>();
+        stationsInfo = new HashMap<>();
     }
 
     /**
@@ -51,7 +57,8 @@ public final class Plan {
             acc.putAll(m);
             return acc;
         });
-        this.stations = new HashMap<>(p.stations);
+        this.stations = new HashSet<>(p.stations);
+        this.stationsInfo = new HashMap<>(p.stationsInfo);
     }
 
     /**
@@ -69,8 +76,8 @@ public final class Plan {
     void addSection(String startName, double[] startCoord, String arrivalName,
             double[] arrivalCoord, String lineName, int[] duration, double distance)
             throws IndexOutOfBoundsException {
-        Station start = addStation(startName, startCoord[0], startCoord[1]);
-        Station arrival = addStation(arrivalName, arrivalCoord[0], arrivalCoord[1]);
+        Station start = addStation(startName, startCoord[1], startCoord[0]);
+        Station arrival = addStation(arrivalName, arrivalCoord[1], arrivalCoord[0]);
         int durationMin = duration[0] * 60 + duration[1];
         int distanceMetre = (int) Math.round(distance * 1000);
         Line line = addSection(start, arrival, lineName, distanceMetre, durationMin);
@@ -88,6 +95,7 @@ public final class Plan {
      */
     private Station addStation(String name, double latitude, double longitude) {
         Station station = new Station(name, latitude, longitude);
+        stations.add(station);
         map.putIfAbsent(name, new ArrayList<>());
         return station;
     }
@@ -124,7 +132,7 @@ public final class Plan {
      * @param lineName le nom de la ligne
      */
     private void addStationInfo(String stationName, String lineName) {
-        StationInfo info = stations.computeIfAbsent(stationName, StationInfo::new);
+        StationInfo info = stationsInfo.computeIfAbsent(stationName, StationInfo::new);
         info.addLine(lineName);
     }
 
@@ -175,6 +183,8 @@ public final class Plan {
             Line l = lines.get(section.getLine());
             if (l != null)
                 section.setTime(l.getNextTime(section, time));
+            else
+                section.setTime(time);
         }
     }
 
@@ -186,8 +196,12 @@ public final class Plan {
         return new HashMap<>(lines);
     }
 
+    public Set<Station> getStations() {
+        return new HashSet<>(stations);
+    }
+
     public Set<StationInfo> getStationsInfo() {
-        return new HashSet<>(stations.values());
+        return new HashSet<>(stationsInfo.values());
     }
 
     /**
