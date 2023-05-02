@@ -50,7 +50,7 @@ public class Station implements Serializable {
      * @return le temps en seconde pour arriver à station en marchant
      */
     public int durationBetween(Station station) {
-        return (int) Math.ceil(distanceBetween(station) * WALKING_SPEED);
+        return (int) Math.round(distanceBetween(station) / WALKING_SPEED);
     }
 
     @Override

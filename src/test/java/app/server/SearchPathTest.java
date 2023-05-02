@@ -228,6 +228,42 @@ public class SearchPathTest {
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithTimeMaisonBlancheToPigalleTimeOptFoot() throws Exception {
-        findPathMapWithTimeHelper("Maison Blanche", "Pigalle", 13, new Time(12, 32), true, true);
+        findPathMapWithTimeHelper("Maison Blanche", "Pigalle", 14, new Time(12, 32), true, true);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeStartCoord() throws Exception {
+        findPathMapWithTimeHelper("(48.83866086365990, 2.2822419598550800)", "Commerce", 4,
+                new Time(12, 32), true, true);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeArrivalCoord() throws Exception {
+        findPathMapWithTimeHelper("Lourmel", "(48.84461151236850,2.293796842192860)", 4,
+                new Time(12, 32), true, true);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeStartArrivalCoord() throws Exception {
+        findPathMapWithTimeHelper("(48.83866086365990, 2.2822419598550800)",
+                "(48.84461151236850,2.293796842192860)", 5, new Time(12, 32), true, true);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeCoords() throws Exception {
+        findPathMapWithTimeHelper("(48.855402921055045, 2.3443066430543738)",
+                "(48.84718353452897, 2.398076946926344)", 9, new Time(9, 0), true, true);
+
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeCoordsMaisonBlancheToPigalleTimeOptFoot() throws Exception {
+        findPathMapWithTimeHelper("(48.824868685169676, 2.358546268381532)",
+                "(48.88264085646782, 2.3401402839553964)", 15, new Time(12, 32), true, true);
     }
 }

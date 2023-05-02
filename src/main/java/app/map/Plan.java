@@ -73,7 +73,7 @@ public final class Plan {
         Station start = addStation(startName, startCoord[1], startCoord[0]);
         Station arrival = addStation(arrivalName, arrivalCoord[1], arrivalCoord[0]);
         int durationMin = duration[0] * 60 + duration[1];
-        int distanceMetre = (int) Math.ceil(distance * 1000);
+        int distanceMetre = (int) Math.round(distance * 1000);
         Line line = addSection(start, arrival, lineName, distanceMetre, durationMin);
         addStationInfo(startName, line.getName());
         addStationInfo(arrivalName, line.getName());
