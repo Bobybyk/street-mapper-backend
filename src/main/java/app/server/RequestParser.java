@@ -80,7 +80,7 @@ public class RequestParser {
             boolean distOpt = !inputArgs[4].equals(TIME_KEY);
             boolean foot = inputArgs.length == 6 && inputArgs[5].equals(FOOT_KEY);
             return new SearchPath(new Plan(App.getInstanceOfMap()), start, arrival,
-                    new Time(time[0], time[1]), distOpt);
+                    new Time(time[0], time[1]), distOpt, foot);
         }
     }
 

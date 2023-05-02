@@ -30,12 +30,18 @@ public class CoordinateTest {
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void testDistanceChatelet14and1() {
-        distanceHelper(48.85955653272677, 2.346411849769497, 48.85922471342816, 2.3457609541847755, 60);
+        distanceHelper(48.85955653272677, 2.346411849769497, 48.85922471342816, 2.3457609541847755, 61);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void testDistanceGareDeLyon14and1() {
-        distanceHelper(48.8442498880687, 2.372519782814122, 48.8456832067358, 2.3731565937892047, 166);
+        distanceHelper(48.8442498880687, 2.372519782814122, 48.8456832067358, 2.3731565937892047, 167);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void testDistanceBalardAndLourmel() {
+        distanceHelper(48.8442498880687, 2.278362661809200, 48.8456832067358, 2.3731565937892047, 6939);
     }
 }

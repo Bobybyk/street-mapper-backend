@@ -36,7 +36,8 @@ public class SearchPathTest {
     public void findPathWithNullStart() throws Exception {
         Plan map = initMap(MAP_DATA);
         assertThrows(IllegalArgumentException.class,
-                () -> new SearchPath(map, null, "test", null, true), "Find path from null station");
+                () -> new SearchPath(map, null, "test", null, true, false),
+                "Find path from null station");
     }
 
     @Test
@@ -44,13 +45,14 @@ public class SearchPathTest {
     public void findPathWithNullArrival() throws Exception {
         Plan map = initMap(MAP_DATA);
         assertThrows(IllegalArgumentException.class,
-                () -> new SearchPath(map, "test", null, null, true), "Find path to null station");
+                () -> new SearchPath(map, "test", null, null, true, false),
+                "Find path to null station");
     }
 
     private void pathNotFoundHelper(String start, String arrival) throws Exception {
         Plan map = initMap(MAP_DATA);
         assertEquals("Trajet inexistant",
-                ((ErrorServer) new SearchPath(map, start, arrival, null, true).execute())
+                ((ErrorServer) new SearchPath(map, start, arrival, null, true, false).execute())
                         .getError(),
                 "Path not found from " + start + " to " + arrival);
     }
@@ -74,114 +76,158 @@ public class SearchPathTest {
     }
 
     private void findPathMapHelper(boolean timedMap, String start, String arrival, int nbLine,
-            Time time, boolean distOpt) throws Exception {
+            Time time, boolean distOpt, boolean foot) throws Exception {
         Plan map = initMap(MAP_DATA_ALL);
         if (timedMap)
             PlanParser.addTimeFromCSV(map, getPath(TIME_DATA_ALL));
-        Route route = (Route) new SearchPath(map, start, arrival, time, distOpt).execute();
+        Route route = (Route) new SearchPath(map, start, arrival, time, distOpt, foot).execute();
         List<Section> trajet = route.getPathDistOpt();
         assertEquals(nbLine, trajet.size(), String.format("%s to %s from %s with %s optimisation",
                 start, arrival, time, distOpt ? " distance" : "time"));
     }
 
     private void findPathMapHelper(String start, String arrival, int nbLine, Time time,
-            boolean distOpt) throws Exception {
-        findPathMapHelper(false, start, arrival, nbLine, time, distOpt);
+            boolean distOpt, boolean foot) throws Exception {
+        findPathMapHelper(false, start, arrival, nbLine, time, distOpt, foot);
     }
 
-    private void findPathMapHelper(String start, String arrival, int nbLine, Time time)
+    private void findPathMapHelper(String start, String arrival, int nbLine, Time time,
+            boolean foot) throws Exception {
+        findPathMapHelper(start, arrival, nbLine, time, true, foot);
+    }
+
+    private void findPathMapHelper(String start, String arrival, int nbLine, boolean foot)
             throws Exception {
-        findPathMapHelper(start, arrival, nbLine, time, true);
-    }
-
-    private void findPathMapHelper(String start, String arrival, int nbLine) throws Exception {
-        findPathMapHelper(start, arrival, nbLine, null);
+        findPathMapHelper(start, arrival, nbLine, null, foot);
     }
 
     private void findPathMapWithTimeHelper(String start, String arrival, int nbLine, Time time,
-            boolean distOpt) throws Exception {
-        findPathMapHelper(true, start, arrival, nbLine, time, distOpt);
+            boolean distOpt, boolean foot) throws Exception {
+        findPathMapHelper(true, start, arrival, nbLine, time, distOpt, foot);
     }
 
-    private void findPathMapWithTimeHelper(String start, String arrival, int nbLine, Time time)
-            throws Exception {
-        findPathMapWithTimeHelper(start, arrival, nbLine, time, true);
+    private void findPathMapWithTimeHelper(String start, String arrival, int nbLine, Time time,
+            boolean foot) throws Exception {
+        findPathMapWithTimeHelper(start, arrival, nbLine, time, true, foot);
     }
 
-    private void findPathMapWithTimeHelper(String start, String arrival, int nbLine)
+    private void findPathMapWithTimeHelper(String start, String arrival, int nbLine, boolean foot)
             throws Exception {
-        findPathMapWithTimeHelper(start, arrival, nbLine, null);
+        findPathMapWithTimeHelper(start, arrival, nbLine, null, foot);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathSameLine() throws Exception {
-        findPathMapHelper("Lourmel", "Commerce", 3);
+        findPathMapHelper("Lourmel", "Commerce", 3, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath2Line() throws Exception {
-        findPathMapHelper("Cité", "Hôtel de Ville", 2);
+        findPathMapHelper("Cité", "Hôtel de Ville", 2, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPath3Line() throws Exception {
-        findPathMapHelper("Alma - Marceau", "Invalides", 3);
+        findPathMapHelper("Alma - Marceau", "Invalides", 3, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathNordToLyon() throws Exception {
-        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8);
+        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathNordToLyonStartTime() throws Exception {
-        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, new Time(9, 34, 23));
+        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, new Time(9, 34, 23), false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathNordToLyonTimeOpt() throws Exception {
-        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, new Time(17, 58, 32), true);
+        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, new Time(17, 58, 32), true, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathBercyToParmentier() throws Exception {
-        findPathMapHelper("Bercy", "Parmentier", 7);
+        findPathMapHelper("Bercy", "Parmentier", 7, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathBMaisonBlancheToPigalle() throws Exception {
-        findPathMapHelper("Maison Blanche", "Pigalle", 17);
+        findPathMapHelper("Maison Blanche", "Pigalle", 17, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithTimeNordToLyon() throws Exception {
-        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 8);
+        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 8, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithTimeNordToLyonStartTime() throws Exception {
-        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 8, new Time(13, 50, 32));
+        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 8, new Time(13, 50, 32), false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithTimeNordToLyonStartTimeOpt() throws Exception {
-        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 15, new Time(13, 50, 32), false);
+        findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 15, new Time(13, 50, 32), false,
+                false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void findPathWithTimeSameLineTimeOpt() throws Exception {
-        findPathMapWithTimeHelper("Balard", "Félix Faure", 3, new Time(13, 50, 32), false);
+        findPathMapWithTimeHelper("Balard", "Félix Faure", 3, new Time(13, 50, 32), false, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeJussieuToOdeonTimeOpt() throws Exception {
+        findPathMapWithTimeHelper("Jussieu", "Odéon", 4, new Time(14, 50), false, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeBastilleToRepubliqueTimeOpt() throws Exception {
+        findPathMapWithTimeHelper("Bastille", "République", 4, new Time(8, 40), false, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimePyramidesToBercyTimeOpt() throws Exception {
+        findPathMapWithTimeHelper("Pyramides", "Bercy", 18, new Time(8, 3), false, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeBercyToParmentierTimeOpt() throws Exception {
+        findPathMapWithTimeHelper("Bercy", "Parmentier", 7, new Time(12, 40), true, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeBercyToParmentierTimeOptFoot() throws Exception {
+        findPathMapWithTimeHelper("Bercy", "Parmentier", 5, new Time(12, 40), true, true);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeMaisonBlancheToPigalleTimeOpt() throws Exception {
+        findPathMapWithTimeHelper("Maison Blanche", "Pigalle", 17, new Time(12, 32), true, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithTimeMaisonBlancheToPigalleTimeOptFoot() throws Exception {
+        findPathMapWithTimeHelper("Maison Blanche", "Pigalle", 13, new Time(12, 32), true, true);
     }
 }

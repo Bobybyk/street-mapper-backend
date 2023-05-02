@@ -1,5 +1,6 @@
 package app.server;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.PriorityQueue;
 import java.util.function.ToIntBiFunction;
 import app.map.Plan;
 import app.map.Section;
+import app.map.Station;
 import app.map.Time;
 
 public final class Dijkstra {
@@ -37,6 +39,18 @@ public final class Dijkstra {
      * Optimisation en distance ou en temps
      */
     private boolean distOpt;
+    /**
+     * Si des sections à pied sont possibles
+     */
+    private boolean foot;
+    /**
+     * La distance maximale à parcourir à pied entre 2 sections
+     */
+    private static final int MAX_FOOT_DISTANCE = 1000;
+    /**
+     * Le poids pour les trajets à pied
+     */
+    private static final double WEIGHT_FOOT = 1.5;
     /**
      * La fonction qui calcule le poids d'une arrête à partir de la dernière arête traitée
      */
@@ -69,7 +83,8 @@ public final class Dijkstra {
      * @param departTime l'horaire de départ
      * @param getWeight la fonction qui associe à une section (arête) son poids
      */
-    Dijkstra(Plan plan, String start, String arrival, Time departTime, boolean distOpt) {
+    Dijkstra(Plan plan, String start, String arrival, Time departTime, boolean distOpt,
+            boolean foot) {
         if (plan == null || start == null || arrival == null)
             throw new IllegalArgumentException();
         this.plan = plan;
@@ -78,6 +93,7 @@ public final class Dijkstra {
         this.arrival = arrival;
         this.departTime = departTime;
         this.distOpt = distOpt;
+        this.foot = foot;
         this.getWeight = distOpt ? Section::distanceTo : Section::durationTo;
         distance = new HashMap<>();
         previous = new HashMap<>();
@@ -146,11 +162,33 @@ public final class Dijkstra {
     }
 
     /**
+     * @param station une station
+     * @return une liste de section à pied partant de {@code station} et arrivant à une autre
+     *         station à moins de {@code MAX_FOOT_DISTANCE} mètres
+     */
+    private List<Section> getCloseStations(Station station) {
+        List<Section> res = new ArrayList<>();
+        for (Station s : plan.getStations()) {
+            int dist = station.distanceBetween(s);
+            if (dist < MAX_FOOT_DISTANCE)
+                res.add(new Section(station, s, null, (int) Math.ceil(dist * WEIGHT_FOOT),
+                        (int) Math.ceil(station.durationBetween(s) * WEIGHT_FOOT)));
+        }
+        return res;
+    }
+
+    /**
      * Corps de l'algorithme
      */
     private void loop() {
-        for (Section section : map.get(u)) {
-            Section prev = previous.get(u);
+        Section prev = previous.get(u);
+        List<Section> neighbors = map.get(u);
+        if (neighbors == null)
+            neighbors = new ArrayList<>();
+        if (prev != null && foot)
+            neighbors.addAll(getCloseStations(previous.get(u).getArrival()));
+
+        for (Section section : neighbors) {
             if (prev == null) {
                 prev = new Section(section.getStart(), section.getStart(), "", 0, 0);
                 prev.setTime(departTime);
