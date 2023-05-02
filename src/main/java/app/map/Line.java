@@ -86,7 +86,7 @@ public final class Line {
             sections.entrySet()
                 .stream()
                 .reduce(new HashMap<>(), (acc, entry) -> {
-                    acc.put(entry.getKey(), 0);
+                    acc.put(entry.getKey(), null);
                     return acc;
                 }, (lhs, rhs) -> {
                     lhs.putAll(rhs);
