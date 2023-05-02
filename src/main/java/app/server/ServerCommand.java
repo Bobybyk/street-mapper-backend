@@ -3,9 +3,6 @@ package app.server;
 import java.util.Arrays;
 import java.util.List;
 
-import app.map.Plan;
-import app.map.PlanParser;
-
 public interface ServerCommand {
 
     /**
@@ -49,8 +46,7 @@ class ServerCommandUpdateMapFile implements ServerCommand {
         if (args.length != 2) 
             throw new IllegalArgumentException("s'attend à recevoir uniquement le chemin vers le nouveau fichier");
         String filePath = args[1];
-        Plan plan = PlanParser.planFromSectionCSV(filePath);
-        server.updateMap(plan);
+        server.updateMap(filePath);
     }
 }
 
@@ -74,9 +70,11 @@ class ServerCommandUpdateTimeFile implements ServerCommand {
             throw new IllegalArgumentException("S'attend à recevoir uniquement le chemin vers le nouveau fichier");
         String filePath = args[1];
 
-        Plan copyPlan = new Plan(server.getPlan());
-        PlanParser.addTimeFromCSV(copyPlan, filePath);
-        server.updateMap(copyPlan);
+        server.updateTime(filePath);
+
+        // Plan copyPlan = new Plan(server.getPlan());
+        // PlanParser.addTimeFromCSV(copyPlan, filePath);
+        // server.updateMap(copyPlan);
     }
     
 }

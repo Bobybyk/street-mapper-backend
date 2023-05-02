@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import app.map.Plan;
 import app.map.PlanParser;
+import app.map.PlanParser.InconsistentDataException;
 import app.map.PlanParser.IncorrectFileFormatException;
 import app.util.Logger;
 import app.util.Logger.Type;
@@ -79,7 +80,7 @@ public class Server {
      * @param poolSize               Nombre de threads que le server peut utiliser
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
-    public Server(Plan plan, int port, boolean withConsole, int maxIncommingConnection, int poolSize) throws IOException {
+    private Server(Plan plan, int port, boolean withConsole, int maxIncommingConnection, int poolSize) throws IOException {
         this.isRunning = false;
         this.threadPool = Executors.newFixedThreadPool(poolSize);
         this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection));
@@ -125,18 +126,6 @@ public class Server {
     public Server(String csvMapPath, int port, boolean withConsole) throws IOException, 
     FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
         this(csvMapPath, port, withConsole, MAX_INCOMMING_CONNECTION);
-    }
-
-     /**
-     * 
-     * @param plan                   Plan du reseau
-     * @param port                   Numero du port sur lequel le server doit etre lié
-     * @param withConsole            Determine si l'entrée standart doit etre ecoutée
-     * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
-     */
-    public Server(Plan plan, int port, boolean withConsole) throws IOException, 
-    FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
-        this(plan, port, withConsole, MAX_INCOMMING_CONNECTION, DEFAULT_POOL_SIZE);
     }
 
     /**
@@ -224,7 +213,25 @@ public class Server {
      * Met à jour le plan du server
      * @param newPlan le nouveau plan
      */
-    public synchronized void updateMap(Plan newPlan) {
+    private synchronized void setPlan(Plan newPlan) {
         plan = newPlan;
+    }
+
+    public void updateMap(String pathMapFile) throws FileNotFoundException, IllegalArgumentException, IncorrectFileFormatException {
+        Plan p = PlanParser.planFromSectionCSV(pathMapFile);
+        setPlan(p);
+    }
+
+    /**
+     * Met à jour le time du plan du server
+     * @param pathTimeFile chemin vers le ficher de temps
+         * @throws InconsistentDataException
+         * @throws IncorrectFileFormatException
+         * @throws FileNotFoundException
+     */
+    public void updateTime(String pathTimeFile) throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
+       Plan p = getPlan();
+       PlanParser.addTimeFromCSV(p, pathTimeFile);
+       setPlan(p);
     }
 }

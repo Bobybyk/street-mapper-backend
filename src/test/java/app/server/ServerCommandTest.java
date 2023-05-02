@@ -135,8 +135,6 @@ public class ServerCommandTest {
             if (index < 0 || index >= size )
                 return false;
             StationTime st = times.get(index);
-            System.out.println(time);
-            times.forEach(System.out::println);
             res = st.equals(time);
         } else if (o instanceof app.server.data.ErrorServer error) {
             System.out.println(error.getError());

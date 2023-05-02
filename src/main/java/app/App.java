@@ -6,8 +6,6 @@ package app;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
-import app.map.Plan;
 import app.map.PlanParser;
 import app.map.PlanParser.InconsistentDataException;
 import app.server.Server;
@@ -38,12 +36,12 @@ public class App {
             return;
         }
         
-        try {                    
-            Plan plan = PlanParser.planFromSectionCSV(mapFile.getPath());
+        try {                
+            final Server server = new Server(mapFile.getPath(), PORT, true);    
             if (hasCsvTimeFile(args)) {
-                PlanParser.addTimeFromCSV(plan, new File(args[1]).getPath() );
+                server.updateTime((new File(args[1]).getPath()));;
             }
-            final Server server = new Server(plan, PORT, true);
+            
             server.start();
         } catch (FileNotFoundException e) {
             print(errorFileNotExist);

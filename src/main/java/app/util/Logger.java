@@ -1,20 +1,35 @@
 package app.util;
 import java.io.PrintStream;
 
+/**
+ * Classe permettant d'afficher des messages sur les sorties standards
+ */
 public class Logger {
+
+    /**
+     * Classe descrivant le type de log
+     */
     public static enum Type {
+        DEFAULT("\u001B[37m"),
         INFO("\u001B[34m"),
         ERROR("\u001B[31m");
 
+        /**
+         * sequence ascii echappe pour afficher le texte en couleur
+         */
         final String colorSequence;
 
         Type(String colorSequence) {
             this.colorSequence = colorSequence;
         }
 
+        /**
+         * Retoune la sortie sortie standard associe au type du log
+         * @return
+         */
         PrintStream getPrintStream() {
             return switch (this) {
-                case INFO -> System.out;
+                case INFO, DEFAULT -> System.out;
                 case ERROR -> System.err;
             };
         }
@@ -22,8 +37,9 @@ public class Logger {
         @Override
         public String toString() {
             return switch (this) {
-                case INFO -> "INFO";
-                case ERROR -> "ERROR";
+                case INFO -> "[INFO]";
+                case ERROR -> "[ERROR]";
+                case DEFAULT -> "[DEFAULT]";
             };
         }
     }
