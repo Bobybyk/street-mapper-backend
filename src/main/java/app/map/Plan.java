@@ -38,27 +38,32 @@ public final class Plan {
     }
 
     /**
-     * Copie les données des maps.
-     *
-     * @param p un plan à copier
+     * Cree un nouveau Plan conservant, stationsInfo et map mais en reinitilisant les lignes, les sections en applliquant {@link Line#resetTime()} 
+     * et {@link Section#resetTime()}
+     * 
+     * @see Line#resetTime()
+     * @see Section#resetTime()
      */
-    public Plan(Plan p) {
-        this.map = p.map.entrySet().stream().reduce(new HashMap<>(), (acc, e) -> {
-            acc.put(e.getKey(), e.getValue().stream().map(Section::new).toList());
+    public Plan resetLinesSections() {
+        Plan p = new Plan();
+        p.map.putAll(this.map.entrySet().stream().reduce(new HashMap<>(), (acc, e) -> {
+            acc.put(e.getKey(), e.getValue().stream().map(section -> section.resetTime()).toList());
             return acc;
         }, (acc, m) -> {
             acc.putAll(m);
             return acc;
-        });
-        this.lines = p.lines.entrySet().stream().reduce(new HashMap<>(), (acc, entry) -> {
+        }));
+
+        p.lines.putAll(this.lines.entrySet().stream().reduce(new HashMap<>(), (acc, entry) -> {
             acc.put(entry.getKey(), entry.getValue().resetTime() );
             return acc;
         }, (acc, m) -> {
             acc.putAll(m);
             return acc;
-        });
-        this.stations = new HashSet<>(p.stations);
-        this.stationsInfo = new HashMap<>(p.stationsInfo);
+        }));
+        p.stations = new HashSet<>(p.stations);
+        p.stationsInfo.putAll(this.stationsInfo);
+        return p;
     }
 
     /**

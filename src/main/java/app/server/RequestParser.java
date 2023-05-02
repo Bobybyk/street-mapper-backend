@@ -87,7 +87,7 @@ public class RequestParser {
             int[] time = Parser.parse2IntSep(inputArgs[3], ":");
             boolean distOpt = !inputArgs[4].equals(TIME_KEY);
             boolean foot = inputArgs.length == 6 && inputArgs[5].equals(FOOT_KEY);
-            return new SearchPath(new Plan(plan), start, arrival,
+            return new SearchPath(plan.resetLinesSections(), start, arrival,
                     new Time(time[0], time[1]), distOpt, foot);
         }
     }

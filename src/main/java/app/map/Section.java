@@ -42,8 +42,11 @@ public class Section implements Serializable {
         this.duration = duration;
     }
 
-    public Section(Section s) {
-        this(s.start, s.arrival, s.line, s.distance, s.duration);
+    /**
+     * Cree une nouvelle section identique mais en mettant le champ {@code time} a null
+     */
+    public Section resetTime() {
+        return new Section(start, arrival, line, distance, duration);
     }
 
     public void setLine(String line) {

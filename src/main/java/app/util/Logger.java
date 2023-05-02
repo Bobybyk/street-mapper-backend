@@ -38,7 +38,7 @@ public class Logger {
         public String toString() {
             return switch (this) {
                 case INFO -> "[INFO]";
-                case ERROR -> "[ERROR]";
+                case ERROR -> "[ERREUR]";
                 case DEFAULT -> "[DEFAULT]";
             };
         }

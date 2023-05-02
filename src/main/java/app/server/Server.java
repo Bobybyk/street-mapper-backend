@@ -230,7 +230,7 @@ public class Server {
          * @throws FileNotFoundException
      */
     public void updateTime(String pathTimeFile) throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
-       Plan p = getPlan();
+       Plan p = getPlan().resetLinesSections();
        PlanParser.addTimeFromCSV(p, pathTimeFile);
        setPlan(p);
     }
