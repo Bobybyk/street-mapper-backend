@@ -15,6 +15,8 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
 import app.map.StationInfo;
 import app.map.Time;
 import app.map.PlanParser.IncorrectFileFormatException;
@@ -32,6 +34,7 @@ public class ServerCommandTest {
     private static final String SUGGESTION_REQUEST_1 = "SEARCH;Chatelet;ARRIVAL";
     private static final String SUGGESTION_REQUEST_2 = "SEARCH;stationA;ARRIVAL";
     private static final String TIME_REQUEST = "TIME;Avron;6:00";
+    private static final int DEFAULT_TIMEOUT = 2000;
 
 
     public static StationInfo createStationInfo(String stationName, String... lines) {
@@ -145,6 +148,7 @@ public class ServerCommandTest {
     }
 
     @Test
+    @Timeout(DEFAULT_TIMEOUT)
     public void testInitialSuggestionValue() throws IOException, IllegalArgumentException, IncorrectFileFormatException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
@@ -154,6 +158,7 @@ public class ServerCommandTest {
     }
 
     @Test
+    @Timeout(DEFAULT_TIMEOUT)
     public void testSuggestionValueBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationInfo stationA = createStationInfo("stationA", "random");
@@ -171,7 +176,9 @@ public class ServerCommandTest {
         assertFalse(res);
     }
 
-    @Test void testTimeAfterChange() throws Exception {
+    @Test 
+    @Timeout(DEFAULT_TIMEOUT)
+    void testTimeAfterChange() throws Exception {
 
         changeTimeFile(getPath(TIME_DATA));
 
@@ -183,6 +190,7 @@ public class ServerCommandTest {
     }
 
     @Test
+    @Timeout(DEFAULT_TIMEOUT)
     public void testSuggestionValueAftereChange() throws Exception {
         changeMap(getPath(MAP_DATA_DUMMY));
 

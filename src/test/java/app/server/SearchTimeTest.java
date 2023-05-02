@@ -47,6 +47,15 @@ public class SearchTimeTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
+    public void timeAtPorteDophne() {
+        SearchTime search = createSearchTime("Nation", new Time(6, 4, 0));
+        List<StationTime> times = ((DepartureTimes) search.execute()).getTimes();
+        StationTime expected = new StationTime("2", "Porte Dauphine", new Time(6, 5, 0));
+        assertEquals(expected, times.get(0), "Times at Nation");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
     public void timeAtChateletAfterMidnight() {
         SearchTime search = createSearchTime("Châtelet", new Time(23, 59));
         List<StationTime> times = ((DepartureTimes) search.execute()).getTimes();
