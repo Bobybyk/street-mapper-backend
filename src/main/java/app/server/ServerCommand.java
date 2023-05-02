@@ -30,7 +30,7 @@ public interface ServerCommand {
     void execute(Server server, String... args) throws IllegalArgumentException, Exception;
 }
 
-class SCUpdateMapFile implements ServerCommand {
+class ServerCommandUpdateMapFile implements ServerCommand {
 
     @Override
     public String getdescription() {
@@ -54,7 +54,7 @@ class SCUpdateMapFile implements ServerCommand {
     }
 }
 
-class SCUpdateTimeFile implements ServerCommand {
+class ServerCommandUpdateTimeFile implements ServerCommand {
 
     @Override
     public String getdescription() {

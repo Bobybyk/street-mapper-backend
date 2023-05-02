@@ -69,6 +69,8 @@ public final class Line {
     }
 
     /**.
+     * Cree une nouvelle ligne en metant les valeurs dans {@code sections} a 0
+     * 
      * @param name le nom de la ligne
      * @param variant le nom du variant
      * @param sections une map associant une section à sa duree pour arriver à sa fin de la section de départ
@@ -80,7 +82,16 @@ public final class Line {
         this.variant = variant;
         this.start = null;
         this.last = null;
-        this.sections = new HashMap<>(sections);
+        this.sections = 
+            sections.entrySet()
+                .stream()
+                .reduce(new HashMap<>(), (acc, entry) -> {
+                    acc.put(entry.getKey(), 0);
+                    return acc;
+                }, (lhs, rhs) -> {
+                    lhs.putAll(rhs);
+                    return lhs;
+                });
         this.departures = new TreeSet<>();
     }
 

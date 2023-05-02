@@ -206,7 +206,7 @@ public class Server {
         plan = newPlan;
     }
 
-    public synchronized void updateTime(String timeFilePath) throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
+    public void updateTime(String timeFilePath) throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
         Plan copyPlan = new Plan(getPlan());
         PlanParser.addTimeFromCSV(copyPlan, timeFilePath);
         updateMap(copyPlan);

@@ -19,8 +19,8 @@ class ServerConsole implements Runnable {
 
     public final Map<String, ServerCommand> commands = 
         Map.of(
-            UPDATE_MAP_NAME, new SCUpdateMapFile(),
-            UPDATE_TIME_NAME, new SCUpdateTimeFile()
+            UPDATE_MAP_NAME, new ServerCommandUpdateMapFile(),
+            UPDATE_TIME_NAME, new ServerCommandUpdateTimeFile()
         );
 
     private boolean isRunning;
@@ -60,14 +60,18 @@ class ServerConsole implements Runnable {
 
     }
 
-    private void displayCommand() {
+    private void displayCommandHeader() {
         int blankBeforeName = COMMAND_BORDER.length() - SERVER_COMMAND_NAME.length();
         blankBeforeName = Integer.max(blankBeforeName, 0) / 2;
-        String splitter = "\n      ";
         writeln(COMMAND_BORDER);
         IntStream.range(0, blankBeforeName).forEach(ignore -> write(" "));;
         writeln(SERVER_COMMAND_NAME);
         writeln("");
+    }
+
+    private void displayCommand() {
+        displayCommandHeader();
+        String splitter = "\n      ";
         commands.entrySet()
             .stream()
             .map( entry -> 
