@@ -47,7 +47,7 @@ class ServerCommandUpdateMapFile implements ServerCommand {
     @Override
     public void execute(Server server, String... args) throws IllegalArgumentException, Exception {
         if (args.length != 2) 
-            throw new IllegalArgumentException("UpdateMap s'attend à recevoir uniquement le chemin vers le nouveau fichier");
+            throw new IllegalArgumentException("s'attend à recevoir uniquement le chemin vers le nouveau fichier");
         String filePath = args[1];
         Plan plan = PlanParser.planFromSectionCSV(filePath);
         server.updateMap(plan);
