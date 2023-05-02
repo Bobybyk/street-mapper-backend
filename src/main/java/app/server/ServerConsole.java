@@ -45,6 +45,12 @@ class ServerConsole implements Runnable {
 
     private void dispatchFromInput(String line) {
         String[] args = line.split(argsSplitter);
+
+        if (args.length == 0) {
+            writeln(new StringBuffer("Commande vide").toString());
+            return;
+        }
+
         String commandString = args[0];
         ServerCommand command = commands.get(commandString);
         if (command == null) {
