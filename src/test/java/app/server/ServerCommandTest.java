@@ -25,7 +25,29 @@ public class ServerCommandTest {
     private static final String MAP_DATA_ALL = "map_data_all";
     private static final String MAP_DATA_DUMMY = "map_data_dummy";
     private static final String SUGGESTION_REQUEST_1 = "SEARCH;Chatelet;ARRIVAL";
-    private static final String SUGGESTION_REQUEST_2 = "SERACH;stationA;ARRIVAL";
+    private static final String SUGGESTION_REQUEST_2 = "SEARCH;stationA;ARRIVAL";
+
+    public static StationInfo createStationInfo(String stationName, String... lines) {
+        return new StationInfo(stationName, Arrays.asList(lines));
+    }
+
+    @BeforeAll
+    static void init() {
+        try {
+            server = initServer();
+        } catch (IOException | IllegalArgumentException | IncorrectFileFormatException e) {
+            System.out.println("Erreur Test init socket / serveur ");
+        }
+    }
+
+    @AfterAll
+    static void close() {
+        try {
+            server.stop();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private static String getPath(String filename) {
         if (filename == null)
@@ -46,10 +68,6 @@ public class ServerCommandTest {
         Thread threadServer = new Thread(server::start);
         threadServer.start();
         return server;
-    }
-
-    public static StationInfo createStationInfo(String stationName, String... lines) {
-        return new StationInfo(stationName, Arrays.asList(lines));
     }
 
     private static void changeMap(String path) throws IllegalArgumentException, Exception {
@@ -79,28 +97,17 @@ public class ServerCommandTest {
         boolean res = false;
         if (o instanceof SuggestionStations s) {
             Set<StationInfo> infos = s.getStations();
+
+            for (StationInfo stationInfo : infos) {
+                System.out.println(stationInfo);
+            }
             
             res =  infos.size() == expectedSize && infos.containsAll(Arrays.asList(stationInfos));
+        } else if (o instanceof app.server.data.ErrorServer error) {
+            System.out.println(error.getError());
         }
+
         return res;
-    }
-
-    @BeforeAll
-    static void init() {
-        try {
-            server = initServer();
-        } catch (IOException | IllegalArgumentException | IncorrectFileFormatException e) {
-            System.out.println("Erreur Test init socket / serveur ");
-        }
-    }
-
-    @AfterAll
-    static void close() {
-        try {
-            server.stop();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Test
@@ -115,24 +122,22 @@ public class ServerCommandTest {
     @Test
     public void testSuggestionValueBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
-        StationInfo stationA = createStationInfo("stationA");
+        StationInfo stationA = createStationInfo("stationA", "random");
         boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_2, 1, stationA);
         clientSocket.close();
         assertFalse(res);
     }
 
-    // @Test
-    // public void testSuggestionValueAftereChange() throws Exception {
+    @Test
+    public void testSuggestionValueAftereChange() throws Exception {
+        changeMap(getPath(MAP_DATA_DUMMY));
 
-    //     changeMap(getPath(MAP_DATA_DUMMY));
-    //     Thread.sleep(1000);
-
-    //     Socket clientSocket = new Socket(HOST, PORT);
-    //     StationInfo stationA = createStationInfo("stationA");
-    //     boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_2, 1, stationA);
-    //     clientSocket.close();
-    //     assertTrue(res);
-    // }
+        Socket clientSocket = new Socket(HOST, PORT);
+        StationInfo stationA = createStationInfo("stationA", "random");
+        boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_2, 1, stationA);
+        clientSocket.close();
+        assertTrue(res);
+    }
 
     
     
