@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import app.map.Line.DifferentStartException;
 import app.map.Line.StartStationNotFoundException;
 
@@ -44,7 +45,8 @@ public final class Plan {
      */
     public Plan(Plan p) {
         this.map = p.map.entrySet().stream().reduce(new HashMap<>(), (acc, e) -> {
-            acc.put(e.getKey(), e.getValue().stream().map(Section::new).toList());
+            acc.put(e.getKey(), e.getValue().stream().map(Section::new)
+                    .collect(Collectors.toCollection(ArrayList::new)));
             return acc;
         }, (acc, m) -> {
             acc.putAll(m);
