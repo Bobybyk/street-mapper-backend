@@ -1,4 +1,4 @@
-package app.server;
+package server;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,10 +16,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import server.Server;
-import server.commands.ServerCommandUpdateMapFile;
-import server.commands.ServerCommandUpdateTimeFile;
 import server.data.DepartureTimes;
 import server.data.StationTime;
 import server.data.SuggestionStations;
@@ -27,7 +23,7 @@ import server.map.StationInfo;
 import server.map.Time;
 import server.map.PlanParser.IncorrectFileFormatException;
 
-public class ServerCommandTest {
+public class ServerConsoleTest {
     private static Server server = null;
     private static final String HOST = "localhost";
     private static final int PORT = 12345;
@@ -37,11 +33,17 @@ public class ServerCommandTest {
     private static final String SUGGESTION_REQUEST_1 = "SEARCH;Chatelet;ARRIVAL";
     private static final String SUGGESTION_REQUEST_2 = "SEARCH;stationA;ARRIVAL";
     private static final String TIME_REQUEST = "TIME;Avron;6:00";
+    private static final String UPDATE_MAP_CMD = "update-map ";
+    private static final String UPDATE_TIME_CMD = "update-time ";
     private static final int DEFAULT_TIMEOUT = 2000;
 
 
     public static StationInfo createStationInfo(String stationName, String... lines) {
         return new StationInfo(stationName, Arrays.asList(lines));
+    }
+
+    static void writeCommande(String command) {
+        server.getServerConsole().dispatchFromInput(command);
     }
 
     @BeforeAll
@@ -73,20 +75,19 @@ public class ServerCommandTest {
      * @throws IllegalArgumentException
      */
     private static Server initServer() throws IOException, IllegalArgumentException, IncorrectFileFormatException {
-        Server server = new Server(getPath(MAP_DATA_ALL), PORT, false);
+        Server server = new Server(getPath(MAP_DATA_ALL), PORT, true);
         Thread threadServer = new Thread(server::start);
         threadServer.start();
         return server;
     }
 
     private static void changeMap(String path) throws IllegalArgumentException, Exception {
-        ServerCommandUpdateMapFile scmf = new ServerCommandUpdateMapFile();
-        scmf.execute(server, "", path);
+
+        writeCommande(new StringBuilder(UPDATE_MAP_CMD).append(path).toString());
     }
 
     private static void changeTimeFile(String path) throws IllegalArgumentException, Exception {
-        ServerCommandUpdateTimeFile sctf = new ServerCommandUpdateTimeFile();
-        sctf.execute(server, "", path);
+        writeCommande(new StringBuilder(UPDATE_TIME_CMD).append(path).toString());
     }
 
     /**
@@ -135,7 +136,7 @@ public class ServerCommandTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testInitialSuggestionValue() throws IOException, IllegalArgumentException, IncorrectFileFormatException, ClassNotFoundException {
+    public void testConsoleInitialSuggestionValue() throws IOException, IllegalArgumentException, IncorrectFileFormatException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
         boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_1,1, chatelet);
@@ -154,7 +155,7 @@ public class ServerCommandTest {
     }
 
     @Test
-    public void testTimeBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
+    public void testConsoleTimeBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationTime nationTime = new StationTime("2", "Avron", new Time(6, 5, 0));
         boolean res = timeTest(clientSocket, TIME_REQUEST, 0, nationTime);
@@ -164,7 +165,7 @@ public class ServerCommandTest {
 
     @Test 
     @Timeout(DEFAULT_TIMEOUT)
-    void testTimeAfterChange() throws Exception {
+    void testConsoleTimeAfterChange() throws Exception {
 
         changeTimeFile(getPath(TIME_DATA));
 
@@ -177,7 +178,7 @@ public class ServerCommandTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testSuggestionValueAftereChange() throws Exception {
+    public void testConsoleSuggestionValueAftereChange() throws Exception {
         changeMap(getPath(MAP_DATA_DUMMY));
 
         Socket clientSocket = new Socket(HOST, PORT);
@@ -188,3 +189,4 @@ public class ServerCommandTest {
     }    
     
 }
+

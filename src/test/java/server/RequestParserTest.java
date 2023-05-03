@@ -1,4 +1,4 @@
-package app.server;
+package server;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -6,12 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import server.RequestParser;
-import server.SearchPath;
-import server.SearchStation;
-import server.SearchTime;
-import server.ServerActionCallback;
 import server.RequestParser.ParsingException;
 import server.map.Plan;
 

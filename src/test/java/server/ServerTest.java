@@ -1,4 +1,4 @@
-package app.server;
+package server;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
@@ -10,8 +10,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import server.Server;
 import server.data.ErrorServer;
 import server.data.Route;
 import server.data.SuggestionStations;

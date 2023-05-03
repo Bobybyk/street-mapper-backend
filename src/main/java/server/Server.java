@@ -207,6 +207,10 @@ public class Server {
         return isRunning;
     }
 
+    public ServerConsole getServerConsole() {
+        return serverConsole;
+    }
+
     /**
      * Termine tous les threads en cours
      */

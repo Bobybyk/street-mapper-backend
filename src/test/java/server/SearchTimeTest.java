@@ -1,4 +1,4 @@
-package app.server;
+package server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -6,8 +6,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import server.SearchTime;
 import server.data.DepartureTimes;
 import server.data.StationTime;
 import server.map.Plan;

@@ -1,12 +1,10 @@
-package app.server;
+package server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import server.SearchPath;
 import server.data.ErrorServer;
 import server.data.Route;
 import server.map.Plan;

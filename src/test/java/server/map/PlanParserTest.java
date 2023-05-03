@@ -1,4 +1,4 @@
-package app.map;
+package server.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,11 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import server.map.Line;
-import server.map.Plan;
-import server.map.PlanParser;
-import server.map.Section;
 import server.map.PlanParser.InconsistentDataException;
 import server.map.PlanParser.IncorrectFileFormatException;
 

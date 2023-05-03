@@ -16,7 +16,7 @@ public final class Line {
     /**
      * La station n'est pas sur la ligne
      */
-    public static class StationNotFoundException extends Exception {
+    static class StationNotFoundException extends Exception {
         public StationNotFoundException(String station, String line, String variant) {
             super(String.format("La station %s n'est pas sur la ligne %s variant %s", station, line,
                     variant));
@@ -26,7 +26,7 @@ public final class Line {
     /**
      * Il y a différentes stations de départ sur la ligne
      */
-    public static class DifferentStartException extends Exception {
+    static class DifferentStartException extends Exception {
         public DifferentStartException(String line, String variant, String s1, String s2) {
             super(String.format(
                     "Il y plusieurs stations de départ pour la ligne %s variant %s : %s et %s",

@@ -54,7 +54,7 @@ class ServerConsole implements Runnable {
         System.out.flush();
     }
 
-    private void dispatchFromInput(String line) {
+    void dispatchFromInput(String line) {
         String[] args = line.split(argsSplitter);
 
         if (args.length == 0) {

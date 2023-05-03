@@ -1,4 +1,4 @@
-package app.map;
+package server.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -7,11 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-
-import server.map.Line;
-import server.map.Section;
-import server.map.Station;
-import server.map.Time;
 import server.map.Line.DifferentStartException;
 import server.map.Line.StationNotFoundException;
 
