@@ -7,12 +7,12 @@ import app.map.Section;
 
 
 /**
- * Class route qui represente le trajet pris par l'utilisateur
+ * Classe représentant le trajet pris par l'utilisateur
  */
 public class Route implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 3L;
+    private static final long serialVersionUID = 4L;
 
     private final List<Section> pathDistOpt;
 

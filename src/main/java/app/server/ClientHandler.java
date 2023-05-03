@@ -9,8 +9,8 @@ import java.net.Socket;
 import app.server.data.ErrorServer;
 
 /**
- * Classe réprésentant les réponses du server. Actuellement le server réagit à un mot clef lu dans
- * la chaine de caractèrere envoyé par le client et agit en conséquence.
+ * Classe représentant la gestion des requêtes avec le client. Actuellement le server réagit à un
+ * mot clef lu dans la chaîne de caractère envoyée par le client et agit en conséquence.
  */
 class ClientHandler implements Runnable {
     /**
@@ -34,7 +34,7 @@ class ClientHandler implements Runnable {
     /**
      * Forme un message d'erreur
      *
-     * @param reason Message decrivant le message l'erreur
+     * @param reason Message décrivant le message l'erreur
      * @return
      */
     private static String errorMessageFormat(String reason) {
@@ -42,9 +42,9 @@ class ClientHandler implements Runnable {
     }
 
     /**
-     * Cree un {@code ErrorServer} en formattant {@code reason}
+     * Crée un {@code ErrorServer} en formatant {@code reason}
      *
-     * @param reason Message decrivant le message l'erreur
+     * @param reason Message décrivant le message l'erreur
      *
      * @see #errorMessageFormat()
      */
@@ -61,22 +61,15 @@ class ClientHandler implements Runnable {
     private Serializable handleClient() throws IOException {
         BufferedReader in = new BufferedReader(clientInputStreamReader);
         String message = in.readLine();
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         if (message == null)
             return serverErrorFormatted("Message est null");
-
         return handleLine(message);
     }
 
     /**
-     * Execute l'action en fonction requête lu dans la chaine de caractère
+     * Execute l'action en fonction de la requête lu dans la chaîne de caractère
      *
-     * @param clientLine Ligne (chaine de caractere) lue dans le sockets
+     * @param clientLine Ligne (chaîne de caractère) lue dans le sockets
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
      *         socket
      */

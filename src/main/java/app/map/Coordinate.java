@@ -8,16 +8,35 @@ import java.util.Objects;
  * Coordonnée GPS en degrés décimaux
  */
 public class Coordinate implements Serializable {
-    private final double latitude;
-    private final double longitude;
-    private final double latitudeR;
-    private final double longitudeR;
-
-    private static final int EARTH_RADIUS = 6_371_000;
 
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
+    /**
+     * La latitude de la coordonnée en degrés décimaux
+     */
+    private final double latitude;
+    /**
+     * La longitude de la coordonnée en degrés décimaux
+     */
+    private final double longitude;
+    /**
+     * La latitude de la coordonnée en degrés radian
+     */
+    private final double latitudeR;
+    /**
+     * La longitude de la coordonnée en degrés radian
+     */
+    private final double longitudeR;
+    /**
+     * Le rayon de la terre
+     */
+    private static final int EARTH_RADIUS = 6_371_000;
+
+    /**
+     * @param latitude la latitude de la coordonnée en degrés radian
+     * @param longitude la longitude de la coordonnée en degrés radian
+     */
     public Coordinate(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
@@ -40,7 +59,7 @@ public class Coordinate implements Serializable {
 
     /**
      * @param c une coordonnée
-     * @return la distance entre deux coordonnées en mètre
+     * @return la distance en mètre avec la coordonnée {@code c}
      */
     public int getDistance(Coordinate c) {
         double x = Math.sin(latitudeR) * Math.sin(c.latitudeR);

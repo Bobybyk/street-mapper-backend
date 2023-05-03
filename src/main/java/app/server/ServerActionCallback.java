@@ -1,21 +1,18 @@
 package app.server;
 
-import java.io.IOException;
 import java.io.Serializable;
 
 /**
- * l'Interface {@code ServerActionCallback} doit être implémenté par l'importe quel objet dont la
- * volonté est de communiqué avec le client
+ * L'Interface {@code ServerActionCallback} doit être implémenté par n'importe quel objet dont la
+ * volonté est de traiter une requête
  */
 @FunctionalInterface
 public interface ServerActionCallback {
 
     /**
+     * Le traitement de la requête
      *
-     * @param args arguments lus dans le sockets
-     * @return L'objet {@code Serializable} à renvoyer au client
-     * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
-     *         socket
+     * @return l'objet {@code Serializable} à renvoyer au client
      */
-    public Serializable execute() throws IOException;
+    public Serializable execute();
 }

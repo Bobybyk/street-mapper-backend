@@ -8,21 +8,32 @@ import java.util.Objects;
  * Classe représentant une station, avec un nom et ses coordonnées
  */
 public class Station implements Serializable {
-    private final String name;
-    private final Coordinate coordinate;
 
+    @Serial
+    private static final long serialVersionUID = 5L;
+
+    /**
+     * Le nom de la station
+     */
+    private final String name;
+    /**
+     * Les coordonnées de la stations
+     */
+    private final Coordinate coordinate;
     /**
      * Vitesse de marche à pied en mètre par seconde
      */
     private static final double WALKING_SPEED = 1.2;
 
+    /**
+     * @param name le nom de la station
+     * @param latitude la latitude de la coordonnée en degrés décimaux
+     * @param longitude la longitude de la coordonnée en degrés décimaux
+     */
     public Station(String name, double latitude, double longitude) {
         this.name = name;
         this.coordinate = new Coordinate(latitude, longitude);
     }
-
-    @Serial
-    private static final long serialVersionUID = 4L;
 
     public String getName() {
         return name;
@@ -39,7 +50,7 @@ public class Station implements Serializable {
 
     /**
      * @param station une station
-     * @return la distance en mètre pour arriver à station
+     * @return la distance en mètre pour arriver à {@code station}
      */
     public int distanceBetween(Station station) {
         return getCoordinate().getDistance(station.getCoordinate());
@@ -47,7 +58,7 @@ public class Station implements Serializable {
 
     /**
      * @param station une station
-     * @return le temps en seconde pour arriver à station en marchant
+     * @return le temps en seconde pour arriver à {@code station} en marchant
      */
     public int durationBetween(Station station) {
         return (int) Math.round(distanceBetween(station) / WALKING_SPEED);
