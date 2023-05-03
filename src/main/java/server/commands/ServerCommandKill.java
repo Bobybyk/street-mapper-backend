@@ -7,9 +7,10 @@ import server.Server;
 
 public class ServerCommandKill implements ServerCommand {
 
+    private final String description = "arrête le serveur";
     @Override
     public String getdescription() {
-        return "arrête le serveur";
+        return description;
     }
 
     @Override

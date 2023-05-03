@@ -140,7 +140,8 @@ public final class Plan {
         Section section = new Section(start, arrival, lineName, null, distance, duration);
         map.get(start.getName()).add(section);
         Line line = lines.computeIfAbsent(lineName, n -> {
-            String[] lineVariant = n.split(" ");
+            String argsSpltter = " ";
+            String[] lineVariant = n.split(argsSpltter);
             String name = lineVariant[0];
             String variant = lineVariant[2];
             return new Line(name, variant);

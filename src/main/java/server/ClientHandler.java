@@ -15,6 +15,8 @@ import util.Logger;
  * mot clef lu dans la chaîne de caractère envoyée par le client et agit en conséquence.
  */
 class ClientHandler implements Runnable {
+
+    private static final String MESSAGE_NULL_ARGS = "Message est null";
     /**
      * Socket du client permettant de lui envoyé la réponse
      */
@@ -70,7 +72,7 @@ class ClientHandler implements Runnable {
         BufferedReader in = new BufferedReader(clientInputStreamReader);
         String message = in.readLine();
         if (message == null)
-            return serverErrorFormatted("Message est null");
+            return serverErrorFormatted(MESSAGE_NULL_ARGS);
         return handleLine(message);
     }
 

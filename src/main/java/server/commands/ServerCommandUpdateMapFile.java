@@ -6,10 +6,12 @@ import java.util.List;
 import server.Server;
 
 public class ServerCommandUpdateMapFile implements ServerCommand {
-
+    
+    private final String description = "change le ficher de plan";
+    
     @Override
     public String getdescription() {
-        return "commande permettant de changer le ficher de plan";
+        return description;
     }
 
     @Override
