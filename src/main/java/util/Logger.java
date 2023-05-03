@@ -4,7 +4,7 @@ import java.io.PrintStream;
 /**
  * Classe permettant d'afficher des messages sur les sorties standards
  */
-public class Logger {
+public final class Logger {
 
     private static boolean isEnable = true;
 
@@ -14,6 +14,10 @@ public class Logger {
 
     public static synchronized void disable() {
         isEnable = false;
+    }
+
+    public static boolean isEnable() {
+        return isEnable;
     }
 
     /**

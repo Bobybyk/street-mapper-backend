@@ -16,7 +16,14 @@ public class AppTest {
     @Test
     @Timeout(value = TIMEOUT)
     public void testArgOk() {
-        String[] strings = {"ROUTE", "JAURES", "OURQ"};
+        String[] strings = {"ROUTE", "JAURES"};
+        assertTrue(App.argsIsOk(strings));
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    public void testArgOk1() {
+        String[] strings = {"ROUTE"};
         assertTrue(App.argsIsOk(strings));
     }
 
@@ -32,6 +39,13 @@ public class AppTest {
     public void testNotArgOkNoArgument() {
         String[] strings = {};
         assertFalse(App.argsIsOk(strings));
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    public void testHasCsvTimeFile() {
+        String[] args = {"", ""};
+        assertTrue(App.hasCsvTimeFile(args));
     }
 
 

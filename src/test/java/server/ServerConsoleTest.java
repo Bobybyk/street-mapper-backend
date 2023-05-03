@@ -26,14 +26,12 @@ import server.map.PlanParser.IncorrectFileFormatException;
 public class ServerConsoleTest {
     private static Server server = null;
     private static final String HOST = "localhost";
-    private static final int PORT = 12345;
+    private static final int PORT = 12346;
     private static final String MAP_DATA_ALL = "map_data_all";
-    private static final String MAP_DATA_DUMMY = "map_data_dummy";
     private static final String TIME_DATA = "time_data_all";
     private static final String SUGGESTION_REQUEST_1 = "SEARCH;Chatelet;ARRIVAL";
     private static final String SUGGESTION_REQUEST_2 = "SEARCH;stationA;ARRIVAL";
     private static final String TIME_REQUEST = "TIME;Avron;6:00";
-    private static final String UPDATE_MAP_CMD = "update-map ";
     private static final String UPDATE_TIME_CMD = "update-time ";
     private static final int DEFAULT_TIMEOUT = 2000;
 
@@ -79,11 +77,6 @@ public class ServerConsoleTest {
         Thread threadServer = new Thread(server::start);
         threadServer.start();
         return server;
-    }
-
-    private static void changeMap(String path) throws IllegalArgumentException, Exception {
-
-        writeCommande(new StringBuilder(UPDATE_MAP_CMD).append(path).toString());
     }
 
     private static void changeTimeFile(String path) throws IllegalArgumentException, Exception {
@@ -155,6 +148,7 @@ public class ServerConsoleTest {
     }
 
     @Test
+    @Timeout(DEFAULT_TIMEOUT)
     public void testConsoleTimeBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationTime nationTime = new StationTime("2", "Avron", new Time(6, 5, 0));
@@ -174,19 +168,6 @@ public class ServerConsoleTest {
         boolean res = timeTest(clientSocket, TIME_REQUEST, 0, nationTime);
         clientSocket.close();
         assertTrue(res);
-    }
-
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
-    public void testConsoleSuggestionValueAftereChange() throws Exception {
-        changeMap(getPath(MAP_DATA_DUMMY));
-
-        Socket clientSocket = new Socket(HOST, PORT);
-        StationInfo stationA = createStationInfo("stationA", "random");
-        boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_2, 1, stationA);
-        clientSocket.close();
-        assertTrue(res);
     }    
-    
 }
 

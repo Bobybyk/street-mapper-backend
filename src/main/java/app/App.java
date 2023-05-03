@@ -64,11 +64,11 @@ public class App {
      * @return boolean
      */
     public static boolean argsIsOk(String[] args) {
-        return !(args.length < 1 || args.length > 4);
+        return !(args.length < 1 || args.length > 3);
     }
 
     public static boolean hasCsvTimeFile(String[] args) {
-        return args.length == 3;
+        return args.length == 2;
     }
 
     private static boolean isCVSFileOk(File mapFile) {

@@ -1,6 +1,7 @@
 package server;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -16,6 +17,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+
+import server.commands.ServerCommandDebug;
 import server.commands.ServerCommandUpdateMapFile;
 import server.commands.ServerCommandUpdateTimeFile;
 import server.data.DepartureTimes;
@@ -24,6 +27,7 @@ import server.data.SuggestionStations;
 import server.map.StationInfo;
 import server.map.Time;
 import server.map.PlanParser.IncorrectFileFormatException;
+import util.Logger;
 
 public class ServerCommandTest {
     private static Server server = null;
@@ -36,6 +40,7 @@ public class ServerCommandTest {
     private static final String SUGGESTION_REQUEST_2 = "SEARCH;stationA;ARRIVAL";
     private static final String TIME_REQUEST = "TIME;Avron;6:00";
     private static final int DEFAULT_TIMEOUT = 2000;
+    private static boolean isLoggerEnable;
 
 
     public static StationInfo createStationInfo(String stationName, String... lines) {
@@ -45,10 +50,16 @@ public class ServerCommandTest {
     @BeforeAll
     static void init() throws IOException, IllegalArgumentException, IncorrectFileFormatException {
         server = initServer();
+        isLoggerEnable = Logger.isEnable();
     }
 
     @AfterAll
     static void close() {
+        if (isLoggerEnable) {
+            Logger.enable();
+        } else {
+            Logger.disable();
+        }
         try {
             server.stop();
         } catch (IOException e) {
@@ -85,6 +96,11 @@ public class ServerCommandTest {
     private static void changeTimeFile(String path) throws IllegalArgumentException, Exception {
         ServerCommandUpdateTimeFile sctf = new ServerCommandUpdateTimeFile();
         sctf.execute(server, "", path);
+    }
+
+    private static void changeLoggerState(boolean enable) throws IllegalArgumentException, Exception {
+        ServerCommandDebug debug = new ServerCommandDebug();
+        debug.execute(server, "", enable ? "1" : "0" );
     }
 
     /**
@@ -159,6 +175,45 @@ public class ServerCommandTest {
         clientSocket.close();
         assertFalse(res);
     }
+
+    @Test 
+    @Timeout(DEFAULT_TIMEOUT)
+    void testWrongMapCommandFormat() throws Exception {
+        ServerCommandUpdateMapFile scmf = new ServerCommandUpdateMapFile();
+        assertThrows(IllegalArgumentException.class, () -> scmf.execute(server)
+        , "ServerCommandUpdateMapFile wrong argument");
+    }
+
+    @Test 
+    @Timeout(DEFAULT_TIMEOUT)
+    void testWrongTimeCommandFormat() throws Exception {
+        ServerCommandUpdateTimeFile scmf = new ServerCommandUpdateTimeFile();
+        assertThrows(IllegalArgumentException.class, () -> scmf.execute(server)
+        , "ServerCommandUpdateTimeFile wrong argument");
+    }
+
+    @Test 
+    @Timeout(DEFAULT_TIMEOUT)
+    void testEnableLogger() throws Exception {
+        changeLoggerState(true);
+        assertTrue(Logger.isEnable());
+    }
+
+    @Test 
+    @Timeout(DEFAULT_TIMEOUT)
+    void testDisableLogger() throws Exception {
+        changeLoggerState(false);
+        assertFalse(Logger.isEnable());
+    }
+
+    @Test 
+    @Timeout(DEFAULT_TIMEOUT)
+    void testWrongDebugCommandFormat() throws Exception {
+        ServerCommandDebug scmf = new ServerCommandDebug();
+        assertThrows(IllegalArgumentException.class, () -> scmf.execute(server)
+        , "ServerCommandUpdateTimeFile wrong argument");
+    }
+
 
     @Test 
     @Timeout(DEFAULT_TIMEOUT)
