@@ -17,7 +17,7 @@ public class Station implements Serializable {
      */
     private final String name;
     /**
-     * Les coordonnées de la stations
+     * Les coordonnées de la station
      */
     private final Coordinate coordinate;
     /**

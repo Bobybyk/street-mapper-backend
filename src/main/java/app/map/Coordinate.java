@@ -21,11 +21,11 @@ public class Coordinate implements Serializable {
      */
     private final double longitude;
     /**
-     * La latitude de la coordonnée en degrés radian
+     * La latitude de la coordonnée en radian
      */
     private final double latitudeR;
     /**
-     * La longitude de la coordonnée en degrés radian
+     * La longitude de la coordonnée en radian
      */
     private final double longitudeR;
     /**
@@ -34,8 +34,8 @@ public class Coordinate implements Serializable {
     private static final int EARTH_RADIUS = 6_371_000;
 
     /**
-     * @param latitude la latitude de la coordonnée en degrés radian
-     * @param longitude la longitude de la coordonnée en degrés radian
+     * @param latitude la latitude de la coordonnée en degrés décimaux
+     * @param longitude la longitude de la coordonnée en degrés décimaux
      */
     public Coordinate(double latitude, double longitude) {
         this.latitude = latitude;

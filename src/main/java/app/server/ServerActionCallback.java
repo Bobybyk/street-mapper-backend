@@ -3,7 +3,7 @@ package app.server;
 import java.io.Serializable;
 
 /**
- * L'Interface {@code ServerActionCallback} doit être implémenté par n'importe quel objet dont la
+ * L'Interface {@code ServerActionCallback} doit être implémentée par n'importe quel objet dont la
  * volonté est de traiter une requête
  */
 @FunctionalInterface

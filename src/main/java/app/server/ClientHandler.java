@@ -44,7 +44,7 @@ class ClientHandler implements Runnable {
     /**
      * Crée un {@code ErrorServer} en formatant {@code reason}
      *
-     * @param reason Message décrivant le message l'erreur
+     * @param reason Message décrivant le message d'erreur
      *
      * @see #errorMessageFormat()
      */
@@ -67,9 +67,9 @@ class ClientHandler implements Runnable {
     }
 
     /**
-     * Execute l'action en fonction de la requête lu dans la chaîne de caractère
+     * Execute l'action en fonction de la requête lue dans la chaîne de caractère
      *
-     * @param clientLine Ligne (chaîne de caractère) lue dans le sockets
+     * @param clientLine Ligne (chaîne de caractère) lue dans le socket
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
      *         socket
      */
