@@ -5,12 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import app.map.Plan;
-import app.map.PlanParser;
-import app.map.Section;
-import app.map.Time;
-import app.server.data.ErrorServer;
-import app.server.data.Route;
+
+import server.SearchPath;
+import server.data.ErrorServer;
+import server.data.Route;
+import server.map.Plan;
+import server.map.PlanParser;
+import server.map.Section;
+import server.map.Time;
 
 public class SearchPathTest {
     private static final int DEFAULT_TIMEOUT = 2000;

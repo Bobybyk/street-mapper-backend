@@ -5,6 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import server.map.Plan;
+import server.map.PlanParser;
+import server.map.Section;
+import server.map.Station;
+import server.map.Time;
+
 public class PlanTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;

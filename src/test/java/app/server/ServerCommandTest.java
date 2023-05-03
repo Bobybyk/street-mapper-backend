@@ -17,14 +17,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import app.map.StationInfo;
-import app.map.Time;
-import app.map.PlanParser.IncorrectFileFormatException;
-import app.server.commands.ServerCommandUpdateMapFile;
-import app.server.commands.ServerCommandUpdateTimeFile;
-import app.server.data.DepartureTimes;
-import app.server.data.StationTime;
-import app.server.data.SuggestionStations;
+import server.Server;
+import server.commands.ServerCommandUpdateMapFile;
+import server.commands.ServerCommandUpdateTimeFile;
+import server.data.DepartureTimes;
+import server.data.StationTime;
+import server.data.SuggestionStations;
+import server.map.StationInfo;
+import server.map.Time;
+import server.map.PlanParser.IncorrectFileFormatException;
 
 public class ServerCommandTest {
     private static Server server = null;

@@ -6,10 +6,11 @@ package app;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import app.map.PlanParser;
-import app.map.PlanParser.InconsistentDataException;
-import app.server.Server;
-import app.util.Logger;
+
+import server.Server;
+import server.map.PlanParser;
+import server.map.PlanParser.InconsistentDataException;
+import util.Logger;
 
 public class App {
 

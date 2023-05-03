@@ -11,6 +11,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import server.map.Section;
+import server.map.Station;
+import server.map.Time;
+
 public class SectionTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;

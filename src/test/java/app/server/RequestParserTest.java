@@ -7,8 +7,13 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import app.map.Plan;
-import app.server.RequestParser.ParsingException;
+import server.RequestParser;
+import server.SearchPath;
+import server.SearchStation;
+import server.SearchTime;
+import server.ServerActionCallback;
+import server.RequestParser.ParsingException;
+import server.map.Plan;
 
 public class RequestParserTest {
     private static final int DEFAULT_TIMEOUT = 2000;

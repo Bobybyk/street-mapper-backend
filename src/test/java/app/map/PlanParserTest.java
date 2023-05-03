@@ -11,8 +11,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import app.map.PlanParser.InconsistentDataException;
-import app.map.PlanParser.IncorrectFileFormatException;
+
+import server.map.Line;
+import server.map.Plan;
+import server.map.PlanParser;
+import server.map.Section;
+import server.map.PlanParser.InconsistentDataException;
+import server.map.PlanParser.IncorrectFileFormatException;
 
 public class PlanParserTest {
 

@@ -6,14 +6,16 @@ import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import app.map.PlanParser.IncorrectFileFormatException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import app.server.data.ErrorServer;
-import app.server.data.Route;
-import app.server.data.SuggestionStations;
+
+import server.Server;
+import server.data.ErrorServer;
+import server.data.Route;
+import server.data.SuggestionStations;
+import server.map.PlanParser.IncorrectFileFormatException;
 
 public class ServerTest {
 

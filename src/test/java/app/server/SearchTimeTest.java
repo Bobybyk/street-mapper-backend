@@ -6,11 +6,13 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import app.map.Plan;
-import app.map.PlanParser;
-import app.map.Time;
-import app.server.data.DepartureTimes;
-import app.server.data.StationTime;
+
+import server.SearchTime;
+import server.data.DepartureTimes;
+import server.data.StationTime;
+import server.map.Plan;
+import server.map.PlanParser;
+import server.map.Time;
 
 public class SearchTimeTest {
     private static final int DEFAULT_TIMEOUT = 2000;

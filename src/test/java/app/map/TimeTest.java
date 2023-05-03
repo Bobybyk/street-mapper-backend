@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import server.map.Time;
+
 public class TimeTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;

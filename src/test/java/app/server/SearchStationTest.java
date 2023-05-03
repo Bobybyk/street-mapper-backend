@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Timeout;
-
-import app.map.StationInfo;
-import app.server.data.SuggestionStations.SuggestionKind;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import app.map.PlanParser;
-import app.server.data.SuggestionStations;
+
+import server.SearchStation;
+import server.data.SuggestionStations;
+import server.data.SuggestionStations.SuggestionKind;
+import server.map.PlanParser;
+import server.map.StationInfo;
 
 public class SearchStationTest {
     private static final int DEFAULT_TIMEOUT = 2000;

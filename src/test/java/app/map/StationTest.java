@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
+import server.map.Station;
+
 public class StationTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
