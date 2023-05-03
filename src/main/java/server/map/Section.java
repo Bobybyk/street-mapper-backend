@@ -12,7 +12,7 @@ import java.util.Objects;
 public class Section implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 9L;
+    private static final long serialVersionUID = 10L;
 
     /**
      * La station de départ
