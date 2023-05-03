@@ -6,6 +6,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -69,6 +71,11 @@ public class Server {
      */
     private Plan plan;
 
+    /**
+     * liste des clients
+     */
+    private List<Socket> clients;
+
 
     /**
      * 
@@ -86,6 +93,7 @@ public class Server {
         this.serverConsole = withConsole ? new ServerConsole(this): null;
         this.consoleThread = withConsole ? new Thread(serverConsole): null;
         this.plan = plan;
+        this.clients = new ArrayList<>();
     }
 
     /**
@@ -149,6 +157,7 @@ public class Server {
         while ( isRunning ) {
             try {
                 Socket clientSocket = serverSocket.accept();
+                clients.add(clientSocket);
                 ClientHandler requestHandler = new ClientHandler(this, clientSocket);
                 threadPool.execute(requestHandler);
             } catch (SocketTimeoutException e) {
@@ -156,6 +165,12 @@ public class Server {
             } catch (IOException e) {
                 Logger.info("ioexception");
             }
+        }
+
+        try {
+            stop();
+        } catch (IOException e) {
+            Logger.error("Impossible de fermer le socket");
         }
     }
 
@@ -179,7 +194,9 @@ public class Server {
 
         tearDown();
         isRunning = false;
-        serverSocket.close();
+        if (!serverSocket.isClosed()) {
+            serverSocket.close();
+        }
     }
 
     /**
@@ -195,6 +212,7 @@ public class Server {
      */
     private void tearDown() {
         try {
+            closeSockets();
             stopConsole();
             if (!threadPool.awaitTermination(AWAIT_TIME_BEFORE_DYING, TimeUnit.SECONDS) ) {
                 threadPool.shutdownNow();
@@ -202,6 +220,20 @@ public class Server {
         } catch (InterruptedException e) {
             threadPool.shutdownNow();
             consoleThread.interrupt();
+        }
+    }
+
+    /**
+     * Ferme tous les sockets des clients
+     */
+    private void closeSockets() {
+        for (Socket socket : clients) {
+            try {
+                if (!socket.isClosed())
+                    socket.close();
+            } catch (IOException e) {
+                Logger.error("Arrive lors de la fermeture d'un socket");
+            }
         }
     }
 
