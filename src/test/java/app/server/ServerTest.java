@@ -46,14 +46,10 @@ public class ServerTest {
     }
 
     @BeforeAll
-    static void init() {
-        try {
-            server = initServer();
-            clientSocket = new Socket(HOST, PORT);
-            out = new PrintWriter(clientSocket.getOutputStream());
-        } catch (IOException | IllegalArgumentException | IncorrectFileFormatException e) {
-            System.out.println("Erreur Test init socket / serveur ");
-        }
+    static void init() throws IOException, IllegalArgumentException, IncorrectFileFormatException {
+        server = initServer();
+        clientSocket = new Socket(HOST, PORT);
+        out = new PrintWriter(clientSocket.getOutputStream());
     }
 
     @AfterAll

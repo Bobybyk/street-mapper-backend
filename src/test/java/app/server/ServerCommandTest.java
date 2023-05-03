@@ -20,6 +20,8 @@ import org.junit.jupiter.api.Timeout;
 import app.map.StationInfo;
 import app.map.Time;
 import app.map.PlanParser.IncorrectFileFormatException;
+import app.server.commands.ServerCommandUpdateMapFile;
+import app.server.commands.ServerCommandUpdateTimeFile;
 import app.server.data.DepartureTimes;
 import app.server.data.StationTime;
 import app.server.data.SuggestionStations;
@@ -42,12 +44,8 @@ public class ServerCommandTest {
     }
 
     @BeforeAll
-    static void init() {
-        try {
-            server = initServer();
-        } catch (IOException | IllegalArgumentException | IncorrectFileFormatException e) {
-            System.out.println("Erreur Test init socket / serveur ");
-        }
+    static void init() throws IOException, IllegalArgumentException, IncorrectFileFormatException {
+        server = initServer();
     }
 
     @AfterAll

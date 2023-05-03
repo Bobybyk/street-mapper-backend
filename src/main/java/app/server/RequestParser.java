@@ -6,7 +6,6 @@ import app.map.Time;
 import app.server.data.SuggestionStations.SuggestionKind;
 import app.util.Logger;
 import app.util.Parser;
-import app.util.Logger.Type;
 
 /**
  * Parser de requêtes du client
@@ -99,17 +98,17 @@ public class RequestParser {
         if ((inputArgs.length != 5 && inputArgs.length != 6) || inputArgs[1].isBlank()
                 || inputArgs[2].isBlank() || inputArgs[3].isBlank()) {
             String message = "Départ ou arrivée ou temps manquant.";
-            Logger.logln(Type.ERROR, message);
+            Logger.error(message);
             throw new ParsingException(message);
         } else {
-            Logger.logln(Type.INFO, "TRAJET");
+            Logger.info("TRAJET");
             String start = inputArgs[1].trim();
             String arrival = inputArgs[2].trim();
             try {
                 int[] time = Parser.parse2IntSep(inputArgs[3], ":");
                 boolean distOpt = !inputArgs[4].trim().equals(TIME_KEY);
                 boolean foot = inputArgs.length == 6 && inputArgs[5].trim().equals(FOOT_KEY);
-                return new SearchPath(plan.resetLinesSections(), start, arrival,
+                return new SearchPath(new Plan(plan), start, arrival,
                 new Time(time[0], time[1]), distOpt, foot);
             } catch (Exception e) {
                 throw new ParsingException("Time mal formé");
@@ -128,7 +127,7 @@ public class RequestParser {
             throws ParsingException {
         if (inputArgs.length != 3 || inputArgs[1].isBlank()) {
             String message = "Station manquante ou vide";
-            Logger.logln(Type.ERROR, message);
+            Logger.error(message);
             throw new ParsingException(message);
         }
 
@@ -152,7 +151,7 @@ public class RequestParser {
             throws ParsingException {
         if (inputArgs.length != 3 || inputArgs[1].isBlank() || inputArgs[2].isBlank()) {
             String message = "Station ou horaire manquant";
-            Logger.log(Type.ERROR, message);
+            Logger.error(message);
             throw new ParsingException(message);
         }
         String station = inputArgs[1].trim();

@@ -15,7 +15,6 @@ import app.map.PlanParser;
 import app.map.PlanParser.InconsistentDataException;
 import app.map.PlanParser.IncorrectFileFormatException;
 import app.util.Logger;
-import app.util.Logger.Type;
 
 
 /**
@@ -147,19 +146,17 @@ public class Server {
     public void start() {
         isRunning = true;
         startConsole();
-        while ( isRunning() ) {
+        while ( isRunning ) {
             try {
                 Socket clientSocket = serverSocket.accept();
                 ClientHandler requestHandler = new ClientHandler(this, clientSocket);
                 threadPool.execute(requestHandler);
             } catch (SocketTimeoutException e) {
-                Logger.logln(Type.INFO, "timeout");
+                Logger.info("timeout");
             } catch (IOException e) {
-                Logger.logln(Type.INFO, "ioexception");
+                Logger.info("ioexception");
             }
         }
-
-        tearDown();
     }
 
     private void startConsole() {
@@ -169,17 +166,20 @@ public class Server {
     }
 
     private void stopConsole() throws InterruptedException {
-        if (consoleThread != null)
+        if (consoleThread != null) {
+            serverConsole.stop();
             consoleThread.join(AWAIT_TIME_BEFORE_DYING);
-
+        }
     }
 
     /**
      * Arrete le server
      */
-    void stop() throws IOException {
-        serverSocket.close();
+    public void stop() throws IOException {
+
+        tearDown();
         isRunning = false;
+        serverSocket.close();
     }
 
     /**
@@ -225,9 +225,9 @@ public class Server {
     /**
      * Met à jour le time du plan du server
      * @param pathTimeFile chemin vers le ficher de temps
-         * @throws InconsistentDataException
-         * @throws IncorrectFileFormatException
-         * @throws FileNotFoundException
+     * @throws InconsistentDataException
+     * @throws IncorrectFileFormatException
+     * @throws FileNotFoundException
      */
     public void updateTime(String pathTimeFile) throws FileNotFoundException, IncorrectFileFormatException, InconsistentDataException {
        Plan p = getPlan().resetLinesSections();

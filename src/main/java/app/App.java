@@ -10,7 +10,6 @@ import app.map.PlanParser;
 import app.map.PlanParser.InconsistentDataException;
 import app.server.Server;
 import app.util.Logger;
-import app.util.Logger.Type;
 
 public class App {
 
@@ -19,22 +18,22 @@ public class App {
     /**
      * Commentaire d'erreur en static pour la gestion de fichier
      */
-    private final static String errorIllegalArgument =
+    private final static String ERROR_ILLEGAL_ARGUMENT =
             "Arguments invalides. Arguments Attendus : java App <file>";
-    private final static String errorFileNotExist =
+    private final static String ERROR_FILE_NOT_EXIST =
             "Fichier introuvable ou est un repertoire";
-    private final static String errorIncorrectFile = "Le fichier est incorrect ";
-    private final static String errorServeurStart = "Le serveur n'a pas demarré";
+    private final static String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
+    private final static String ERROR_SERVER_START = "Le serveur n'a pas demarré";
     
     public static void main(String[] args) {
         if (!argsIsOk(args)) {
-            Logger.logln(Type.ERROR, errorIllegalArgument);
+            Logger.error(ERROR_ILLEGAL_ARGUMENT);
             return;
         }
 
         final File mapFile = new File(args[0]);
         if (!isCVSFileOk(mapFile)) {
-            Logger.logln(Type.ERROR, errorFileNotExist);
+            Logger.error(ERROR_FILE_NOT_EXIST);
             return;
         }
         
@@ -46,13 +45,13 @@ public class App {
             
             server.start();
         } catch (FileNotFoundException e) {
-            Logger.logln(Type.ERROR, errorFileNotExist);;
+            Logger.error(ERROR_FILE_NOT_EXIST);;
         } catch (PlanParser.IncorrectFileFormatException e) {
-            Logger.logln(Type.ERROR, errorIncorrectFile);
+            Logger.error(ERROR_INCORRECT_FILE);
         } catch (IOException e) {
-            Logger.logln(Type.ERROR, errorServeurStart);
+            Logger.error(ERROR_SERVER_START);
         } catch (InconsistentDataException e) {
-            Logger.logln(Type.ERROR, e.getMessage());
+            Logger.error(e.getMessage());
         }  
     }
 

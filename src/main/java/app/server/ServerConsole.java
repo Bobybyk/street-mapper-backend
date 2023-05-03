@@ -6,6 +6,11 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import app.server.commands.ServerCommand;
+import app.server.commands.ServerCommandKill;
+import app.server.commands.ServerCommandUpdateMapFile;
+import app.server.commands.ServerCommandUpdateTimeFile;
+
 class ServerConsole implements Runnable {
 
     static final String argsSplitter = " ";
@@ -13,6 +18,7 @@ class ServerConsole implements Runnable {
 
     static final String UPDATE_MAP_NAME = "update-map";
     static final String UPDATE_TIME_NAME = "update-time";
+    static final String KILL_NAME = "kill";
 
     static final String COMMAND_BORDER = "\n////////////////////////////////////////////////////////////\n";
     static final String SERVER_COMMAND_NAME = "TrainGo server terminal";
@@ -20,7 +26,8 @@ class ServerConsole implements Runnable {
     public final Map<String, ServerCommand> commands = 
         Map.of(
             UPDATE_MAP_NAME, new ServerCommandUpdateMapFile(),
-            UPDATE_TIME_NAME, new ServerCommandUpdateTimeFile()
+            UPDATE_TIME_NAME, new ServerCommandUpdateTimeFile(),
+            KILL_NAME, new ServerCommandKill()
         );
 
     private boolean isRunning;
@@ -93,6 +100,10 @@ class ServerConsole implements Runnable {
 
     private void displayPrompt() {
         write(PROMPT);
+    }
+
+    public synchronized void stop() {
+        isRunning = false;
     }
 
     @Override

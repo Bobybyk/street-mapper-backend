@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.net.Socket;
 import app.server.data.ErrorServer;
 import app.util.Logger;
-import app.util.Logger.Type;
 
 /**
  * Classe représentant la gestion des requêtes avec le client. Actuellement le server réagit à un
@@ -105,7 +104,7 @@ class ClientHandler implements Runnable {
             try {
                 clientSocket.close();
             } catch (IOException ignore) {
-                Logger.logln(Type.INFO, ignore.getMessage());
+                Logger.info(ignore.getMessage());
             }
         }
     }

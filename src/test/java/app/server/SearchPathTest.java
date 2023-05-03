@@ -89,8 +89,6 @@ public class SearchPathTest {
             PlanParser.addTimeFromCSV(map, getPath(TIME_DATA_ALL));
         Route route = (Route) new SearchPath(map, start, arrival, time, distOpt, foot).execute();
         List<Section> trajet = route.getPathDistOpt();
-        for (Section s : trajet)
-            System.out.println(s);
         assertEquals(nbLine, trajet.size(), String.format("%s to %s from %s with %s optimisation",
                 start, arrival, time, distOpt ? " distance" : "time"));
     }

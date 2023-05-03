@@ -6,6 +6,16 @@ import java.io.PrintStream;
  */
 public class Logger {
 
+    private static boolean isEnable = true;
+
+    public synchronized void enable() {
+        isEnable = true;
+    }
+
+    public synchronized void disable() {
+        isEnable = false;
+    }
+
     /**
      * Classe descrivant le type de log
      */
@@ -46,15 +56,19 @@ public class Logger {
 
     private static final String ASCII_RESET_COLOR = "\u001B[0m";
 
-    public static void log(Logger.Type type, String message) {
-        PrintStream stream = type.getPrintStream();
-        stream.printf("%s %s : %s %s", type.colorSequence, type.toString(), message, ASCII_RESET_COLOR);
-        stream.flush();
-    }
+    private static void log(Logger.Type type, String message) {
+        if (!isEnable) return;
 
-    public static void logln(Logger.Type type, String message) {
         PrintStream stream = type.getPrintStream();
         stream.printf("%s %s : %s %s\n", type.colorSequence, type.toString(), message, ASCII_RESET_COLOR);
         stream.flush();
+    }
+
+    public static void info(String message) {
+        log(Type.INFO, message);
+    }
+
+    public static void error(String message) {
+        log(Type.ERROR, message);
     }
 }
