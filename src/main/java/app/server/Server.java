@@ -82,7 +82,7 @@ public class Server {
     private Server(Plan plan, int port, boolean withConsole, int maxIncommingConnection, int poolSize) throws IOException {
         this.isRunning = false;
         this.threadPool = Executors.newFixedThreadPool(poolSize);
-        this.serverSocket = new ServerSocket(port, Math.abs(maxIncommingConnection));
+        this.serverSocket = new ServerSocket(port);
         this.serverConsole = withConsole ? new ServerConsole(this): null;
         this.consoleThread = withConsole ? new Thread(serverConsole): null;
         this.plan = plan;

@@ -8,11 +8,11 @@ public class Logger {
 
     private static boolean isEnable = true;
 
-    public synchronized void enable() {
+    public static synchronized void enable() {
         isEnable = true;
     }
 
-    public synchronized void disable() {
+    public static synchronized void disable() {
         isEnable = false;
     }
 
