@@ -3,7 +3,6 @@ package app.map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,23 +18,22 @@ public class TimeTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { -2, -1, 24, 25 })
+    @ValueSource(ints = {-2, -1, 24, 25})
     @Timeout(DEFAULT_TIMEOUT)
     public void illegalNumberOfHour(int hour) {
         illegalArgumentHelper(hour, 0, 0);
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { -2, -1, 60, 61 })
+    @ValueSource(ints = {-2, -1, 60, 61})
     @Timeout(DEFAULT_TIMEOUT)
     public void illegalNumberOfMinute(int minute) {
         illegalArgumentHelper(0, minute, 0);
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { -2, -1, 60, 61 })
+    @ValueSource(ints = {-2, -1, 60, 61})
     @Timeout(DEFAULT_TIMEOUT)
-
     public void illegalNumberOfSecond(int second) {
         illegalArgumentHelper(0, 0, second);
     }
@@ -48,11 +46,11 @@ public class TimeTest {
         assertNotEquals(t1, t2, "Add duration return a new instance");
     }
 
-    private void addDurationHelper(int hour1, int minute1, int second1, int duration, int hour2, int minute2,
-            int second2) {
+    private void addDurationHelper(int hour1, int minute1, int second1, int duration, int hour2,
+            int minute2, int second2) {
         Time t = new Time(hour1, minute1, second1).addDuration(duration);
         Time expected = new Time(hour2, minute2, second2);
-        assertEquals(expected, t, t + " add " + duration + " seconds");
+        assertEquals(expected, t, String.format("Add %d seconds to %s", duration, t));
     }
 
     @Test
@@ -107,5 +105,21 @@ public class TimeTest {
     @Timeout(DEFAULT_TIMEOUT)
     public void timeFromDurationHour() {
         timeFromDurationHelper(3700, 1, 1, 40);
+    }
+
+    private void durationToHelper(Time t1, Time t2, int duration) {
+        assertEquals(duration, t1.durationTo(t2), String.format("%s to %s", t1, t2));
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void durationToAfter() {
+        durationToHelper(new Time(14, 23), new Time(14, 24), 60);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void durationToBefore() {
+        durationToHelper(new Time(14, 23), new Time(14, 22), 86340);
     }
 }

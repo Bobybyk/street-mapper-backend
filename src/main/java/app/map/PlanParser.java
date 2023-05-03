@@ -4,12 +4,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import app.map.Line.DifferentStartException;
-import app.map.Line.StartStationNotFoundException;
+import app.map.Line.StationNotFoundException;
 import app.map.Plan.UndefinedLineException;
 import app.util.Parser;
 
+/**
+ * Parser de fichier CSV pour plan
+ */
 public final class PlanParser {
-
     /**
      * Exception pour un fichier mal formé
      */
@@ -104,8 +106,7 @@ public final class PlanParser {
             plan.updateSectionsTime();
         } catch (IndexOutOfBoundsException | IllegalArgumentException e) {
             throw new IncorrectFileFormatException(file.getName());
-        } catch (UndefinedLineException | StartStationNotFoundException
-                | DifferentStartException e) {
+        } catch (UndefinedLineException | StationNotFoundException | DifferentStartException e) {
             throw new InconsistentDataException(e.getMessage());
         }
     }
@@ -123,7 +124,7 @@ public final class PlanParser {
      */
     private static void handleTimeLine(Plan plan, String input)
             throws IndexOutOfBoundsException, NumberFormatException, UndefinedLineException,
-            StartStationNotFoundException, DifferentStartException, IllegalArgumentException {
+            StationNotFoundException, DifferentStartException, IllegalArgumentException {
         String[] data = input.split(";");
         String line = data[0].trim();
         String stationName = data[1].trim();

@@ -11,13 +11,35 @@ import app.map.Time;
 import app.server.data.DepartureTimes;
 import app.server.data.StationTime;
 
+/**
+ * Calcule les prochains horaires de passages à une certaine station
+ */
 public class SearchTime implements ServerActionCallback {
+    /**
+     * Le plan où chercher les horaires
+     */
     private final Plan map;
+    /**
+     * La station où chercher les horaires
+     */
     private final String station;
+    /**
+     * L'heure minimale
+     */
     private final Time time;
+    /**
+     * Le nombre d'horaires du résultat
+     */
     private static final int LIMIT = 20;
 
-    public SearchTime(Plan map, String station, Time time) {
+    /**
+     * @param map le plan où chercher les horaires
+     * @param station la station où chercher les horaires
+     * @param time l'heure minimale
+     * @throws IllegalArgumentException si {@code map}, {@code station} ou {@code time} est
+     *         {@code null}
+     */
+    public SearchTime(Plan map, String station, Time time) throws IllegalArgumentException {
         if (map == null || station == null || time == null)
             throw new IllegalArgumentException();
         this.map = map;
@@ -36,6 +58,9 @@ public class SearchTime implements ServerActionCallback {
         return new DepartureTimes(afterTime);
     }
 
+    /**
+     * @return la liste des horaires de départ {@code station}
+     */
     private List<StationTime> departuresFromStation() {
         List<StationTime> times = new ArrayList<>();
         List<Section> sectionsFromStation = map.getMap().get(station);

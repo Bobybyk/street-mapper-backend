@@ -6,11 +6,12 @@ import java.util.List;
 
 
 /**
- * Class StationTimeTable qui represente les horraires d'une station à partir d'une certaine heure
+ * Classe représentant les horaires d'une station à partir d'une certaine heure
  */
 public class DepartureTimes implements Serializable {
+
     @Serial
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = 3L;
 
     private final List<StationTime> times;
 
@@ -21,5 +22,4 @@ public class DepartureTimes implements Serializable {
     public List<StationTime> getTimes() {
         return times;
     }
-
 }

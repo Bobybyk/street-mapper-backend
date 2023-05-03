@@ -8,6 +8,9 @@ import app.util.Logger;
 import app.util.Parser;
 import app.util.Logger.Type;
 
+/**
+ * Parser de requêtes du client
+ */
 public class RequestParser {
 
     /**
@@ -34,7 +37,9 @@ public class RequestParser {
 
     private static final String FOOT_KEY = "FOOT";
 
-
+    /**
+     * La requête n'a pas le bon format
+     */
     static class ParsingException extends Exception {
         public ParsingException(String msg) {
             super(msg);
@@ -48,14 +53,28 @@ public class RequestParser {
         ServerActionCallback handle(Plan plan, String[] args) throws ParsingException;
     }
 
+    /**
+     * L'ensemble des requêtes reconnues associées à leur traitement
+     */
     private static final Map<String, Handler> handler =
             Map.of(ROUTE_KEY, RequestParser::handleRouteRequest, SEARCH_KEY,
                     RequestParser::handleSearchRequest, TIME_KEY, RequestParser::handleTimeRequest);
 
-
+    /**
+     * Parse le nom de la requête
+     *
+     * @param plan instance du plan sur laquelle effectuer les calculs
+     * @param args la requête
+     * @return le traitement de la requête
+     * @throws ParsingException si la requête n'a pas le bon format
+     */
     static ServerActionCallback getServerActionCallback(Plan plan, String args) throws ParsingException {
-        String[] splittedLine = args.split(CHAR_SPLITTER);
         ParsingException parsingException = new ParsingException("Requete non reconnu");
+
+        if (args == null)
+            throw parsingException;
+
+        String[] splittedLine = args.split(CHAR_SPLITTER);
 
         if (splittedLine.length == 0)
             throw parsingException;
@@ -69,34 +88,41 @@ public class RequestParser {
     }
 
     /**
-     * Gere la reponse du renvoie d'un trajet au client
+     * Parse une requête ROUTE
      *
-     * @param inputArgs entrée de l'utilisateur séparé par {@link RequestParser#charSplitter}
-     * @throws ParsingException
+     * @param inputArgs liste des arguments de la requête
+     * @return le traitement de la requête
+     * @throws ParsingException si la requête n'a pas le bon format
      */
     private static ServerActionCallback handleRouteRequest(Plan plan, String[] inputArgs)
             throws ParsingException {
-        if (inputArgs.length != 5 && inputArgs.length != 6) {
-            String message = "Trajet départ ou arrivé manquant.";
+        if ((inputArgs.length != 5 && inputArgs.length != 6) || inputArgs[1].isBlank()
+                || inputArgs[2].isBlank() || inputArgs[3].isBlank()) {
+            String message = "Départ ou arrivée ou temps manquant.";
             Logger.logln(Type.ERROR, message);
             throw new ParsingException(message);
         } else {
             Logger.logln(Type.INFO, "TRAJET");
-            String start = inputArgs[1];
-            String arrival = inputArgs[2];
-            int[] time = Parser.parse2IntSep(inputArgs[3], ":");
-            boolean distOpt = !inputArgs[4].equals(TIME_KEY);
-            boolean foot = inputArgs.length == 6 && inputArgs[5].equals(FOOT_KEY);
-            return new SearchPath(plan.resetLinesSections(), start, arrival,
-                    new Time(time[0], time[1]), distOpt, foot);
+            String start = inputArgs[1].trim();
+            String arrival = inputArgs[2].trim();
+            try {
+                int[] time = Parser.parse2IntSep(inputArgs[3], ":");
+                boolean distOpt = !inputArgs[4].trim().equals(TIME_KEY);
+                boolean foot = inputArgs.length == 6 && inputArgs[5].trim().equals(FOOT_KEY);
+                return new SearchPath(plan.resetLinesSections(), start, arrival,
+                new Time(time[0], time[1]), distOpt, foot);
+            } catch (Exception e) {
+                throw new ParsingException("Time mal formé");
+            }
         }
     }
 
     /**
-     * Gere la reponse du pour la sugestion de station en fonction du nom
+     * Parse une requête SEARCH
      *
-     * @param inputLine entrée de l'utilisateur séparé par {@link ClientHandler#charSplitter}
-     * @throws ParsingException
+     * @param inputArgs liste des arguments de la requête
+     * @return le traitement de la requête
+     * @throws ParsingException si la requête n'a pas le bon format
      */
     private static ServerActionCallback handleSearchRequest(Plan p, String[] inputArgs)
             throws ParsingException {
@@ -115,9 +141,16 @@ public class RequestParser {
         return new SearchStation(p.getStationsInfo(), stationToSearch, kind);
     }
 
+    /**
+     * Parse une requête TIME
+     *
+     * @param inputArgs liste des arguments de la requête
+     * @return le traitement de la requête
+     * @throws ParsingException si la requête n'a pas le bon format
+     */
     private static ServerActionCallback handleTimeRequest(Plan plan, String[] inputArgs)
             throws ParsingException {
-        if (inputArgs.length != 3 || inputArgs[1].isBlank()) {
+        if (inputArgs.length != 3 || inputArgs[1].isBlank() || inputArgs[2].isBlank()) {
             String message = "Station ou horaire manquant";
             Logger.log(Type.ERROR, message);
             throw new ParsingException(message);

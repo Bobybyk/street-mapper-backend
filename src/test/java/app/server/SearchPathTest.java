@@ -21,6 +21,31 @@ public class SearchPathTest {
 
     private static final String TIME_DATA_ALL = "time_data_all";
 
+    private void illegalArgumentHelper(Plan plan, String start, String arrival) {
+        assertThrows(IllegalArgumentException.class,
+                () -> new SearchPath(plan, start, arrival, null, true, false), "null value");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithNullStart() throws Exception {
+        Plan map = initMap(MAP_DATA);
+        illegalArgumentHelper(map, null, "test");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithNullArrival() throws Exception {
+        Plan map = initMap(MAP_DATA);
+        illegalArgumentHelper(map, "test", null);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithNullMap() throws Exception {
+        illegalArgumentHelper(null, "test", "toto");
+    }
+
     private String getPath(String filename) {
         if (filename == null)
             return null;
@@ -31,30 +56,12 @@ public class SearchPathTest {
         return PlanParser.planFromSectionCSV(getPath(filename));
     }
 
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullStart() throws Exception {
-        Plan map = initMap(MAP_DATA);
-        assertThrows(IllegalArgumentException.class,
-                () -> new SearchPath(map, null, "test", null, true, false),
-                "Find path from null station");
-    }
-
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullArrival() throws Exception {
-        Plan map = initMap(MAP_DATA);
-        assertThrows(IllegalArgumentException.class,
-                () -> new SearchPath(map, "test", null, null, true, false),
-                "Find path to null station");
-    }
-
     private void pathNotFoundHelper(String start, String arrival) throws Exception {
         Plan map = initMap(MAP_DATA);
         assertEquals("Trajet inexistant",
                 ((ErrorServer) new SearchPath(map, start, arrival, null, true, false).execute())
                         .getError(),
-                "Path not found from " + start + " to " + arrival);
+                String.format("Path not found from %s to %s", start, arrival));
     }
 
     @Test
@@ -82,6 +89,8 @@ public class SearchPathTest {
             PlanParser.addTimeFromCSV(map, getPath(TIME_DATA_ALL));
         Route route = (Route) new SearchPath(map, start, arrival, time, distOpt, foot).execute();
         List<Section> trajet = route.getPathDistOpt();
+        for (Section s : trajet)
+            System.out.println(s);
         assertEquals(nbLine, trajet.size(), String.format("%s to %s from %s with %s optimisation",
                 start, arrival, time, distOpt ? " distance" : "time"));
     }
@@ -265,5 +274,19 @@ public class SearchPathTest {
     public void findPathWithTimeCoordsMaisonBlancheToPigalleTimeOptFoot() throws Exception {
         findPathMapWithTimeHelper("(48.824868685169676, 2.358546268381532)",
                 "(48.88264085646782, 2.3401402839553964)", 15, new Time(12, 32), true, true);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathStartFarFromStation() throws Exception {
+        findPathMapWithTimeHelper("(48.76844682672424,2.3622296824389313)", "Châtelet", 14,
+                new Time(6, 32), true, false);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathArrivalFarFromStation() throws Exception {
+        findPathMapWithTimeHelper("Châtelet", "(48.76844682672424,2.3622296824389313)", 14,
+                new Time(6, 32), true, false);
     }
 }

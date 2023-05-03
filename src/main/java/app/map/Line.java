@@ -13,13 +13,19 @@ import java.util.TreeSet;
  */
 public final class Line {
 
-    static class StartStationNotFoundException extends Exception {
-        public StartStationNotFoundException(String station, String line, String variant) {
+    /**
+     * La station n'est pas sur la ligne
+     */
+    static class StationNotFoundException extends Exception {
+        public StationNotFoundException(String station, String line, String variant) {
             super(String.format("La station %s n'est pas sur la ligne %s variant %s", station, line,
                     variant));
         }
     }
 
+    /**
+     * Il y a différentes stations de départ sur la ligne
+     */
     static class DifferentStartException extends Exception {
         public DifferentStartException(String line, String variant, String s1, String s2) {
             super(String.format(
@@ -41,7 +47,7 @@ public final class Line {
      */
     private Section start;
     /**
-     * La dernière de section
+     * La dernière section
      */
     private Section last;
     /**
@@ -52,9 +58,9 @@ public final class Line {
      * Chaque section est associée à la durée nécessaire pour arriver à la fin de la section depuis
      * le début de la section de départ
      */
-    private final HashMap<Section, Integer> sections;
+    private final Map<Section, Integer> sections;
     /**
-     * le temps d'attente entre chaque section à chaque arrêt (en secondes)
+     * Le temps d'attente entre chaque section à chaque arrêt (en secondes)
      */
     private static final int WAITING_TIME = 20;
 
@@ -69,7 +75,7 @@ public final class Line {
     }
 
     /**.
-     * Cree une nouvelle ligne en metant les valeurs dans {@code sections} a 0
+     * Crée une nouvelle ligne
      * 
      * @param name le nom de la ligne
      * @param variant le nom du variant
@@ -82,47 +88,47 @@ public final class Line {
         this.variant = variant;
         this.start = null;
         this.last = null;
-        this.sections = 
-            sections.entrySet()
-                .stream()
-                .reduce(new HashMap<>(), (acc, entry) -> {
-                    acc.put(entry.getKey(), null);
-                    return acc;
-                }, (lhs, rhs) -> {
-                    lhs.putAll(rhs);
-                    return lhs;
-                });
+        this.sections = new HashMap<>(sections);
         this.departures = new TreeSet<>();
     }
 
     /**
-     * Cree une nouvelle Line en remettant aux valeures initiales {@code start}, {@code last} et {@code departures}
+     * Crée une nouvelle ligne en remettant aux valeures initiales {@code start}, {@code last} et {@code departures}
      * @return la nouvelle line créée
      */
-    public Line resetTime(){
-        return new Line(this.name, this.variant, this.sections);
+    public Line resetDeparturesTimeData(){
+        HashMap<Section, Integer> sections = this.sections.entrySet()
+        .stream()
+        .reduce(new HashMap<>(), (acc, entry) -> {
+            acc.put(entry.getKey(), null);
+            return acc;
+        }, (lhs, rhs) -> {
+            lhs.putAll(rhs);
+            return lhs;
+        });
+        return new Line(this.name, this.variant, sections);
     }
 
     /**
      * Détermine la section de départ à partir du nom de la station de départ et modifie l'attribut
-     * associé `start`.
+     * associé {@code start}
      *
      * @param stationName le nom de la station de départ de la ligne
      * @throws StartStationNotFoundException s'il n'y a pas de section commençant à une station à ce
      *         nom
      * @throws DifferentStartException s'il y a déjà une section de départ qui ne commence pas par à
      *         la même station
-     * @throws IllegalArgumentException si stationName est `null`
+     * @throws IllegalArgumentException si {@code stationName} est {@code null}
      */
-    public void setStart(String stationName) throws IllegalArgumentException,
-            StartStationNotFoundException, DifferentStartException {
+    public void setStart(String stationName)
+            throws IllegalArgumentException, StationNotFoundException, DifferentStartException {
         if (stationName == null)
             throw new IllegalArgumentException();
         if (start == null) {
             Optional<Section> station = sections.keySet().stream()
                     .filter(s -> s.getStart().getName().equals(stationName)).findAny();
             if (station.isEmpty())
-                throw new StartStationNotFoundException(stationName, name, variant);
+                throw new StationNotFoundException(stationName, name, variant);
             start = station.get();
         } else {
             String actual = start.getStart().getName();
@@ -135,31 +141,12 @@ public final class Line {
         return name;
     }
 
-    public String getVariant() {
-        return variant;
-    }
-
-    /**
-     * Renvoie la section de départ de la ligne.
-     *
-     * @return la section de départ ou `null` si elle n'a pas été définie
-     */
     public Section getStart() {
         return start;
     }
 
     public Section getLast() {
         return last;
-    }
-
-    /**
-     * @param station la station de départ de la section
-     * @return la section partant de station ou {@code null} s'il n'existe pas
-     */
-    public Section getSection(String station) {
-        Optional<Section> section = sections.keySet().stream()
-                .filter(s -> s.getStart().getName().equals(station)).findAny();
-        return section.orElse(null);
     }
 
     /**
@@ -170,7 +157,7 @@ public final class Line {
     }
 
     /**
-     * @return l'attribut de type HashMap sections
+     * @return la map des sections associées à leur durée depuis la station de départ
      */
     public Map<Section, Integer> getSectionsMap() {
         return new HashMap<>(sections);
@@ -178,10 +165,10 @@ public final class Line {
 
     /**
      * Ajoute une section à la ligne. La durée entre la section et la section de départ est
-     * initialisée à -1.
+     * initialisée à {@code null}.
      *
-     * @param section une section appartenant à la ligne
-     * @throws IllegalArgumentException si section est `null`
+     * @param section une section à ajouter à la ligne
+     * @throws IllegalArgumentException si section est {@code null}
      */
     public void addSection(Section section) throws IllegalArgumentException {
         if (section == null)
@@ -194,8 +181,8 @@ public final class Line {
      *
      * @param hour les heures de l'horaire
      * @param minute les minutes de l'horaire
-     * @throws IllegalArgumentException si hour n'est pas entre 0 et 23 et minute entre 0 et 59
-     *         (inclus)
+     * @throws IllegalArgumentException si {@code hour} n'est pas entre 0 et 23 et {@code minute}
+     *         entre 0 et 59 (inclus)
      */
     public void addDepartureTime(int hour, int minute) throws IllegalArgumentException {
         Time time = new Time(hour, minute, 0);
@@ -210,8 +197,8 @@ public final class Line {
     /**
      * @param section la section dont l'horaire est à déterminée
      * @param time l'horaire minimal
-     * @return l'horaire du prochain départ à section après time, `null` si time est `null` ou
-     *         departures est vide
+     * @return l'horaire du prochain départ à {@code section} après {@code time}, {@code null} si
+     *         {@code time} est {@code null} ou {@code departures} est vide
      */
     public Time getNextTime(Section section, Time time) {
         Integer duration = sections.get(section);
@@ -257,7 +244,7 @@ public final class Line {
 
     /**
      * @param section une section
-     * @param envoie la liste des horaires de départ de la section
+     * @param envoie la liste des horaires de départ de {@code section}
      */
     public List<Time> getDepartureTime(Section section) {
         List<Time> times = new ArrayList<>();

@@ -19,6 +19,9 @@ import app.map.Station;
 import app.map.Time;
 import app.util.Parser;
 
+/**
+ * Implémentation de l'algorithme de Dijkstra sur un plan
+ */
 public final class Dijkstra {
     /**
      * Le plan du réseau
@@ -126,8 +129,9 @@ public final class Dijkstra {
                 List<Section> sections = getSectionsFromStations(true, s, getCloseStations(s));
                 if (sections.isEmpty()) {
                     Station closest = getClosestStation(s);
-                    sections.add(new Section(s, closest, null, s.distanceBetween(closest),
-                            s.durationBetween(closest)));
+                    if (closest != null)
+                        sections.add(new Section(s, closest, null, s.distanceBetween(closest),
+                                s.durationBetween(closest)));
                 }
                 map.put(DEPART, sections);
                 return DEPART;

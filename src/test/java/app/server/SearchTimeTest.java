@@ -1,6 +1,7 @@
 package app.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,37 @@ public class SearchTimeTest {
 
     private static Plan map;
 
+    @BeforeAll
+    static void init() throws Exception {
+        map = PlanParser.planFromSectionCSV(getPath(MAP_DATA));
+        PlanParser.addTimeFromCSV(map, getPath(TIME_DATA));
+    }
+
+    private void illegalArgumentHelper(Plan plan, String start, Time time) {
+        assertThrows(IllegalArgumentException.class, () -> new SearchTime(plan, start, time),
+                "null value");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithNullStart() throws Exception {
+        init();
+        illegalArgumentHelper(map, null, new Time(14, 22));
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithNullTime() throws Exception {
+        init();
+        illegalArgumentHelper(map, "test", null);
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void findPathWithNullMap() throws Exception {
+        illegalArgumentHelper(null, "test", new Time(18, 30));
+    }
+
     private static String getPath(String filename) {
         if (filename == null)
             return null;
@@ -28,12 +60,6 @@ public class SearchTimeTest {
 
     static SearchTime createSearchTime(String station, Time time) {
         return new SearchTime(map, station, time);
-    }
-
-    @BeforeAll
-    static void init() throws Exception {
-        map = PlanParser.planFromSectionCSV(getPath(MAP_DATA));
-        PlanParser.addTimeFromCSV(map, getPath(TIME_DATA));
     }
 
     @Test
