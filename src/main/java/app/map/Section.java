@@ -12,14 +12,32 @@ import java.util.Objects;
 public class Section implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 8L;
+    private static final long serialVersionUID = 9L;
 
+    /**
+     * La station de départ
+     */
     private final Station start;
+    /**
+     * La station d'arrivée
+     */
     private final Station arrival;
+    /**
+     * Le nom de ligne
+     */
     private String line;
+    /**
+     * L'horaire de départ
+     */
     private Time time;
-    private final int distance; // en mètre
-    private final int duration; // en seconde
+    /**
+     * La longueur de la section en mètres
+     */
+    private final int distance;
+    /**
+     * La durée de la section en seconde
+     */
+    private final int duration;
 
     /**
      * Crée une section
@@ -27,9 +45,10 @@ public class Section implements Serializable {
      * @param start la station de départ
      * @param arrival la station d'arrivée
      * @param line le nom de la ligne de la section
-     * @param distance la longueur section
+     * @param distance la longueur de la section
      * @param duration la durée en seconde de la section
-     * @throws IllegalArgumentException si start ou arrival est `null`
+     * @throws IllegalArgumentException si {@code start} ou {@code arrival} ou {@code line} est
+     *         {@code null}
      */
     public Section(Station start, Station arrival, String line, int distance, int duration) {
         if (start == null || arrival == null)
@@ -42,6 +61,11 @@ public class Section implements Serializable {
         this.duration = duration;
     }
 
+    /**
+     * Crée une copie de la section {@code s} avec {@code time} initialisé à {@code null}
+     *
+     * @param s une section à copier
+     */
     public Section(Section s) {
         this(s.start, s.arrival, s.line, s.distance, s.duration);
     }
@@ -66,6 +90,9 @@ public class Section implements Serializable {
         return time;
     }
 
+    /**
+     * @return l'heure d'arrivé ou {@code null} si {@code time} est {@code null}
+     */
     public Time getArrivalTime() {
         return time == null ? null : time.addDuration(duration);
     }
@@ -74,16 +101,10 @@ public class Section implements Serializable {
         this.time = time;
     }
 
-    public int getDistance() {
-        return distance;
-    }
-
     /**
-     * Calcul la distance en mètre entre l'arrivé de cette section à l'arrivée de nextSection
-     *
      * @param nextSection une section
-     * @return la distance entre l'arrivé de cette section à l'arrivée de nextSection
-     * @throws IllegalArgumentException si nextSection est null
+     * @return la distance entre l'arrivée de cette section et l'arrivée de {@code nextSection}
+     * @throws IllegalArgumentException si {@code nextSection} est {@code null}
      */
     public int distanceTo(Section nextSection) throws IllegalArgumentException {
         if (nextSection == null)
@@ -92,11 +113,10 @@ public class Section implements Serializable {
     }
 
     /**
-     * Calcul la temps en seconde entre l'arrivé de cette section à l'arrivée de nextSection
-     *
      * @param nextSection une section
-     * @return la temps entre l'arrivé de cette section à l'arrivée de nextSection
-     * @throws IllegalArgumentException si nextSection est null
+     * @return le temps entre l'arrivée de cette section et l'arrivée de {@code nextSection}
+     * @throws IllegalArgumentException si {@code nextSection} ou l'un des heures d'arrivées des
+     *         sections est {@code null}
      */
     public int durationTo(Section nextSection) throws IllegalArgumentException {
         if (nextSection == null)
@@ -137,28 +157,28 @@ public class Section implements Serializable {
 
         List<Section> trajet = new ArrayList<>();
         Section first = sections.get(0);
-        Station start = first.getStart();
-        Station arrival = first.getArrival();
-        String line = first.getLine();
-        Time time = first.getTime();
+        Station start = first.start;
+        Station arrival = first.arrival;
+        String line = first.line;
+        Time time = first.time;
         int distance = 0;
         int duration = 0;
 
         for (Section s : sections) {
-            if (line != null && line.equals(s.getLine())) {
-                arrival = s.getArrival();
-                distance += s.getDistance();
-                duration += s.getDuration();
+            if (line != null && line.equals(s.line)) {
+                arrival = s.arrival;
+                distance += s.distance;
+                duration += s.duration;
             } else {
                 Section toAdd = new Section(start, arrival, line, distance, duration);
                 toAdd.setTime(time);
                 trajet.add(toAdd);
-                start = s.getStart();
-                arrival = s.getArrival();
-                line = s.getLine();
-                time = s.getTime();
-                distance = s.getDistance();
-                duration = s.getDuration();
+                start = s.start;
+                arrival = s.arrival;
+                line = s.line;
+                time = s.time;
+                distance = s.distance;
+                duration = s.duration;
             }
         }
         Section toAdd = new Section(start, arrival, line, distance, duration);

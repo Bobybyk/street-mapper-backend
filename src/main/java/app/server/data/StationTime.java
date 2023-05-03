@@ -5,13 +5,17 @@ import java.io.Serializable;
 import java.util.Objects;
 import app.map.Time;
 
+
+/**
+ * Classe représentant les horaires d'une ligne dans une certaine direction
+ */
 public class StationTime implements Serializable {
     private final String line;
     private final String station;
     private final Time time;
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     public StationTime(String line, String station, Time time) {
         this.line = line;

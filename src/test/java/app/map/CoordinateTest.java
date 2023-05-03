@@ -1,11 +1,47 @@
 package app.map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 public class CoordinateTest {
     private static final int DEFAULT_TIMEOUT = 2000;
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void getLatitude() {
+        assertEquals(48.85955653272677,
+                new Coordinate(48.85955653272677, 2.346411849769497).getLatitude(), "Get latitude");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void getLongitude() {
+        assertEquals(2.346411849769497,
+                new Coordinate(48.85955653272677, 2.346411849769497).getLongitude(),
+                "Get longitude");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void equalsDifferentLat() {
+        assertNotEquals(new Coordinate(0, 0), new Coordinate(1, 0),
+                "Different coordinates are not equals");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void equalsDifferentLong() {
+        assertNotEquals(new Coordinate(0, 0), new Coordinate(0, 1),
+                "Different coordinates are not equals");
+    }
+
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void equalsSameCoordinate() {
+        assertEquals(new Coordinate(1, 2), new Coordinate(1, 2), "Same coordinates are equals");
+    }
 
     private void distanceHelper(double lat1, double long1, double lat2, double long2,
             double expected) {

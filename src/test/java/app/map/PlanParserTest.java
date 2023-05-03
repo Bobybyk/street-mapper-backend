@@ -71,6 +71,13 @@ public class PlanParserTest {
                 "Map and lines field contains the sames sections");
     }
 
+    @Test
+    @Timeout(DEFAULT_TIMEOUT)
+    public void addTimeNullPlanNulFile() {
+        assertThrows(IllegalArgumentException.class, () -> PlanParser.addTimeFromCSV(null, null),
+                "Add time from null file to null plan");
+    }
+
     private Plan addTimeHelper(String mapFilename, String timeFilename) throws Exception {
         Plan map = initMap(mapFilename);
         PlanParser.addTimeFromCSV(map, getPath(timeFilename));
