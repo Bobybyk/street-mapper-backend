@@ -70,7 +70,8 @@ public class App {
      * @return boolean
      */
     static boolean argsIsOk(String[] args) {
-        return !(args.length < 1 || args.length > 3);
+        int length = args.length;
+        return length == 1 || length == 2;
     }
 
     static boolean hasCsvTimeFile(String[] args) {
