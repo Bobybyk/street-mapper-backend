@@ -24,7 +24,6 @@ public final class Logger {
      * Classe descrivant le type de log
      */
     private static enum Type {
-        DEFAULT("\u001B[37m"),
         INFO("\u001B[34m"),
         ERROR("\u001B[31m");
 
@@ -43,7 +42,7 @@ public final class Logger {
          */
         PrintStream getPrintStream() {
             return switch (this) {
-                case INFO, DEFAULT -> System.out;
+                case INFO -> System.out;
                 case ERROR -> System.err;
             };
         }
@@ -53,7 +52,6 @@ public final class Logger {
             return switch (this) {
                 case INFO -> "[INFO]";
                 case ERROR -> "[ERREUR]";
-                case DEFAULT -> "[DEFAULT]";
             };
         }
     }
