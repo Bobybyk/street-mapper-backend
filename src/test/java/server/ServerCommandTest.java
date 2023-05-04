@@ -160,6 +160,7 @@ public class ServerCommandTest {
     }
 
     @Test
+    @Timeout(DEFAULT_TIMEOUT)
     public void testTimeBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationTime nationTime = new StationTime("2", "Avron", new Time(6, 5, 0));
