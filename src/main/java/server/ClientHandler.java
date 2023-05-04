@@ -28,6 +28,11 @@ class ClientHandler implements Runnable {
     private InputStreamReader clientInputStreamReader;
 
     /**
+     * Indique si le client est connecté
+     */
+    private boolean isConnected;
+
+    /**
      * Instance du server qui a créé le {@code RequestHandler}
     */
     private Server server;
@@ -38,6 +43,7 @@ class ClientHandler implements Runnable {
     ClientHandler(Server server, Socket clientSocket) throws IOException {
         this.clientSocket = clientSocket;
         this.clientInputStreamReader = new InputStreamReader(clientSocket.getInputStream());
+        this.isConnected = true;
         this.server = server;
     }
 
@@ -95,19 +101,20 @@ class ClientHandler implements Runnable {
     // Implement Runnable
     @Override
     public void run() {
-        try {
-            while (true) {
+        while (isConnected) {
+            try {
                 Serializable s = handleClient();
                 ObjectOutputStream outStream =
                         new ObjectOutputStream(clientSocket.getOutputStream());
                 outStream.writeObject(s);
                 outStream.flush();
-            }
-        } catch (IOException e) {
-            try {
-                clientSocket.close();
-            } catch (IOException ignore) {
-                Logger.info(ignore.getMessage());
+            } catch (IOException e) {
+                isConnected = false;
+                try {
+                    clientSocket.close();
+                } catch (IOException ignore) {
+                    Logger.info(ignore.getMessage());
+                }
             }
         }
     }

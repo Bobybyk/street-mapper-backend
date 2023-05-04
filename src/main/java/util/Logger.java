@@ -23,7 +23,7 @@ public final class Logger {
     /**
      * Classe descrivant le type de log
      */
-    public static enum Type {
+    private static enum Type {
         DEFAULT("\u001B[37m"),
         INFO("\u001B[34m"),
         ERROR("\u001B[31m");

@@ -25,13 +25,12 @@ class ServerConsole implements Runnable {
     static final String COMMAND_BORDER = "\n////////////////////////////////////////////////////////////\n";
     static final String SERVER_COMMAND_NAME = "TrainGo server terminal";
 
-    public final Map<String, ServerCommand> commands = 
+    public static final Map<String, ServerCommand> commands = 
         Map.of(
             DEBUG_NAME, new ServerCommandDebug(),
             KILL_NAME, new ServerCommandKill(),
             UPDATE_MAP_NAME, new ServerCommandUpdateMapFile(),
             UPDATE_TIME_NAME, new ServerCommandUpdateTimeFile()
-            
         );
 
     private boolean isRunning;

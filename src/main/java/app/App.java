@@ -63,15 +63,15 @@ public class App {
      * @param args l'ensemble des arguments
      * @return boolean
      */
-    public static boolean argsIsOk(String[] args) {
+    static boolean argsIsOk(String[] args) {
         return !(args.length < 1 || args.length > 3);
     }
 
-    public static boolean hasCsvTimeFile(String[] args) {
+    static boolean hasCsvTimeFile(String[] args) {
         return args.length == 2;
     }
 
-    private static boolean isCVSFileOk(File mapFile) {
+    static boolean isCVSFileOk(File mapFile) {
         return mapFile.exists() && !mapFile.isDirectory();
     }
 }
