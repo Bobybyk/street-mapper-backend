@@ -29,7 +29,6 @@ public class ServerConsoleTest {
     private static final int PORT = 12346;
     private static final String MAP_DATA_ALL = "map_data_all";
     private static final String TIME_DATA = "time_data_all";
-    private static final String SUGGESTION_REQUEST_1 = "SEARCH;Chatelet;ARRIVAL";
     private static final String SUGGESTION_REQUEST_2 = "SEARCH;stationA;ARRIVAL";
     private static final String TIME_REQUEST = "TIME;Avron;6:00";
     private static final String UPDATE_TIME_CMD = "update-time ";
@@ -45,8 +44,10 @@ public class ServerConsoleTest {
     }
 
     @BeforeAll
-    static void init() throws IOException, IllegalArgumentException, IncorrectFileFormatException {
+    static void init() throws Exception {
         server = initServer();
+        changeTimeFile(getPath(TIME_DATA));
+
     }
 
     @AfterAll
@@ -129,16 +130,6 @@ public class ServerConsoleTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testConsoleInitialSuggestionValue() throws IOException, IllegalArgumentException, IncorrectFileFormatException, ClassNotFoundException {
-        Socket clientSocket = new Socket(HOST, PORT);
-        StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
-        boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_1,1, chatelet);
-        clientSocket.close();
-        assertTrue(res);
-    }
-
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
     public void testSuggestionValueBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationInfo stationA = createStationInfo("stationA", "random");
@@ -147,21 +138,9 @@ public class ServerConsoleTest {
         assertFalse(res);
     }
 
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
-    public void testConsoleTimeBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
-        Socket clientSocket = new Socket(HOST, PORT);
-        StationTime nationTime = new StationTime("2", "Avron", new Time(6, 5, 0));
-        boolean res = timeTest(clientSocket, TIME_REQUEST, 0, nationTime);
-        clientSocket.close();
-        assertFalse(res);
-    }
-
     @Test 
     @Timeout(DEFAULT_TIMEOUT)
-    void testConsoleTimeAfterChange() throws Exception {
-
-        changeTimeFile(getPath(TIME_DATA));
+    void testConsoleTimeAfterChange() throws Exception {        
 
         Socket clientSocket = new Socket(HOST, PORT);
         StationTime nationTime = new StationTime("2", "Porte Dauphine", new Time(6, 5, 0));

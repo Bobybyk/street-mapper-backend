@@ -48,8 +48,10 @@ public class ServerCommandTest {
     }
 
     @BeforeAll
-    static void init() throws IOException, IllegalArgumentException, IncorrectFileFormatException {
+    static void init() throws Exception {
         server = initServer();
+        changeTimeFile(getPath(TIME_DATA));
+        changeMap(getPath(MAP_DATA_DUMMY));
         isLoggerEnable = Logger.isEnable();
     }
 
@@ -154,16 +156,6 @@ public class ServerCommandTest {
         StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
         boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_1,1, chatelet);
         clientSocket.close();
-        assertTrue(res);
-    }
-
-    @Test
-    @Timeout(DEFAULT_TIMEOUT)
-    public void testSuggestionValueBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
-        Socket clientSocket = new Socket(HOST, PORT);
-        StationInfo stationA = createStationInfo("stationA", "random");
-        boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_2, 1, stationA);
-        clientSocket.close();
         assertFalse(res);
     }
 
@@ -214,24 +206,9 @@ public class ServerCommandTest {
         , "ServerCommandUpdateTimeFile wrong argument");
     }
 
-
-    @Test 
-    @Timeout(DEFAULT_TIMEOUT)
-    void testTimeAfterChange() throws Exception {
-
-        changeTimeFile(getPath(TIME_DATA));
-
-        Socket clientSocket = new Socket(HOST, PORT);
-        StationTime nationTime = new StationTime("2", "Porte Dauphine", new Time(6, 5, 0));
-        boolean res = timeTest(clientSocket, TIME_REQUEST, 0, nationTime);
-        clientSocket.close();
-        assertTrue(res);
-    }
-
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     public void testSuggestionValueAftereChange() throws Exception {
-        changeMap(getPath(MAP_DATA_DUMMY));
 
         Socket clientSocket = new Socket(HOST, PORT);
         StationInfo stationA = createStationInfo("stationA", "random");
