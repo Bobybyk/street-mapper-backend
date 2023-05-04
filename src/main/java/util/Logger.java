@@ -16,7 +16,7 @@ public final class Logger {
         isEnable = false;
     }
 
-    public static boolean isEnable() {
+    public static synchronized boolean isEnable() {
         return isEnable;
     }
 

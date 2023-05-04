@@ -31,9 +31,9 @@ public class Server {
     private static final int DEFAULT_POOL_SIZE = 10; // Totalement abitraire pour l'instant
 
     /**
-     * Nombres de connexions simultanées que le server gère
+     * Nombres de connexions simultanées que le server gère.
      */
-    private static final int MAX_INCOMMING_CONNECTION = 50; // Totalement abitraire pour l'instant
+    private static final int MAX_INCOMMING_CONNECTION = 50;
 
     /**
      * Nombres de secondes laissées aux threads lancés pour se terminer avant la fermeture de tous
@@ -89,7 +89,7 @@ public class Server {
     private Server(Plan plan, int port, boolean withConsole, int maxIncommingConnection, int poolSize) throws IOException {
         this.isRunning = false;
         this.threadPool = Executors.newFixedThreadPool(poolSize);
-        this.serverSocket = new ServerSocket(port);
+        this.serverSocket = new ServerSocket(port, maxIncommingConnection);
         this.serverConsole = withConsole ? new ServerConsole(this): null;
         this.consoleThread = withConsole ? new Thread(serverConsole): null;
         this.plan = plan;
