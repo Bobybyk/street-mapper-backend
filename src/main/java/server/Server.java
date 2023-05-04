@@ -229,7 +229,7 @@ public class Server {
     }
 
     private void removeCloseClientSocket() {
-        clients = new ArrayList<>(clients.stream().filter(socket -> !socket.isClosed()).toList());
+        clients.removeIf(Socket::isClosed);
     }
 
     /**
