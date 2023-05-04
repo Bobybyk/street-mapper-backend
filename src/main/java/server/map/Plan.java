@@ -137,7 +137,7 @@ public final class Plan {
      */
     private Line addSection(Station start, Station arrival, String lineName, int distance,
             int duration) throws IndexOutOfBoundsException {
-        Section section = new Section(start, arrival, lineName, null, distance, duration);
+        Section section = new Section(start, arrival, lineName, distance, duration);
         map.get(start.getName()).add(section);
         Line line = lines.computeIfAbsent(lineName, n -> {
             String argsSpltter = " ";

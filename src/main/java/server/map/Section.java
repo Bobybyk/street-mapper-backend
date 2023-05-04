@@ -186,7 +186,7 @@ public class Section implements Serializable {
                 distance += s.distance;
                 duration += s.duration;
             } else {
-                Section toAdd = new Section(start, arrival, line, null, distance, duration);
+                Section toAdd = new Section(start, arrival, line, distance, duration);
                 toAdd.setTime(time);
                 trajet.add(toAdd);
                 start = s.start;
@@ -197,7 +197,7 @@ public class Section implements Serializable {
                 duration = s.duration;
             }
         }
-        Section toAdd = new Section(start, arrival, line, null, distance, duration);
+        Section toAdd = new Section(start, arrival, line, distance, duration);
         toAdd.setTime(time);
         trajet.add(toAdd);
         return trajet;
