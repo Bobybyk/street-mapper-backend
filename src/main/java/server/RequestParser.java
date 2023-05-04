@@ -35,6 +35,10 @@ public class RequestParser {
      */
     private static final String TIME_KEY = "TIME";
 
+    /**
+     * Argument determinant si la recherche d'un trajet doit prendre en compte les 
+     * sections à pied
+     */
     private static final String FOOT_KEY = "FOOT";
 
     /**
@@ -90,6 +94,7 @@ public class RequestParser {
     /**
      * Parse une requête ROUTE
      *
+     * @param plan instance du plan sur laquelle effectuer les calculs
      * @param inputArgs liste des arguments de la requête
      * @return le traitement de la requête
      * @throws ParsingException si la requête n'a pas le bon format
@@ -119,12 +124,13 @@ public class RequestParser {
 
     /**
      * Parse une requête SEARCH
-     *
+     * 
+     * @param plan instance du plan sur laquelle effectuer les calculs
      * @param inputArgs liste des arguments de la requête
      * @return le traitement de la requête
      * @throws ParsingException si la requête n'a pas le bon format
      */
-    private static ServerActionCallback handleSearchRequest(Plan p, String[] inputArgs)
+    private static ServerActionCallback handleSearchRequest(Plan plan, String[] inputArgs)
             throws ParsingException {
         if (inputArgs.length != 3 || inputArgs[1].isBlank()) {
             String message = "Station manquante ou vide";
@@ -138,12 +144,13 @@ public class RequestParser {
             throw new ParsingException(
                     "Impossible d'analyser le type de search <Arrival| Depart>");
         }
-        return new SearchStation(p.getStationsInfo(), stationToSearch, kind);
+        return new SearchStation(plan.getStationsInfo(), stationToSearch, kind);
     }
 
     /**
      * Parse une requête TIME
-     *
+     * 
+     * @param plan instance du plan sur laquelle effectuer les calculs
      * @param inputArgs liste des arguments de la requête
      * @return le traitement de la requête
      * @throws ParsingException si la requête n'a pas le bon format

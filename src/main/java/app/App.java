@@ -21,8 +21,10 @@ public class App {
      */
     private final static String ERROR_ILLEGAL_ARGUMENT =
             "Arguments invalides. Arguments Attendus : java App <file>";
-    private final static String ERROR_FILE_NOT_EXIST =
-            "Fichier introuvable ou est un repertoire";
+    private final static String ERROR_FILE_MAP_NOT_EXIST =
+            "Fichier du réseau est introuvable ou est un repertoire";
+    private final static String ERROR_FILE_TIME_NOT_EXIST =
+            "Fichier des horaires est introuvable ou est un repertoire";
     private final static String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
     private final static String ERROR_SERVER_START = "Le serveur n'a pas demarré";
     
@@ -33,20 +35,24 @@ public class App {
         }
 
         final File mapFile = new File(args[0]);
-        if (!isCVSFileOk(mapFile)) {
-            Logger.error(ERROR_FILE_NOT_EXIST);
+        if (!isFile(mapFile)) {
+            Logger.error(ERROR_FILE_MAP_NOT_EXIST);
             return;
         }
         
         try {                
             final Server server = new Server(mapFile.getPath(), PORT, true);    
             if (hasCsvTimeFile(args)) {
-                server.updateTime((new File(args[1]).getPath()));;
+                final File timeFile = new File(args[1]);
+                if (!isFile(timeFile)) {
+                    Logger.error(ERROR_FILE_TIME_NOT_EXIST);
+                    return;
+                }
+                server.updateTime(timeFile.getPath());;
             }
-            
             server.start();
         } catch (FileNotFoundException e) {
-            Logger.error(ERROR_FILE_NOT_EXIST);;
+            Logger.error(ERROR_FILE_MAP_NOT_EXIST);;
         } catch (PlanParser.IncorrectFileFormatException e) {
             Logger.error(ERROR_INCORRECT_FILE);
         } catch (IOException e) {
@@ -71,7 +77,7 @@ public class App {
         return args.length == 2;
     }
 
-    static boolean isCVSFileOk(File mapFile) {
+    static boolean isFile(File mapFile) {
         return mapFile.exists() && !mapFile.isDirectory();
     }
 }

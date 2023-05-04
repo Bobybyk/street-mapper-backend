@@ -33,11 +33,13 @@ class ClientHandler implements Runnable {
     private boolean isConnected;
 
     /**
-     * Instance du server qui a créé le {@code RequestHandler}
+     * Instance du server qui a créé le {@code ClientHandler}
     */
     private Server server;
 
     /**
+     * 
+     * @param server       Instance du server qui a créé le {@code ClientHandler}
      * @param clientSocket Socket sur lequel la réponse sera envoyée
      */
     ClientHandler(Server server, Socket clientSocket) throws IOException {

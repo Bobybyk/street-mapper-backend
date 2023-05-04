@@ -33,7 +33,7 @@ public class Server {
     /**
      * Nombres de connexions simultanées que le server gère
      */
-    private static final int MAX_INCOMMING_CONNECTION = 3; // Totalement abitraire pour l'instant
+    private static final int MAX_INCOMMING_CONNECTION = 50; // Totalement abitraire pour l'instant
 
     /**
      * Nombres de secondes laissées aux threads lancés pour se terminer avant la fermeture de tous
@@ -165,6 +165,7 @@ public class Server {
             } catch (IOException e) {
                 Logger.info("ioexception");
             }
+            removeCloseClientSocket();
         }
 
         try {
@@ -225,6 +226,10 @@ public class Server {
             threadPool.shutdownNow();
             consoleThread.interrupt();
         }
+    }
+
+    private void removeCloseClientSocket() {
+        clients = new ArrayList<>(clients.stream().filter(socket -> !socket.isClosed()).toList());
     }
 
     /**
