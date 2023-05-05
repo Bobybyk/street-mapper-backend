@@ -6,7 +6,8 @@ package app;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-
+import java.io.InputStream;
+import javax.json.*;
 import server.Server;
 import server.map.PlanParser;
 import server.map.PlanParser.InconsistentDataException;
@@ -14,7 +15,21 @@ import util.Logger;
 
 public class App {
 
-    public static final int PORT = 12345;
+    private static final int PORT;
+
+    static {
+        try (InputStream stream = App.class.getResourceAsStream("/config/network.json")) {
+            // Création d'un objet JsonReader
+            JsonReader jsonReader = Json.createReader(stream);
+            // Récupération de l'objet racine JSON
+            JsonObject jsonObject = jsonReader.readObject();
+
+            // Récupération des champs du fichier JSON
+            PORT = jsonObject.getInt("port");
+        } catch (IOException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     /**
      * Commentaire d'erreur en static pour la gestion de fichier
@@ -27,7 +42,7 @@ public class App {
             "Fichier des horaires est introuvable ou est un repertoire";
     private static final String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
     private static final String ERROR_SERVER_START = "Le serveur n'a pas demarré";
-    
+
     public static void main(String[] args) {
         if (!argsIsOk(args)) {
             Logger.error(ERROR_ILLEGAL_ARGUMENT);
@@ -39,9 +54,9 @@ public class App {
             Logger.error(ERROR_FILE_MAP_NOT_EXIST);
             return;
         }
-        
-        try {                
-            final Server server = new Server(mapFile.getPath(), PORT, true);    
+
+        try {
+            final Server server = new Server(mapFile.getPath(), PORT, true);
             if (hasCsvTimeFile(args)) {
                 final File timeFile = new File(args[1]);
                 if (!isFile(timeFile)) {
@@ -59,7 +74,7 @@ public class App {
             Logger.error(ERROR_SERVER_START);
         } catch (InconsistentDataException e) {
             Logger.error(e.getMessage());
-        }  
+        }
     }
 
     /**
