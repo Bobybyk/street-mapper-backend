@@ -18,6 +18,7 @@ import server.map.Plan;
 import server.map.Section;
 import server.map.Station;
 import server.map.Time;
+import util.Logger;
 import util.Parser;
 
 /**
@@ -137,6 +138,7 @@ public final class Dijkstra {
                 map.put(DEPART, sections);
                 return DEPART;
             } catch (Exception ignored) {
+                Logger.info(ignored.getMessage());
             }
         }
         return start;
@@ -167,6 +169,7 @@ public final class Dijkstra {
                     map.get(toArrival.getStart().getName()).add(toArrival);
                 return ARRIVEE;
             } catch (Exception ignored) {
+                Logger.info(ignored.getMessage());
             }
         }
         return arrival;

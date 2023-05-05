@@ -19,14 +19,14 @@ public class App {
     /**
      * Commentaire d'erreur en static pour la gestion de fichier
      */
-    private final static String ERROR_ILLEGAL_ARGUMENT =
+    private static final String ERROR_ILLEGAL_ARGUMENT =
             "Arguments invalides. Arguments Attendus : java App <file>";
-    private final static String ERROR_FILE_MAP_NOT_EXIST =
+    private static final String ERROR_FILE_MAP_NOT_EXIST =
             "Fichier du réseau est introuvable ou est un repertoire";
-    private final static String ERROR_FILE_TIME_NOT_EXIST =
+    private static final String ERROR_FILE_TIME_NOT_EXIST =
             "Fichier des horaires est introuvable ou est un repertoire";
-    private final static String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
-    private final static String ERROR_SERVER_START = "Le serveur n'a pas demarré";
+    private static final String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
+    private static final String ERROR_SERVER_START = "Le serveur n'a pas demarré";
     
     public static void main(String[] args) {
         if (!argsIsOk(args)) {
@@ -48,11 +48,11 @@ public class App {
                     Logger.error(ERROR_FILE_TIME_NOT_EXIST);
                     return;
                 }
-                server.updateTime(timeFile.getPath());;
+                server.updateTime(timeFile.getPath());
             }
             server.start();
         } catch (FileNotFoundException e) {
-            Logger.error(ERROR_FILE_MAP_NOT_EXIST);;
+            Logger.error(ERROR_FILE_MAP_NOT_EXIST);
         } catch (PlanParser.IncorrectFileFormatException e) {
             Logger.error(ERROR_INCORRECT_FILE);
         } catch (IOException e) {
