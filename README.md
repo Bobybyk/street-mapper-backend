@@ -4,32 +4,32 @@ Ce répertoire git contient tout le code source du backend de TrainGo
 
 ## **Comment compiler**
 
-Pour compiler le serveur, il vous faudra:
+Pour compiler le serveur, il vous faudra :
   - java
     - java >= 17.0
   - [gradle]("https://gradle.org/install/")
     - gradle >= 8.0.0
 
-et de lancer la commande:
+Exécuter :
 ```
 $ git clone https://gaufre.informatique.univ-paris-diderot.fr/lefrancm/gla-calcul-itineraire
 $ cd gla-calcul-itineraire
 $ ./gradlew build
 ```
 
-Vous pouvez obtenir le ```.jar``` du serveur soit:
-  - En compilant via la commande ci-dessus
-  - À partir de la dernière release disponible
+Vous pouvez obtenir le ```.jar``` du serveur :
+  - en compilant via la commande ci-dessus
+  - à partir de la dernière release disponible
 
 ## **Utilisation**
 
-Lancez l'application en utilisant :
+Pour exécuter l'application depuis un terminal :
 ```
-$ java -jar <executatble en .jar> <mapData> [timeData]
+$ java -jar <executatble en .jar> <mapData path> [timeData]
 ```
 
 ## **Console**
-Une fois le serveur démarré, une invite de commande est mis à votre disposition vous permettant d'effectuer les commandes suivantes:
+Une fois le serveur démarré, une invite de commande est mis à votre disposition, vous permettant d'utiliser les commandes suivantes :
 
 ### *Update-Map*
 ```
@@ -67,7 +67,7 @@ La requête ```ROUTE``` permet de calculer le chemin entre deux stations, coordo
 - **ROUTE;\<station>;\<station>;\<time>;TIME;FOOT**
 
 <station> peut être un nom de station ou une coordonnées GPS au format `(<latitude>,<longitude>)`
-<time> est un horaire au format `(HH:mm)`
+<time> est un horaire au format `(hh:mm)`
 
 Le serveur répond par un objet ```Route```
 #### *SEARCH*
