@@ -51,11 +51,13 @@ $ kill
 ```
 Cette commande permet d'arrêter le server
 
-## Communication et Requêtes
+## Communication
+
+### - Requêtes
 
 Le server communique avec le client via des requêtes tcp suivant un protocole définit
 
-### - ROUTE
+#### ROUTE
 La requête ```ROUTE``` permet de calculer le chemin entre deux stations, coordonnées ou un mélange des deux.
 
 - **ROUTE;\<station>;\<station>;\<time>;DISTANCE;**
@@ -63,17 +65,17 @@ La requête ```ROUTE``` permet de calculer le chemin entre deux stations, coordo
 - **ROUTE;\<station>;\<station>;\<time>;DISTANCE;FOOT**
 - **ROUTE;<station>;\<station>;\<time>;TIME;FOOT**
 
-### Les requêtes
-ROUTE;<station>;<station>;<time>;DISTANCE;
-ROUTE;<station>;<station>;<time>;TIME;
-ROUTE;<station>;<station>;<time>;DISTANCE;FOOT
-ROUTE;<station>;<station>;<time>;TIME;FOOT
-Renvoie un objet de la classe Route
+#### SEARCH
+La requête ```SEARCH``` permet d'obtenir la liste des stations ainsi que leur coorespondance commançant par un certain préfix.
 
-SEARCH;<prefix>
-Renvoie un objet de la classe SuggestionStation
-TIME;<station>;<time>
-Renvoie un objet de la classe DeparturesTimes
+- **SEARCH;<prefix>;<DEPART | ARRIVAL>**
+ 
+#### TIME
+La requête ```TIME``` permet d'obtenir la liste des horaires des trains.
 
-En cas d'erreur du serveur, il renvoie un objet de la classe ErrorServer
+- **TIME;\<prefix>;\<DEPART | ARRIVAL>** 
+
+###  - Erreurs
+
+En cas de requêtes mal formées, non reconnues, vides ou nulles, le serveur renvoie un objet ```ServerError``` decrivant la raison de cette erreur.
 
