@@ -1,13 +1,13 @@
 package server.map;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import server.map.Line.DifferentStartException;
 import server.map.Line.StationNotFoundException;
 
@@ -58,28 +58,29 @@ public final class Plan {
         this.stationsInfo = new HashMap<>(p.stationsInfo);
     }
 
-    private Plan(Map<String, List<Section>> map, Set<Station> stations, 
-        Map<String, Line> lines, Map<String, StationInfo> stationsInfo) {
-            this.map = new HashMap<>(map);
-            this.stations = new HashSet<>(stations);
-            this.lines = new HashMap<>(lines);
-            this.stationsInfo = new HashMap<>(stationsInfo);
+    private Plan(Map<String, List<Section>> map, Set<Station> stations, Map<String, Line> lines,
+            Map<String, StationInfo> stationsInfo) {
+        this.map = new HashMap<>(map);
+        this.stations = new HashSet<>(stations);
+        this.lines = new HashMap<>(lines);
+        this.stationsInfo = new HashMap<>(stationsInfo);
     }
 
     /**
-     * Crée un nouveau Plan conservant, stationsInfo et map mais en reinitilisant les lignes en applliquant {@link Line#resetTime()} 
-     * 
+     * Crée un nouveau Plan conservant, stationsInfo et map mais en reinitilisant les lignes en
+     * applliquant {@link Line#resetTime()}
+     *
      * @see Line#resetDeparturesTimeData()
      */
     public Plan resetLinesSections() {
-        Map<String, Line> linesReset = 
-            this.lines.entrySet().stream().reduce(new HashMap<>(), (acc, entry) -> {
-            acc.put(entry.getKey(), entry.getValue().resetDeparturesTimeData() );
-            return acc;
-        }, (acc, m) -> {
-            acc.putAll(m);
-            return acc;
-        });
+        Map<String, Line> linesReset =
+                this.lines.entrySet().stream().reduce(new HashMap<>(), (acc, entry) -> {
+                    acc.put(entry.getKey(), entry.getValue().resetDeparturesTimeData());
+                    return acc;
+                }, (acc, m) -> {
+                    acc.putAll(m);
+                    return acc;
+                });
         return new Plan(this.map, this.stations, linesReset, this.stationsInfo);
     }
 
@@ -216,6 +217,21 @@ public final class Plan {
         return new HashMap<>(map);
     }
 
+    /**
+     * @return l'ensemble des noms de stations
+     */
+    public Set<String> getStationsName() {
+        return new HashSet<>(map.keySet());
+    }
+
+    /**
+     * @param station un nom de station
+     * @return la liste des sections partant d'une station à ce nom
+     */
+    public List<Section> getSectionsFromStationName(String station) {
+        return new ArrayList<>(map.get(station));
+    }
+
     public Map<String, Line> getLines() {
         return new HashMap<>(lines);
     }
@@ -254,5 +270,76 @@ public final class Plan {
 
     public void setLineName(Section section) {
         section.setLine(getLineName(section));
+    }
+
+    /**
+     * Ajoute une station et les sections à pied vers les stations à moins de {@code maxDistance}
+     * mètre. Si aucune station n'a été trouvé, ajoute une section à pied vers la station la plus
+     * proche
+     *
+     * @param name le nom de la station
+     * @param latitude la coordonnée en latitude de la station
+     * @param longitude la coordonnée en latitude de la station
+     * @param maxDistance la distance maximale des sections
+     */
+    public void addStationWithSectionToNearStation(String name, double latitude, double longitude,
+            int maxDistance) {
+        Station station = addStation(name, latitude, longitude);
+        List<Station> nearStations = getCloseStations(station, maxDistance, true);
+        for (Station s : nearStations)
+            addFootSection(station, s);
+    }
+
+    /**
+     * Ajoute une station et les sections à pied depuis les stations à moins de {@code maxDistance}
+     * mètre. Si aucune station n'a été trouvé, ajoute une section à pied depuis la station la plus
+     * proche
+     *
+     * @param name le nom de la station
+     * @param latitude la coordonnée en latitude de la station
+     * @param longitude la coordonnée en latitude de la station
+     * @param maxDistance la distance maximale des sections
+     */
+    public void addStationWithSectionFromNearStation(String name, double latitude, double longitude,
+            int maxDistance) {
+        Station station = addStation(name, latitude, longitude);
+        List<Station> nearStations = getCloseStations(station, maxDistance, true);
+        for (Station s : nearStations)
+            addFootSection(s, station);
+    }
+
+    /**
+     * Ajoute une section à pied à la map
+     *
+     * @param start la station de départ
+     * @param arrival la station d'arrivé
+     */
+    private void addFootSection(Station start, Station arrival) {
+        List<Section> startSections = map.get(start.getName());
+        if (startSections != null)
+            startSections.add(new Section(start, arrival, null, start.distanceBetween(arrival),
+                    start.durationBetween(arrival)));
+    }
+
+    /**
+     * Trouve les stations les plus proches dans un certain rayon. S'il n'y en a pas et que
+     * {@code closest} est vrai, trouve la station la plus proche
+     *
+     * @param station une station
+     * @param maxDistance le rayon de recherche
+     * @param closest
+     * @return la liste des stations proches de {@code station}
+     */
+    public List<Station> getCloseStations(Station station, int maxDistance, boolean closest) {
+        List<Station> closeStations = stations.stream()
+                .filter(s -> !s.equals(station) && station.distanceBetween(s) < maxDistance)
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (closeStations.isEmpty() && closest) {
+            Station closestStation = stations.stream().filter(s -> !s.equals(station))
+                    .min(Comparator.comparingInt(station::distanceBetween)).orElse(null);
+            if (closestStation != null)
+                closeStations.add(closestStation);
+        }
+        return closeStations;
     }
 }

@@ -74,12 +74,13 @@ public final class Line {
         this(name, variant, new HashMap<>());
     }
 
-    /**.
-     * Crée une nouvelle ligne
-     * 
+    /**
+     * . Crée une nouvelle ligne
+     *
      * @param name le nom de la ligne
      * @param variant le nom du variant
-     * @param sections une map associant une section à sa duree pour arriver à sa fin de la section de départ
+     * @param sections une map associant une section à sa duree pour arriver à sa fin de la section
+     *        de départ
      */
     public Line(String name, String variant, Map<Section, Integer> sections) {
         if (name == null)
@@ -93,19 +94,20 @@ public final class Line {
     }
 
     /**
-     * Crée une nouvelle ligne en remettant aux valeures initiales {@code start}, {@code last} et {@code departures}
+     * Crée une nouvelle ligne en remettant aux valeures initiales {@code start}, {@code last} et
+     * {@code departures}
+     *
      * @return la nouvelle line créée
      */
-    public Line resetDeparturesTimeData(){
-        HashMap<Section, Integer> sectionsNulled = this.sections.entrySet()
-        .stream()
-        .reduce(new HashMap<>(), (acc, entry) -> {
-            acc.put(entry.getKey(), null);
-            return acc;
-        }, (lhs, rhs) -> {
-            lhs.putAll(rhs);
-            return lhs;
-        });
+    public Line resetDeparturesTimeData() {
+        HashMap<Section, Integer> sectionsNulled =
+                this.sections.entrySet().stream().reduce(new HashMap<>(), (acc, entry) -> {
+                    acc.put(entry.getKey(), null);
+                    return acc;
+                }, (lhs, rhs) -> {
+                    lhs.putAll(rhs);
+                    return lhs;
+                });
         return new Line(this.name, this.variant, sectionsNulled);
     }
 
@@ -185,9 +187,7 @@ public final class Line {
      *         entre 0 et 59 (inclus)
      */
     public void addDepartureTime(int hour, int minute) throws IllegalArgumentException {
-        Time time = new Time(hour, minute, 0);
-        if (!departures.contains(time))
-            this.departures.add(time);
+        this.departures.add(new Time(hour, minute));
     }
 
     public List<Time> getDepartures() {

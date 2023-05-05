@@ -56,30 +56,35 @@ class SearchPathTest {
         return PlanParser.planFromSectionCSV(getPath(filename));
     }
 
-    private void pathNotFoundHelper(String start, String arrival) throws Exception {
+    private void pathNotFoundHelper(String start, String arrival, Time time, boolean distOpt,
+            boolean foot) throws Exception {
         Plan map = initMap(MAP_DATA);
         assertEquals("Trajet inexistant",
-                ((ErrorServer) new SearchPath(map, start, arrival, null, true, false).execute())
+                ((ErrorServer) new SearchPath(map, start, arrival, time, distOpt, foot).execute())
                         .getError(),
                 String.format("Path not found from %s to %s", start, arrival));
+    }
+
+    private void pathNotFoundHelperDistOpt(String start, String arrival) throws Exception {
+        pathNotFoundHelper(start, arrival, null, true, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     void notExistingStart() throws Exception {
-        pathNotFoundHelper("test", "Commerce");
+        pathNotFoundHelperDistOpt("test", "Commerce");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     void notExistingArrival() throws Exception {
-        pathNotFoundHelper("Lourmel", "test");
+        pathNotFoundHelperDistOpt("Lourmel", "test");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     void notPathBetween() throws Exception {
-        pathNotFoundHelper("Commerce", "Lourmel");
+        pathNotFoundHelperDistOpt("Commerce", "Lourmel");
     }
 
     private void findPathMapHelper(boolean timedMap, String start, String arrival, int nbLine,
@@ -156,7 +161,7 @@ class SearchPathTest {
     @Test
     @Timeout(DEFAULT_TIMEOUT)
     void findPathNordToLyonTimeOpt() throws Exception {
-        findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, new Time(17, 58, 32), true, false);
+        pathNotFoundHelper("Gare du Nord", "Gare de Lyon", new Time(17, 58, 32), false, false);
     }
 
     @Test
