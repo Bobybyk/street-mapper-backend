@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-public class PlanTest {
+class PlanTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
 
@@ -25,64 +25,64 @@ public class PlanTest {
         return "src/test/resources/" + filename + ".csv";
     }
 
-    public PlanTest() throws Exception {
+    PlanTest() throws Exception {
         plan = PlanParser.planFromSectionCSV(getPath(MAP_DATA));
         PlanParser.addTimeFromCSV(plan, getPath(TIME_DATA));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void copieEqualsMap() {
+    void copieEqualsMap() {
         assertEquals(plan.getMap(), new Plan(plan).getMap(), "Plan copie");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void copieEqualsLine() {
+    void copieEqualsLine() {
         assertEquals(plan.getLines(), new Plan(plan).getLines(), "Plan copie");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void copieEqualsInfo() {
+    void copieEqualsInfo() {
         assertEquals(plan.getStationsInfo(), new Plan(plan).getStationsInfo(), "Plan copie");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void updateSectionTimeNullSection() {
+    void updateSectionTimeNullSection() {
         plan.updateSectionTime(null, new Time(0, 0));
         assertEquals(plan.getMap(), new Plan(plan).getMap(), "Update null section");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void updateSectionTimeUnknownSection() {
+    void updateSectionTimeUnknownSection() {
         plan.updateSectionTime(unknownSection, new Time(0, 0));
         assertEquals(plan.getMap(), new Plan(plan).getMap(), "Update null section");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getLineNameNullSection() {
+    void getLineNameNullSection() {
         assertNull(plan.getLineName(null), "Line name of null section");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getLineNameUnknownSection() {
+    void getLineNameUnknownSection() {
         assertNull(plan.getLineName(unknownSection), "Line name of unknown section");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getLineNullSection() {
+    void getLineNullSection() {
         assertNull(plan.getLine(null), "Line of null section");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getLineUnknownSection() {
+    void getLineUnknownSection() {
         assertNull(plan.getLine(unknownSection), "Line of unknown section");
     }
 }
