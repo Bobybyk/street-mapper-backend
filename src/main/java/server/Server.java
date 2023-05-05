@@ -33,7 +33,7 @@ public class Server {
     /**
      * Nombres de connexions simultanées que le server gère.
      */
-    private static final int MAX_INCOMMING_CONNECTION = 50;
+    public static final int DEFAULT_BACKLOG = 50;
 
     /**
      * Nombres de secondes laissées aux threads lancés pour se terminer avant la fermeture de tous
@@ -132,7 +132,7 @@ public class Server {
      */
     public Server(String csvMapPath, int port, boolean withConsole) throws IOException, 
         IncorrectFileFormatException, IllegalArgumentException {
-        this(csvMapPath, port, withConsole, MAX_INCOMMING_CONNECTION);
+        this(csvMapPath, port, withConsole, DEFAULT_BACKLOG);
     }
 
     /**
@@ -145,7 +145,7 @@ public class Server {
      */
     public Server(String csvMapPath, int port) throws IOException, 
         IncorrectFileFormatException, IllegalArgumentException {
-        this(csvMapPath, port, false, MAX_INCOMMING_CONNECTION);
+        this(csvMapPath, port, false, DEFAULT_BACKLOG);
     }
 
     /**

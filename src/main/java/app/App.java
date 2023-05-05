@@ -15,21 +15,30 @@ import util.Logger;
 
 public class App {
 
-    private static final int PORT;
+    /**
+     * Port sur lequel le server écoutera
+     */
+    private static int PORT;
 
-    static {
-        try (InputStream stream = App.class.getResourceAsStream("/config/network.json")) {
-            // Création d'un objet JsonReader
-            JsonReader jsonReader = Json.createReader(stream);
-            // Récupération de l'objet racine JSON
-            JsonObject jsonObject = jsonReader.readObject();
+    /**
+     * Nombre de connexions simultanées que le serveur peut gérer
+     */
+    private static int BACKLOG;
 
-            // Récupération des champs du fichier JSON
-            PORT = jsonObject.getInt("port");
-        } catch (IOException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
+    /**
+     * Chemin du ficher de configuration
+     */
+    private static final String CONFIG_FILE = "/config/network.json";
+
+    /**
+     * Nom du champ pour la valeur de {@code PORT}
+     */
+    private static final String PORT_KEY = "port";
+
+    /**
+     * Nom du champ pour la valeur de {@code BACKLOG}
+     */
+    private static final String BACKLOG_KEY = "backlog";
 
     /**
      * Commentaire d'erreur en static pour la gestion de fichier
@@ -42,6 +51,20 @@ public class App {
             "Fichier des horaires est introuvable ou est un repertoire";
     private static final String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
     private static final String ERROR_SERVER_START = "Le serveur n'a pas demarré";
+    private static final String JSON_MISS_FORMED = 
+            "Le ficher de configuration est mal formé";
+    private static final String MISSING_PORT_KEY = 
+            "le champ \"port\" n'est pas présent dans le ficher de configuration";
+    private static final String WRONG_TYPE_PORT_KEY = 
+            "le champ \"port\" n'est pas un entier";
+    private static final String WRONG_TYPE_BACKLOG_KEY = 
+            "le champs \"backlog\" n'est pas un entier";
+    private static final String PORT_NEGATIVE_VALUE = 
+            "Le champ \"port\" ne peut pas être une valeur negative";
+    private static final String BACKLOG_NEGATIVE_VALUE = 
+            "Le champ \"backlog\" ne peut pas être une valeur negative";
+    private static final String CONFIG_FILE_NOT_FOUND = 
+            "Le ficher ne configuration n'existe pas";
 
     public static void main(String[] args) {
         if (!argsIsOk(args)) {
@@ -56,7 +79,8 @@ public class App {
         }
 
         try {
-            final Server server = new Server(mapFile.getPath(), PORT, true);
+            config();
+            final Server server = new Server(mapFile.getPath(), PORT, true, BACKLOG);
             if (hasCsvTimeFile(args)) {
                 final File timeFile = new File(args[1]);
                 if (!isFile(timeFile)) {
@@ -74,9 +98,84 @@ public class App {
             Logger.error(ERROR_SERVER_START);
         } catch (InconsistentDataException e) {
             Logger.error(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Logger.error(e.getMessage());
         }
     }
 
+    /**
+     * Initialise les champs {@code PORT} et {@code BACKLOG} selon le ficher de configuration
+     * @throws IllegalArgumentException le ficher est mal configuré, ne contient pas le champ 
+     * {@code port} ou que les champs {@code port} et {@code backlog} ne sont pas des entiers, 
+     * ou qu'ils sont négatifs
+     * 
+     * @see App#affectPortValue
+     * @see App#affectBacklogValue
+     */
+    static void config() throws IllegalArgumentException {
+        try (InputStream stream = App.class.getResourceAsStream(CONFIG_FILE)) {
+
+            if (stream == null)
+                throw new IllegalArgumentException(CONFIG_FILE_NOT_FOUND);
+
+            // Création d'un objet JsonReader
+            JsonReader jsonReader = Json.createReader(stream);
+            // Récupération de l'objet racine JSON
+            JsonObject jsonObject = jsonReader.readObject();
+
+            // Récupération des champs du fichier JSON
+            affectPortValue(jsonObject);
+
+            affectBacklogValue(jsonObject);
+            
+        } catch (IOException e) {
+            throw new IllegalAccessError(e.getMessage());
+        } catch (javax.json.stream.JsonParsingException e) {
+            throw new IllegalArgumentException(JSON_MISS_FORMED);
+        }
+    }
+
+    /**
+     * Affecte la value du port déclarée dans le ficher de configuration
+     * 
+     * @param jsonObject json représentant le ficher de configuration
+     * @throws IllegalArgumentException si le champ {@code port} est absent du ficher de configuration,
+     * si ce n'est pas un entier, ou un entier negatif
+     */
+    private static void affectPortValue(JsonObject jsonObject) throws IllegalArgumentException {
+        try {
+            PORT = jsonObject.getInt(PORT_KEY);
+
+            if (PORT < 0)
+                throw new IllegalArgumentException(PORT_NEGATIVE_VALUE);
+
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException(MISSING_PORT_KEY);
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException(WRONG_TYPE_PORT_KEY);
+        }
+    }
+
+    /**
+     * Affecte la value du backlog déclarée dans le ficher de configuration si présente
+     * 
+     * @param jsonObject json représentant le ficher de configuration
+     * @throws IllegalArgumentException si le champ {@code backlog} n'est pas entier ou 
+     * un entier negatif
+     */
+    private static void affectBacklogValue(JsonObject jsonObject) throws IllegalArgumentException {
+        try {
+            BACKLOG = jsonObject.getInt(BACKLOG_KEY);
+
+            if (BACKLOG < 0)
+                throw new IllegalArgumentException(BACKLOG_NEGATIVE_VALUE);
+
+        } catch (NullPointerException e) {
+            BACKLOG = Server.DEFAULT_BACKLOG;
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException(WRONG_TYPE_BACKLOG_KEY);
+        }
+    }
     /**
      * Cette fonction renvoie un vrai si les arguments sont correctes s'ils respectent le formatage
      * ou faux si les arguments ne respectent pas le formatage
