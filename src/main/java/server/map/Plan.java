@@ -315,8 +315,10 @@ public final class Plan {
      * @param arrival la station d'arrivé
      */
     private void addFootSection(Station start, Station arrival) {
-        map.get(start.getName()).add(new Section(start, arrival, null,
-                start.distanceBetween(arrival), start.durationBetween(arrival)));
+        List<Section> startSections = map.get(start.getName());
+        if (startSections != null)
+            startSections.add(new Section(start, arrival, null, start.distanceBetween(arrival),
+                    start.durationBetween(arrival)));
     }
 
     /**
