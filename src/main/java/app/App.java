@@ -3,87 +3,195 @@
  */
 package app;
 
-import app.map.Map;
-import app.server.Server;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.UnknownHostException;
+import java.io.InputStream;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import server.Server;
+import server.map.PlanParser;
+import server.map.PlanParser.InconsistentDataException;
+import util.Logger;
 
 public class App {
 
     /**
-     * Commentaire d'erreur en static pour la gestion de fichier
+     * Port sur lequel le server écoutera
      */
-    private final static String errorIllegalArgument = "[Erreur] Arguments invalides. Arguments Attendus : java App <file>";
-    private final static String errorFileNotExist = "[Erreur] Fichier introuvable ou est un repertoire";
-    private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
-    private final static String errorServeurStart = "[Erreur] Le serveur n'a pas demarré";
-
-
-    private final static String succesMapCreate = "Object Map crée avec succes ";
-
-    private static Map map = null;
+    private static int port;
 
     /**
-     * Cette fonction permet de recup l'instance de map
-     * @return L'object Map
+     * Nombre de connexions simultanées que le serveur peut gérer
      */
-    public static Map getInstanceOfMap(){
-        if(map == null) {
-            try {
-                return new Map("dev_ressources/map_data_client.csv");
-            } catch (FileNotFoundException | Map.IncorrectFileFormatException e) {
-                System.out.println("Erreur map introuvable");
-            }
-        }
-        return map;
-    }
+    private static int backlog;
+
+    /**
+     * Chemin du ficher de configuration
+     */
+    private static final String CONFIG_FILE = "/config/network.json";
+
+    /**
+     * Nom du champ pour la valeur de {@code PORT}
+     */
+    private static final String PORT_KEY = "port";
+
+    /**
+     * Nom du champ pour la valeur de {@code BACKLOG}
+     */
+    private static final String BACKLOG_KEY = "backlog";
+
+    /**
+     * Commentaire d'erreur en static pour la gestion de fichier
+     */
+    private static final String ERROR_ILLEGAL_ARGUMENT =
+            "Arguments invalides. Arguments Attendus : <mapFile> [timeFile]";
+    private static final String ERROR_FILE_MAP_NOT_EXIST =
+            "Fichier du plan est introuvable ou est un repertoire";
+    private static final String ERROR_FILE_TIME_NOT_EXIST =
+            "Fichier des horaires est introuvable ou est un repertoire";
+    private static final String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
+    private static final String ERROR_SERVER_START = "Le serveur n'a pas demarré";
+    private static final String JSON_MISS_FORMED = "Le ficher de configuration est mal formé";
+    private static final String MISSING_PORT_KEY =
+            "le champ \"port\" n'est pas présent dans le ficher de configuration";
+    private static final String WRONG_TYPE_PORT_KEY = "le champ \"port\" n'est pas un entier";
+    private static final String WRONG_TYPE_BACKLOG_KEY =
+            "le champs \"backlog\" n'est pas un entier";
+    private static final String PORT_NEGATIVE_VALUE =
+            "Le champ \"port\" ne peut pas être une valeur negative";
+    private static final String BACKLOG_NEGATIVE_VALUE =
+            "Le champ \"backlog\" ne peut pas être une valeur negative";
+    private static final String CONFIG_FILE_NOT_FOUND = "Le ficher ne configuration n'existe pas";
 
     public static void main(String[] args) {
-       if(argsIsOk(args)) {
-           final File file = new File(args[0]);
-           if (!file.exists() || file.isDirectory()) print(errorFileNotExist);
-           else {
-               try {
-                   map = new Map(file.getPath());
-                   System.out.println(succesMapCreate);
-                   final Server server = new Server("localhost", 12345);
-                   server.start();
-               } catch (FileNotFoundException e) {
-                   print(errorFileNotExist);
-               } catch (Map.IncorrectFileFormatException e) {
-                   print(errorIncorrectFile);
-               } catch (IOException e) {
-                   print(errorServeurStart);
-               }
-           }
-       }
+        if (!argsIsOk(args)) {
+            Logger.error(ERROR_ILLEGAL_ARGUMENT);
+            return;
+        }
+
+        final File mapFile = new File(args[0]);
+        if (!isFile(mapFile)) {
+            Logger.error(ERROR_FILE_MAP_NOT_EXIST);
+            return;
+        }
+
+        try {
+            config();
+            final Server server = new Server(mapFile.getPath(), port, true, backlog);
+            if (hasCsvTimeFile(args)) {
+                final File timeFile = new File(args[1]);
+                if (!isFile(timeFile)) {
+                    Logger.error(ERROR_FILE_TIME_NOT_EXIST);
+                    return;
+                }
+                server.updateTime(timeFile.getPath());
+            }
+            server.start();
+        } catch (FileNotFoundException e) {
+            Logger.error(ERROR_FILE_MAP_NOT_EXIST);
+        } catch (PlanParser.IncorrectFileFormatException e) {
+            Logger.error(ERROR_INCORRECT_FILE);
+        } catch (IOException e) {
+            Logger.error(ERROR_SERVER_START);
+        } catch (InconsistentDataException | IllegalArgumentException e) {
+            Logger.error(e.getMessage());
+        }
+    }
+
+    /**
+     * Initialise les champs {@code PORT} et {@code BACKLOG} selon le ficher de configuration
+     *
+     * @throws IllegalArgumentException le ficher est mal configuré, ne contient pas le champ
+     *         {@code port} ou que les champs {@code port} et {@code backlog} ne sont pas des
+     *         entiers, ou qu'ils sont négatifs
+     *
+     * @see App#affectPortValue
+     * @see App#affectBacklogValue
+     */
+    static void config() throws IllegalArgumentException {
+        try (InputStream stream = App.class.getResourceAsStream(CONFIG_FILE)) {
+
+            if (stream == null)
+                throw new IllegalArgumentException(CONFIG_FILE_NOT_FOUND);
+
+            // Création d'un objet JsonReader
+            JsonReader jsonReader = Json.createReader(stream);
+            // Récupération de l'objet racine JSON
+            JsonObject jsonObject = jsonReader.readObject();
+
+            // Récupération des champs du fichier JSON
+            affectPortValue(jsonObject);
+
+            affectBacklogValue(jsonObject);
+
+        } catch (IOException e) {
+            throw new IllegalAccessError(e.getMessage());
+        } catch (javax.json.stream.JsonParsingException e) {
+            throw new IllegalArgumentException(JSON_MISS_FORMED);
+        }
+    }
+
+    /**
+     * Affecte la value du port déclarée dans le ficher de configuration
+     *
+     * @param jsonObject json représentant le ficher de configuration
+     * @throws IllegalArgumentException si le champ {@code port} est absent du ficher de
+     *         configuration, si ce n'est pas un entier, ou un entier negatif
+     */
+    private static void affectPortValue(JsonObject jsonObject) throws IllegalArgumentException {
+        try {
+            port = jsonObject.getInt(PORT_KEY);
+
+            if (port < 0)
+                throw new IllegalArgumentException(PORT_NEGATIVE_VALUE);
+
+        } catch (NullPointerException e) {
+            throw new IllegalArgumentException(MISSING_PORT_KEY);
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException(WRONG_TYPE_PORT_KEY);
+        }
+    }
+
+    /**
+     * Affecte la value du backlog déclarée dans le ficher de configuration si présente
+     *
+     * @param jsonObject json représentant le ficher de configuration
+     * @throws IllegalArgumentException si le champ {@code backlog} n'est pas entier ou un entier
+     *         negatif
+     */
+    private static void affectBacklogValue(JsonObject jsonObject) throws IllegalArgumentException {
+        try {
+            backlog = jsonObject.getInt(BACKLOG_KEY);
+
+            if (backlog < 0)
+                throw new IllegalArgumentException(BACKLOG_NEGATIVE_VALUE);
+
+        } catch (NullPointerException e) {
+            backlog = Server.DEFAULT_BACKLOG;
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException(WRONG_TYPE_BACKLOG_KEY);
+        }
     }
 
     /**
      * Cette fonction renvoie un vrai si les arguments sont correctes s'ils respectent le formatage
      * ou faux si les arguments ne respectent pas le formatage
+     *
      * @param args l'ensemble des arguments
      * @return boolean
      */
-    public static boolean argsIsOk(String[] args) {
-        if (args.length < 1) {
-            print(errorIllegalArgument);
-            return false;
-        } else if (args.length > 3) {
-            print(errorIllegalArgument);
-            return false;
-        }
-            return true;
-        }
+    static boolean argsIsOk(String[] args) {
+        int length = args.length;
+        return length == 1 || length == 2;
+    }
 
-    /**
-     * Fonction d'affichage
-     * @param msg le tableau des messages pour les faire afficher
-     */
-    private static void print(String... msg){
-        for (String line: msg) System.out.println(line);
+    static boolean hasCsvTimeFile(String[] args) {
+        return args.length == 2;
+    }
+
+    static boolean isFile(File mapFile) {
+        return mapFile.exists() && !mapFile.isDirectory();
     }
 }

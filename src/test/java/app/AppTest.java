@@ -3,36 +3,49 @@
  */
 package app;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-public class AppTest {
+class AppTest {
 
     private static final long TIMEOUT = 3;
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testArgOk(){
-        String[] strings = {"ROUTE", "JAURES", "OURQ"};
+    void testArgOk() {
+        String[] strings = {"ROUTE", "JAURES"};
         assertTrue(App.argsIsOk(strings));
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testNotArgOk(){
-        String[] strings = {"ROUTE", "JAURES", "PARIS", "MARSEILLE"};
+    void testArgOk1() {
+        String[] strings = {"ROUTE"};
+        assertTrue(App.argsIsOk(strings));
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    void testNotArgOk() {
+        String[] strings = {"ROUTE", "JAURES", "PARIS", "MARSEILLE", "OURQ"};
         assertFalse(App.argsIsOk(strings));
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testNotArgOkNoArgument(){
+    void testNotArgOkNoArgument() {
         String[] strings = {};
         assertFalse(App.argsIsOk(strings));
+    }
+
+    @Test
+    @Timeout(value = TIMEOUT)
+    void testHasCsvTimeFile() {
+        String[] args = {"", ""};
+        assertTrue(App.hasCsvTimeFile(args));
     }
 
 
