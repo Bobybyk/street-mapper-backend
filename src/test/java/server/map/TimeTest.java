@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class TimeTest {
+class TimeTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
 
@@ -20,27 +20,27 @@ public class TimeTest {
     @ParameterizedTest
     @ValueSource(ints = {-2, -1, 24, 25})
     @Timeout(DEFAULT_TIMEOUT)
-    public void illegalNumberOfHour(int hour) {
+    void illegalNumberOfHour(int hour) {
         illegalArgumentHelper(hour, 0, 0);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {-2, -1, 60, 61})
     @Timeout(DEFAULT_TIMEOUT)
-    public void illegalNumberOfMinute(int minute) {
+    void illegalNumberOfMinute(int minute) {
         illegalArgumentHelper(0, minute, 0);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {-2, -1, 60, 61})
     @Timeout(DEFAULT_TIMEOUT)
-    public void illegalNumberOfSecond(int second) {
+    void illegalNumberOfSecond(int second) {
         illegalArgumentHelper(0, 0, second);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addDurationImmuable() {
+    void addDurationImmuable() {
         Time t1 = new Time(10, 11, 12);
         Time t2 = t1.addDuration(100);
         assertNotEquals(t1, t2, "Add duration return a new instance");
@@ -55,31 +55,31 @@ public class TimeTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addToNextMinute() {
+    void addToNextMinute() {
         addDurationHelper(1, 1, 30, 45, 1, 2, 15);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addMoreThan1minute() {
+    void addMoreThan1minute() {
         addDurationHelper(23, 30, 15, 120, 23, 32, 15);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addToNextHour() {
+    void addToNextHour() {
         addDurationHelper(12, 58, 20, 240 + 5, 13, 2, 25);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addMoreThan1Hour() {
+    void addMoreThan1Hour() {
         addDurationHelper(14, 25, 10, 3600 + 1800 + 10, 15, 55, 20);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addToNextDay() {
+    void addToNextDay() {
         addDurationHelper(23, 50, 0, 645, 0, 0, 45);
     }
 
@@ -91,19 +91,19 @@ public class TimeTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void timeFromDurationSecond() {
+    void timeFromDurationSecond() {
         timeFromDurationHelper(30, 0, 0, 30);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void timeFromDurationMinute() {
+    void timeFromDurationMinute() {
         timeFromDurationHelper(90, 0, 1, 30);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void timeFromDurationHour() {
+    void timeFromDurationHour() {
         timeFromDurationHelper(3700, 1, 1, 40);
     }
 
@@ -113,13 +113,13 @@ public class TimeTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void durationToAfter() {
+    void durationToAfter() {
         durationToHelper(new Time(14, 23), new Time(14, 24), 60);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void durationToBefore() {
+    void durationToBefore() {
         durationToHelper(new Time(14, 23), new Time(14, 22), 86340);
     }
 }

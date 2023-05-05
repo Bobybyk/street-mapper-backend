@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Timeout;
 import server.map.Line.DifferentStartException;
 import server.map.Line.StationNotFoundException;
 
-public class LineTest {
+class LineTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
 
@@ -23,27 +23,27 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void nullName() {
+    void nullName() {
         assertThrows(IllegalArgumentException.class, () -> new Line(null, "0"), "null line name");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addNullSection() {
+    void addNullSection() {
         assertThrows(IllegalArgumentException.class, () -> line.addSection(null),
                 "Add null section");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setNullStart() {
+    void setNullStart() {
         assertThrows(IllegalArgumentException.class, () -> line.setStart(null),
                 "Set null as start");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setStartWithNotExistingStation() {
+    void setStartWithNotExistingStation() {
         assertThrows(StationNotFoundException.class, () -> line.setStart("test"),
                 "Start station not in line");
     }
@@ -55,7 +55,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setTwoDifferentStart() throws Exception {
+    void setTwoDifferentStart() throws Exception {
         initLine();
         line.setStart("A");
         assertThrows(DifferentStartException.class, () -> {
@@ -65,7 +65,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setStartNotNull() throws Exception {
+    void setStartNotNull() throws Exception {
         initLine();
         line.setStart("A");
         assertEquals(s1, line.getStart(), "Set start");
@@ -73,7 +73,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void setStartNotNullTwice() throws Exception {
+    void setStartNotNullTwice() throws Exception {
         initLine();
         line.setStart("A");
         line.setStart("A");
@@ -82,7 +82,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addDepartureTime() {
+    void addDepartureTime() {
         line.addDepartureTime(12, 34);
         Time expected = new Time(12, 34);
         assertEquals(expected, line.getDepartures().get(0), "Add a departure time");
@@ -90,7 +90,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addDepartureTimeTwice() {
+    void addDepartureTimeTwice() {
         line.addDepartureTime(12, 34);
         line.addDepartureTime(12, 34);
         assertEquals(1, line.getDepartures().size(), "Add the same departure time twice");
@@ -98,7 +98,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void updateSectionTime() throws Exception {
+    void updateSectionTime() throws Exception {
         initLine();
         line.setStart("A");
         line.updateSectionsTime();
@@ -107,7 +107,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void updateSectionTimeSetLast() throws Exception {
+    void updateSectionTimeSetLast() throws Exception {
         initLine();
         line.setStart("A");
         line.updateSectionsTime();
@@ -116,7 +116,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void updateSectionsTimeWithLoop() throws Exception {
+    void updateSectionsTimeWithLoop() throws Exception {
         initLine();
         Section loopSection = new Section(t3, t1, "test variant 0", 0, 30);
         line.addSection(loopSection);
@@ -128,7 +128,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getNextTimeWithoutDepartureTime() throws Exception {
+    void getNextTimeWithoutDepartureTime() throws Exception {
         initLine();
         assertNull(line.getNextTime(s1, new Time(15, 20)),
                 "Next departure time for unknown section");
@@ -142,7 +142,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void test() throws Exception {
+    void test() throws Exception {
         initStart();
         assertNull(line.getNextTime(s1, new Time(3, 4)),
                 "Next departures time with empty departure time ");
@@ -157,7 +157,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getNextTimeUnknownSectionDuration() throws Exception {
+    void getNextTimeUnknownSectionDuration() throws Exception {
         initDepartureTime();
         assertNull(line.getNextTime(new Section(t3, t1, "", 0, 0), new Time(0, 0)),
                 "Next departure time for unknown section ");
@@ -165,7 +165,7 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getNextTimeWithNullTime() throws Exception {
+    void getNextTimeWithNullTime() throws Exception {
         initDepartureTime();
         assertNull(line.getNextTime(s1, null), "Next departure time for unknown section start");
     }
@@ -178,31 +178,31 @@ public class LineTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getNextTimeFromStart() throws Exception {
+    void getNextTimeFromStart() throws Exception {
         getNextTimeHelper(s1, new Time(15, 20), new Time(15, 20));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getNextTimeFirstDepart() throws Exception {
+    void getNextTimeFirstDepart() throws Exception {
         getNextTimeHelper(s2, new Time(15, 20), new Time(15, 20, 30));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getNextTimeSecondDepart() throws Exception {
+    void getNextTimeSecondDepart() throws Exception {
         getNextTimeHelper(s2, new Time(15, 21), new Time(15, 30, 30));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getNextTimeNextDay() throws Exception {
+    void getNextTimeNextDay() throws Exception {
         getNextTimeHelper(s2, new Time(16, 0), new Time(6, 30, 30));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getDeparturesTime() throws Exception {
+    void getDeparturesTime() throws Exception {
         initDepartureTime();
         List<Time> expected =
                 Arrays.asList(new Time(6, 30, 30), new Time(15, 20, 30), new Time(15, 30, 30));

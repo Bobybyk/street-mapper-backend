@@ -8,7 +8,7 @@ import server.Server;
 
 public class ServerCommandUpdateTimeFile implements ServerCommand {
     
-    private final String description = "change les informations des horaires du plan";
+    private static final String DESCRIPTION = "change les informations des horaires du plan";
 
     private static final String FILE_ERROR = "Le ficher est un dossier ou inexistant";
 
@@ -16,7 +16,7 @@ public class ServerCommandUpdateTimeFile implements ServerCommand {
 
     @Override
     public String getdescription() {
-        return description;
+        return DESCRIPTION;
     }
 
     @Override

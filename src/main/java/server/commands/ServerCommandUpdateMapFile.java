@@ -8,15 +8,15 @@ import server.Server;
 
 public class ServerCommandUpdateMapFile implements ServerCommand {
     
-    private final String description = "change le ficher de plan";
+    private static final String DESCRIPTION = "change le ficher de plan";
 
     private static final String FILE_ERROR = "Le ficher est un dossier ou inexistant";
 
-        private static final String FILE_NOT_GIVEN = "s'attend à recevoir uniquement le chemin vers le nouveau fichier";
+    private static final String FILE_NOT_GIVEN = "s'attend à recevoir uniquement le chemin vers le nouveau fichier";
     
     @Override
     public String getdescription() {
-        return description;
+        return DESCRIPTION;
     }
 
     @Override

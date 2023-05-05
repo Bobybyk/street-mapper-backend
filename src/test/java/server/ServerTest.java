@@ -15,7 +15,7 @@ import server.data.Route;
 import server.data.SuggestionStations;
 import server.map.PlanParser.IncorrectFileFormatException;
 
-public class ServerTest {
+class ServerTest {
 
     private static final String HOST = "localhost";
     private static final String ROUTE_REQUEST_WRONG = "ROUTE;GARE1;GARE2";
@@ -96,41 +96,41 @@ public class ServerTest {
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testServerIsRunning() {
+    void testServerIsRunning() {
         assertTrue(server.isRunning());
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testNullRequest() throws Exception {
+    void testNullRequest() throws Exception {
         Object errorServer = sendRequest(NULL_REQUEST);
         assertTrue(errorServer instanceof ErrorServer);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testEmptyRequest() throws Exception {
+    void testEmptyRequest() throws Exception {
         Object errorServer = sendRequest(EMPTY_REQUEST);
         assertTrue(errorServer instanceof ErrorServer);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testWrongQueryRoute() throws Exception {
+    void testWrongQueryRoute() throws Exception {
         Object serializableRoute = sendRequest(ROUTE_REQUEST_WRONG);
         assertTrue(serializableRoute instanceof ErrorServer);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testQueryRoute() throws Exception {
+    void testQueryRoute() throws Exception {
         Object serializableRoute = sendRequest(ROUTE_REQUEST_RIGHT);
         assertTrue(serializableRoute instanceof Route);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testQueryRouteTwice() throws Exception {
+    void testQueryRouteTwice() throws Exception {
         Object serializableRoute = sendRequest(ROUTE_REQUEST_RIGHT);
         assertTrue(serializableRoute instanceof Route);
         Object serializableRoute2 = sendRequest(ROUTE_REQUEST_RIGHT);
@@ -139,7 +139,7 @@ public class ServerTest {
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testQueryOneGoodOneWrong() throws Exception {
+    void testQueryOneGoodOneWrong() throws Exception {
         Object serializableRoute = sendRequest(ROUTE_REQUEST_RIGHT);
         assertTrue(serializableRoute instanceof Route);
         Object exception = sendRequest(ROUTE_REQUEST_WRONG);
@@ -148,35 +148,35 @@ public class ServerTest {
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testWrongQuery() throws Exception {
+    void testWrongQuery() throws Exception {
         Object exception = sendRequest(ROUTE_REQUEST_WRONG);
         assertTrue(exception instanceof ErrorServer);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testValidSuggestionDepart() throws Exception {
+    void testValidSuggestionDepart() throws Exception {
         Object suggestions = sendRequest(SUGGESTION_VALID_DEPART);
         assertTrue(suggestions instanceof SuggestionStations);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testValidSuggestionArrival() throws Exception {
+    void testValidSuggestionArrival() throws Exception {
         Object suggestions = sendRequest(SUGGESTION_VALID_ARRIVAL);
         assertTrue(suggestions instanceof SuggestionStations);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testInvalidSuggestion2Arg() throws Exception {
+    void testInvalidSuggestion2Arg() throws Exception {
         Object suggestions = sendRequest(SUGGESTION_INVALID_2ARG);
         assertTrue(suggestions instanceof ErrorServer);
     }
 
     @Test
     @Timeout(value = TIMEOUT)
-    public void testEmptySuggestion() throws Exception {
+    void testEmptySuggestion() throws Exception {
         Object suggestions = sendRequest(SUGGESTION_EMPTY);
         assertTrue(suggestions instanceof ErrorServer);
     }

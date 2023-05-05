@@ -29,7 +29,7 @@ import server.map.Time;
 import server.map.PlanParser.IncorrectFileFormatException;
 import util.Logger;
 
-public class ServerCommandTest {
+class ServerCommandTest {
     private static Server server = null;
     private static final String HOST = "localhost";
     private static final int PORT = 12345;
@@ -43,7 +43,7 @@ public class ServerCommandTest {
     private static boolean isLoggerEnable;
 
 
-    public static StationInfo createStationInfo(String stationName, String... lines) {
+    static StationInfo createStationInfo(String stationName, String... lines) {
         return new StationInfo(stationName, Arrays.asList(lines));
     }
 
@@ -151,7 +151,7 @@ public class ServerCommandTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testInitialSuggestionValue() throws IOException, IllegalArgumentException, IncorrectFileFormatException, ClassNotFoundException {
+    void testInitialSuggestionValue() throws IOException, IllegalArgumentException, IncorrectFileFormatException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
         boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_1,1, chatelet);
@@ -161,7 +161,7 @@ public class ServerCommandTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testTimeBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
+    void testTimeBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationTime nationTime = new StationTime("2", "Avron", new Time(6, 5, 0));
         boolean res = timeTest(clientSocket, TIME_REQUEST, 0, nationTime);
@@ -209,7 +209,7 @@ public class ServerCommandTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testSuggestionValueAftereChange() throws Exception {
+    void testSuggestionValueAftereChange() throws Exception {
 
         Socket clientSocket = new Socket(HOST, PORT);
         StationInfo stationA = createStationInfo("stationA", "random");

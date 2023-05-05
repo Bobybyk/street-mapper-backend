@@ -23,7 +23,7 @@ import server.map.StationInfo;
 import server.map.Time;
 import server.map.PlanParser.IncorrectFileFormatException;
 
-public class ServerConsoleTest {
+class ServerConsoleTest {
     private static Server server = null;
     private static final String HOST = "localhost";
     private static final int PORT = 12346;
@@ -35,7 +35,7 @@ public class ServerConsoleTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
 
-    public static StationInfo createStationInfo(String stationName, String... lines) {
+    static StationInfo createStationInfo(String stationName, String... lines) {
         return new StationInfo(stationName, Arrays.asList(lines));
     }
 
@@ -130,7 +130,7 @@ public class ServerConsoleTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testSuggestionValueBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
+    void testSuggestionValueBeforeChange() throws IOException, IllegalArgumentException, ClassNotFoundException {
         Socket clientSocket = new Socket(HOST, PORT);
         StationInfo stationA = createStationInfo("stationA", "random");
         boolean res = suggesionTest(clientSocket, SUGGESTION_REQUEST_2, 1, stationA);

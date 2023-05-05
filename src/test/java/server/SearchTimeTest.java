@@ -12,7 +12,7 @@ import server.map.Plan;
 import server.map.PlanParser;
 import server.map.Time;
 
-public class SearchTimeTest {
+class SearchTimeTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
     private static final String MAP_DATA = "map_data_all";
@@ -34,21 +34,21 @@ public class SearchTimeTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullStart() throws Exception {
+    void findPathWithNullStart() throws Exception {
         init();
         illegalArgumentHelper(map, null, new Time(14, 22));
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullTime() throws Exception {
+    void findPathWithNullTime() throws Exception {
         init();
         illegalArgumentHelper(map, "test", null);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullMap() throws Exception {
+    void findPathWithNullMap() throws Exception {
         illegalArgumentHelper(null, "test", new Time(18, 30));
     }
 
@@ -64,7 +64,7 @@ public class SearchTimeTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void timeAtMadeleine() {
+    void timeAtMadeleine() {
         SearchTime search = createSearchTime("Madeleine", new Time(15, 40));
         List<StationTime> times = ((DepartureTimes) search.execute()).getTimes();
         StationTime expected = new StationTime("12", "Mairie d'Issy", new Time(15, 43, 54));
@@ -73,7 +73,7 @@ public class SearchTimeTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void timeAtPorteDophne() {
+    void timeAtPorteDophne() {
         SearchTime search = createSearchTime("Nation", new Time(6, 4, 0));
         List<StationTime> times = ((DepartureTimes) search.execute()).getTimes();
         StationTime expected = new StationTime("2", "Porte Dauphine", new Time(6, 5, 0));
@@ -82,7 +82,7 @@ public class SearchTimeTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void timeAtChateletAfterMidnight() {
+    void timeAtChateletAfterMidnight() {
         SearchTime search = createSearchTime("Châtelet", new Time(23, 59));
         List<StationTime> times = ((DepartureTimes) search.execute()).getTimes();
         StationTime expected = new StationTime("14", "Mairie de Saint-Ouen", new Time(6, 18, 00));

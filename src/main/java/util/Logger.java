@@ -23,7 +23,7 @@ public final class Logger {
     /**
      * Classe descrivant le type de log
      */
-    private static enum Type {
+    private enum Type {
         INFO("\u001B[34m"),
         ERROR("\u001B[31m");
 
@@ -56,13 +56,15 @@ public final class Logger {
         }
     }
 
+    private Logger() { }
+
     private static final String ASCII_RESET_COLOR = "\u001B[0m";
 
     private static void log(Logger.Type type, String message) {
         if (!isEnable) return;
 
         PrintStream stream = type.getPrintStream();
-        stream.printf("%s %s : %s %s\n", type.colorSequence, type.toString(), message, ASCII_RESET_COLOR);
+        stream.printf("%s %s : %s %s%n", type.colorSequence, type.toString(), message, ASCII_RESET_COLOR);
         stream.flush();
     }
 
