@@ -12,7 +12,7 @@ import java.util.Objects;
 public class Section implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 11L;
+    private static final long serialVersionUID = 12L;
 
     /**
      * La station de départ
@@ -185,7 +185,7 @@ public class Section implements Serializable {
         int duration = 0;
 
         for (Section s : sections) {
-            if (line != null && line.equals(s.line)) {
+            if (line == null && s.line == null || (line != null && line.equals(s.line))) {
                 arrival = s.arrival;
                 distance += s.distance;
                 duration += s.duration;
