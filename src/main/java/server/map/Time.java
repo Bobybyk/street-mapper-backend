@@ -9,7 +9,7 @@ import java.io.Serializable;
 public record Time(int hour, int minute, int second) implements Comparable<Time>, Serializable {
 
     @Serial
-    private static final long serialVersionUID = 5L;
+    private static final long serialVersionUID = 6L;
 
     /**
      * Nombre de secondes dans une journée
@@ -46,6 +46,15 @@ public record Time(int hour, int minute, int second) implements Comparable<Time>
      */
     public Time(int hour, int minute) {
         this(hour, minute, 0);
+    }
+
+    /**
+     * Créer une copie d'un temps
+     *
+     * @param t un temps
+     */
+    public Time(Time t) {
+        this(t.hour, t.minute, t.second);
     }
 
     /**

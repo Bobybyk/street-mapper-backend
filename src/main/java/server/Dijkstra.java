@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.function.ToIntBiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.util.stream.Collectors;
 import server.map.Plan;
 import server.map.Section;
 import server.map.Station;
@@ -29,10 +29,6 @@ public final class Dijkstra {
      * Le plan du réseau
      */
     private final Plan plan;
-    /**
-     * Le graphe : les sommets sont les noms des stations et les arêtes sont les sections
-     */
-    private final Map<String, List<Section>> map;
     /**
      * Le sommet de départ
      */
@@ -81,10 +77,6 @@ public final class Dijkstra {
      * Le sommet en cours de traitement
      */
     private String u;
-    /**
-     * Le résultat de l'algorithme
-     */
-    private List<Section> result;
     private static final String DEPART = "Départ";
     private static final String ARRIVEE = "Arrivée";
 
@@ -100,7 +92,6 @@ public final class Dijkstra {
         if (plan == null || start == null || arrival == null)
             throw new IllegalArgumentException();
         this.plan = plan;
-        this.map = plan.getMap();
         this.start = initStart(start);
         this.arrival = initArrival(arrival);
         this.departTime = departTime;
@@ -109,9 +100,8 @@ public final class Dijkstra {
         this.getWeight = distOpt ? Section::distanceTo : Section::durationTo;
         distance = new HashMap<>();
         previous = new HashMap<>();
-        queue = new PriorityQueue<>(map.size(), Comparator.comparingInt(distance::get));
+        queue = new PriorityQueue<>(plan.getMap().size(), Comparator.comparingInt(distance::get));
         this.u = null;
-        this.result = null;
     }
 
     /**
@@ -127,15 +117,8 @@ public final class Dijkstra {
         if (m.matches()) {
             try {
                 double[] coord = Parser.parse2DoubleSep(m.group(1), ",");
-                Station s = new Station(DEPART, coord[0], coord[1]);
-                List<Section> sections = getSectionsFromStations(true, s, getCloseStations(s));
-                if (sections.isEmpty()) {
-                    Station closest = getClosestStation(s);
-                    if (closest != null)
-                        sections.add(new Section(s, closest, null, s.distanceBetween(closest),
-                                s.durationBetween(closest)));
-                }
-                map.put(DEPART, sections);
+                plan.addStationWithSectionToNearStation(DEPART, coord[0], coord[1],
+                        MAX_FOOT_DISTANCE);
                 return DEPART;
             } catch (Exception ignored) {
                 Logger.info(ignored.getMessage());
@@ -157,16 +140,8 @@ public final class Dijkstra {
         if (m.matches()) {
             try {
                 double[] coord = Parser.parse2DoubleSep(m.group(1), ",");
-                Station s = new Station(ARRIVEE, coord[0], coord[1]);
-                List<Section> sections = getSectionsFromStations(false, s, getCloseStations(s));
-                if (sections.isEmpty()) {
-                    Station closest = getClosestStation(s);
-                    if (closest != null)
-                        sections.add(new Section(closest, s, null, closest.distanceBetween(s),
-                                closest.durationBetween(s)));
-                }
-                for (Section toArrival : sections)
-                    map.get(toArrival.getStart().getName()).add(toArrival);
+                plan.addStationWithSectionFromNearStation(ARRIVEE, coord[0], coord[1],
+                        MAX_FOOT_DISTANCE);
                 return ARRIVEE;
             } catch (Exception ignored) {
                 Logger.info(ignored.getMessage());
@@ -196,9 +171,9 @@ public final class Dijkstra {
      * @throws PathNotFoundException s'il n'existe pas de chemin entre les deux sommets
      */
     List<Section> getPath() throws PathNotFoundException {
-        if (result == null)
+        if (previous.isEmpty())
             compute();
-        return result;
+        return toResult();
     }
 
     /**
@@ -208,11 +183,10 @@ public final class Dijkstra {
      */
     private void compute() throws PathNotFoundException {
         init();
-        while (!finished())
+        while (!finished()) {
             loop();
-        if (arrival.equals(u))
-            setResult();
-        else
+        }
+        if (!arrival.equals(u))
             throw new PathNotFoundException();
     }
 
@@ -220,12 +194,13 @@ public final class Dijkstra {
      * Initialise les valeurs pour l'algorithme
      */
     private void init() {
-        for (String station : map.keySet()) {
+        Set<String> stationsName = plan.getStationsName();
+        for (String station : stationsName) {
             distance.put(station, Integer.MAX_VALUE);
         }
         distance.put(start, 0);
         distance.put(arrival, Integer.MAX_VALUE);
-        queue.addAll(map.keySet());
+        queue.addAll(stationsName);
     }
 
     /**
@@ -239,59 +214,29 @@ public final class Dijkstra {
     }
 
     /**
-     * @param station un sommet
-     * @return une liste de sommet à moins de {@code MAX_FOOT_DISTANCE} mètres de {@code station}
-     */
-    private List<Station> getCloseStations(Station station) {
-        return plan.getStations().stream()
-                .filter(s -> !s.equals(station) && station.distanceBetween(s) < MAX_FOOT_DISTANCE)
-                .toList();
-    }
-
-    /**
-     * @param station un sommet
-     * @return le sommet le plus près de {@code station}
-     */
-    private Station getClosestStation(Station station) {
-        return plan.getStations().stream().sorted(Comparator.comparingInt(station::distanceBetween))
-                .findFirst().orElse(null);
-    }
-
-    /**
-     * @param from si {@code station} est le sommet de départ des arêtes
-     * @param station le sommet de départ des arêtes
-     * @param list une liste de sommets d'arrivé si {@code from}, sinon une liste de sommets de
-     *        départ
-     * @return la liste des arêtes à pied entre {@code station} chaque sommet de {@code list}
-     */
-    private List<Section> getSectionsFromStations(boolean from, Station station,
-            List<Station> list) {
-        List<Section> res = new ArrayList<>();
-        for (Station s : list) {
-            res.add(new Section(from ? station : s, from ? s : station, null,
-                    station.distanceBetween(s), station.durationBetween(s)));
-        }
-        return res;
-    }
-
-    /**
      * @return la liste des arêtes partant de {@code u} en prenant en compte les sections à pied
      */
     private List<Section> getNeighbors() {
         Section prev = previous.get(u);
-        List<Section> neighbors = map.get(u);
+        List<Section> neighbors = plan.getSectionsFromStationName(u);
         if (neighbors == null)
             neighbors = new ArrayList<>();
 
         if (prev == null && !start.equals(DEPART) && foot) {
-            Set<Station> startStations =
-                    new HashSet<>(neighbors.stream().map(Section::getStart).toList());
+            Set<Station> startStations = new HashSet<>(neighbors.stream().map(Section::getStart)
+                    .collect(Collectors.toCollection(ArrayList::new)));
             for (Station s : startStations) {
-                neighbors.addAll(getSectionsFromStations(true, s, getCloseStations(s)));
+                neighbors.addAll(plan.getCloseStations(s, MAX_FOOT_DISTANCE, false).stream()
+                        .map(closeStation -> new Section(s, closeStation, null,
+                                s.distanceBetween(closeStation), s.durationBetween(closeStation)))
+                        .collect(Collectors.toCollection(ArrayList::new)));
             }
         } else if (prev != null && foot) {
-            neighbors.addAll(getSectionsFromStations(true, prev.getArrival(),
-                    getCloseStations(prev.getArrival())));
+            Station s = prev.getArrival();
+            neighbors.addAll(plan.getCloseStations(s, MAX_FOOT_DISTANCE, false).stream()
+                    .map(closeStation -> new Section(s, closeStation, null,
+                            s.distanceBetween(closeStation), s.durationBetween(closeStation)))
+                    .collect(Collectors.toCollection(ArrayList::new)));
         }
         return neighbors;
     }
@@ -328,7 +273,7 @@ public final class Dijkstra {
      *
      * @throws PathNotFoundException s'il n'existe pas de chemin entre les deux sommets
      */
-    private void setResult() throws PathNotFoundException {
+    private List<Section> toResult() throws PathNotFoundException {
         List<Section> orderedPath = new LinkedList<>();
         String last = arrival;
         while (!last.equals(start)) {
@@ -339,6 +284,6 @@ public final class Dijkstra {
             last = section.getStart().getName();
         }
         Collections.reverse(orderedPath);
-        result = orderedPath;
+        return orderedPath;
     }
 }
