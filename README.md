@@ -62,7 +62,7 @@ La requête ```ROUTE``` permet de calculer le chemin entre deux stations, coordo
 - **ROUTE;\<station>;\<station>;\<time>;DISTANCE;**
 - **ROUTE;\<station>;\<station>;\<time>;TIME;**
 - **ROUTE;\<station>;\<station>;\<time>;DISTANCE;FOOT**
-- **ROUTE;<station>;\<station>;\<time>;TIME;FOOT**
+- **ROUTE;\<station>;\<station>;\<time>;TIME;FOOT**
 
 <station> peut être un nom de station ou une coordonnées GPS au format `(<latitude>,<longitude>)`
 <time> est un horaire au format `(HH:mm)`
@@ -71,7 +71,7 @@ Le serveur répond par un objet ```Route```
 #### SEARCH
 La requête ```SEARCH``` permet d'obtenir la liste des stations ainsi que leur correspondance commençant par un certain préfixe.
 
-- **SEARCH;<prefix>;<DEPART | ARRIVAL>**
+- **SEARCH;\<prefix>;\<DEPART | ARRIVAL>**
 
 Le serveur répond par un objet ```SuggestionStations```
 #### TIME
@@ -86,4 +86,6 @@ En cas de requêtes mal formées, non reconnues, vides ou nulles, le serveur ren
 
 ## Comment lancer les tests
 dans le dossier `gla-calcul-itineraire`
+```
 $ ./gradlew test
+```
