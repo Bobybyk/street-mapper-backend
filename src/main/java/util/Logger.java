@@ -52,7 +52,9 @@ public final class Logger {
 
     private static void log(Logger.Type type, String message) {
         if (!isEnable) return;
-        shared.log(type.getLevel(), String.format("%s%s %s", type.colorSequence, message, ASCII_RESET_COLOR));
+
+        message = String.format("%s%s %s", type.colorSequence, message, ASCII_RESET_COLOR);
+        shared.log(type.getLevel(), "{0}", message);
     }
 
     public static void info(String message) {

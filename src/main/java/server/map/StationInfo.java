@@ -26,7 +26,7 @@ public class StationInfo implements Serializable {
      */
     private final Set<String> lines;
 
-    public StationInfo(String stationName, Collection<? extends String> collection) {
+    public StationInfo(String stationName, Collection<String> collection) {
         this.stationName = stationName;
         this.lines = new HashSet<>(collection);
     }
