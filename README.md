@@ -1,5 +1,7 @@
 # **TrainGo Backend**
 
+![](/img/img_train_go.png " TrainGo")
+
 Ce répertoire git contient tout le code source du backend de TrainGo
 
 ## **Comment compiler**
