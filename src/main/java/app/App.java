@@ -6,68 +6,60 @@ package app;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import app.map.Plan;
-import app.map.PlanParser;
-import app.map.PlanParser.InconsistentDataException;
-import app.server.Server;
+
+import server.Server;
+import server.map.PlanParser;
+import server.map.PlanParser.InconsistentDataException;
+import util.Logger;
 
 public class App {
+
+    public static final int PORT = 12345;
 
     /**
      * Commentaire d'erreur en static pour la gestion de fichier
      */
-    private final static String errorIllegalArgument =
-            "[Erreur] Arguments invalides. Arguments Attendus : java App <file>";
-    private final static String errorFileNotExist =
-            "[Erreur] Fichier introuvable ou est un repertoire";
-    private final static String errorIncorrectFile = "[Erreur] Le fichier est incorrect ";
-    private final static String errorServeurStart = "[Erreur] Le serveur n'a pas demarré";
-
-
-    private final static String succesMapCreae = "Object Map crée avec succes ";
-
-    private static Plan map = null;
-
-    /**
-     * Cette fonction permet de recup l'instance de map
-     *
-     * @return L'object Map
-     */
-    public static Plan getInstanceOfMap() {
-        if (map == null) {
-            try {
-                return PlanParser.planFromSectionCSV("dev_ressources/map_data_client.csv");
-            } catch (FileNotFoundException | PlanParser.IncorrectFileFormatException e) {
-                System.out.println("Erreur map introuvable");
-            }
-        }
-        return map;
-    }
-
+    private final static String ERROR_ILLEGAL_ARGUMENT =
+            "Arguments invalides. Arguments Attendus : java App <file>";
+    private final static String ERROR_FILE_MAP_NOT_EXIST =
+            "Fichier du réseau est introuvable ou est un repertoire";
+    private final static String ERROR_FILE_TIME_NOT_EXIST =
+            "Fichier des horaires est introuvable ou est un repertoire";
+    private final static String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
+    private final static String ERROR_SERVER_START = "Le serveur n'a pas demarré";
+    
     public static void main(String[] args) {
-        if (argsIsOk(args)) {
-            final File mapFile = new File(args[0]);
-            final File timeFile = new File(args[1]);
-            if (!mapFile.exists() || mapFile.isDirectory()
-                    || timeFile != null && (!timeFile.exists() || timeFile.isDirectory()))
-                print(errorFileNotExist);
-            else {
-                try {
-                    map = PlanParser.planFromSectionCSV(mapFile.getPath());
-                    if (timeFile != null)
-                        PlanParser.addTimeFromCSV(map, timeFile.getPath());
-                    System.out.println(succesMapCreae);
-                    final Server server = new Server("localhost", 12345);
-                    server.start();
-                } catch (FileNotFoundException e) {
-                    print(errorFileNotExist);
-                } catch (PlanParser.IncorrectFileFormatException | InconsistentDataException e) {
-                    print(errorIncorrectFile);
-                } catch (IOException e) {
-                    print(errorServeurStart);
-                }
-            }
+        if (!argsIsOk(args)) {
+            Logger.error(ERROR_ILLEGAL_ARGUMENT);
+            return;
         }
+
+        final File mapFile = new File(args[0]);
+        if (!isFile(mapFile)) {
+            Logger.error(ERROR_FILE_MAP_NOT_EXIST);
+            return;
+        }
+        
+        try {                
+            final Server server = new Server(mapFile.getPath(), PORT, true);    
+            if (hasCsvTimeFile(args)) {
+                final File timeFile = new File(args[1]);
+                if (!isFile(timeFile)) {
+                    Logger.error(ERROR_FILE_TIME_NOT_EXIST);
+                    return;
+                }
+                server.updateTime(timeFile.getPath());;
+            }
+            server.start();
+        } catch (FileNotFoundException e) {
+            Logger.error(ERROR_FILE_MAP_NOT_EXIST);;
+        } catch (PlanParser.IncorrectFileFormatException e) {
+            Logger.error(ERROR_INCORRECT_FILE);
+        } catch (IOException e) {
+            Logger.error(ERROR_SERVER_START);
+        } catch (InconsistentDataException e) {
+            Logger.error(e.getMessage());
+        }  
     }
 
     /**
@@ -77,24 +69,16 @@ public class App {
      * @param args l'ensemble des arguments
      * @return boolean
      */
-    public static boolean argsIsOk(String[] args) {
-        if (args.length < 1) {
-            print(errorIllegalArgument);
-            return false;
-        } else if (args.length > 4) {
-            print(errorIllegalArgument);
-            return false;
-        }
-        return true;
+    static boolean argsIsOk(String[] args) {
+        int length = args.length;
+        return length == 1 || length == 2;
     }
 
-    /**
-     * Fonction d'affichage
-     *
-     * @param msg le tableau des messages pour les faire afficher
-     */
-    private static void print(String... msg) {
-        for (String line : msg)
-            System.out.println(line);
+    static boolean hasCsvTimeFile(String[] args) {
+        return args.length == 2;
+    }
+
+    static boolean isFile(File mapFile) {
+        return mapFile.exists() && !mapFile.isDirectory();
     }
 }
