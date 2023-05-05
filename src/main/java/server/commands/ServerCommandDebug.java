@@ -2,7 +2,6 @@ package server.commands;
 
 import java.util.Arrays;
 import java.util.List;
-
 import server.Server;
 import util.Logger;
 
@@ -20,19 +19,16 @@ public class ServerCommandDebug implements ServerCommand {
     @Override
     public List<String> getExemples(String commandName) {
         return Arrays.asList(
-            new StringBuilder(commandName).append( " 0").toString(),
-                new StringBuilder(commandName).append( " 1").toString()
-        );
+                new StringBuilder(commandName).append(" 0 désactive le logger").toString(),
+                new StringBuilder(commandName).append(" 1 active le logger").toString());
     }
 
     @Override
     public void execute(Server server, String... args) throws IllegalArgumentException, Exception {
         if (args.length != 2) {
             String message = new StringBuilder("mauvais format. Attend : ")
-                .append(args.length > 1 ? args[0] : "")
-                .append(" ")
-                .append(USAGE_EXAMPLE)
-                .toString();
+                    .append(args.length > 1 ? args[0] : "").append(" ").append(USAGE_EXAMPLE)
+                    .toString();
             throw new IllegalArgumentException(message);
         }
 
@@ -48,5 +44,5 @@ public class ServerCommandDebug implements ServerCommand {
             default -> Logger.error("Argument non reconnu");
         }
     }
-    
+
 }

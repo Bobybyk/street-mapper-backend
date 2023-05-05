@@ -35,9 +35,9 @@ public class App {
      * Commentaire d'erreur en static pour la gestion de fichier
      */
     private static final String ERROR_ILLEGAL_ARGUMENT =
-            "Arguments invalides. Arguments Attendus : java App <file>";
+            "Arguments invalides. Arguments Attendus : <mapFile> [timeFile]";
     private static final String ERROR_FILE_MAP_NOT_EXIST =
-            "Fichier du réseau est introuvable ou est un repertoire";
+            "Fichier du plan est introuvable ou est un repertoire";
     private static final String ERROR_FILE_TIME_NOT_EXIST =
             "Fichier des horaires est introuvable ou est un repertoire";
     private static final String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
