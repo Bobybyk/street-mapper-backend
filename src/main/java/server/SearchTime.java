@@ -1,11 +1,11 @@
 package server;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import server.data.DepartureTimes;
+import server.data.ServerResponse;
 import server.data.StationTime;
 import server.map.Line;
 import server.map.Plan;
@@ -49,13 +49,15 @@ public class SearchTime implements ServerActionCallback {
     }
 
     @Override
-    public Serializable execute() {
+    public ServerResponse execute() {
         List<StationTime> allTime = departuresFromStation();
         allTime.sort(Comparator.comparing(StationTime::getTime, Time::compareTo));
-        List<StationTime> afterTime = new ArrayList<>(allTime.stream()
-                .filter(s -> time.compareTo(s.getTime()) < 0).limit(LIMIT).toList());
+        List<StationTime> afterTime =
+                new ArrayList<>(allTime.stream().filter(s -> time.compareTo(s.getTime()) < 0)
+                        .limit(LIMIT).collect(Collectors.toCollection(ArrayList::new)));
         int nextDay = LIMIT - afterTime.size();
-        afterTime.addAll(allTime.stream().limit(nextDay).toList());
+        afterTime.addAll(
+                allTime.stream().limit(nextDay).collect(Collectors.toCollection(ArrayList::new)));
         return new DepartureTimes(afterTime);
     }
 

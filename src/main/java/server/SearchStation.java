@@ -1,10 +1,9 @@
 package server;
 
-import java.io.Serializable;
 import java.text.Collator;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import server.data.ServerResponse;
 import server.data.SuggestionStations;
 import server.data.SuggestionStations.SuggestionKind;
 import server.map.StationInfo;
@@ -38,7 +37,7 @@ public class SearchStation implements ServerActionCallback {
     }
 
     @Override
-    public Serializable execute() {
+    public ServerResponse execute() {
         Collator insenstiveStringComparator = Collator.getInstance();
         insenstiveStringComparator.setStrength(Collator.PRIMARY);
         Set<StationInfo> stations = stationsInfo.stream()

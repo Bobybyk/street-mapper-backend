@@ -1,6 +1,6 @@
 package server;
 
-import java.io.Serializable;
+import server.data.ServerResponse;
 
 /**
  * L'Interface {@code ServerActionCallback} doit être implémentée par n'importe quel objet dont la
@@ -14,5 +14,5 @@ public interface ServerActionCallback {
      *
      * @return l'objet {@code Serializable} à renvoyer au client
      */
-    public Serializable execute();
+    public ServerResponse execute();
 }

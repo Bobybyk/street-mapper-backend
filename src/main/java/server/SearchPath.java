@@ -1,11 +1,10 @@
 package server;
 
-import java.io.Serializable;
 import java.util.List;
-
 import server.Dijkstra.PathNotFoundException;
 import server.data.ErrorServer;
 import server.data.Route;
+import server.data.ServerResponse;
 import server.map.Plan;
 import server.map.Section;
 import server.map.Time;
@@ -63,7 +62,7 @@ public class SearchPath implements ServerActionCallback {
     }
 
     @Override
-    public Serializable execute() {
+    public ServerResponse execute() {
         try {
             List<Section> sections =
                     new Dijkstra(map, start, arrival, depart, distOpt, foot).getPath();
