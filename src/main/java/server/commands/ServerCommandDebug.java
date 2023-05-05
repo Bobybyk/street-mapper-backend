@@ -10,11 +10,11 @@ public class ServerCommandDebug implements ServerCommand {
 
     private static final String USAGE_EXAMPLE = " <0 | 1>";
 
-    private final String description = "gere l'activation de l'affichage des logs";
+    private static final String DESCRIPTION = "gere l'activation de l'affichage des logs";
 
     @Override
     public String getdescription() {
-        return description;
+        return DESCRIPTION;
     }
 
     @Override

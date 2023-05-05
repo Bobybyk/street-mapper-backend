@@ -72,7 +72,7 @@ public final class Plan {
      * @see Line#resetDeparturesTimeData()
      */
     public Plan resetLinesSections() {
-        Map<String, Line> lines = 
+        Map<String, Line> linesReset = 
             this.lines.entrySet().stream().reduce(new HashMap<>(), (acc, entry) -> {
             acc.put(entry.getKey(), entry.getValue().resetDeparturesTimeData() );
             return acc;
@@ -80,8 +80,7 @@ public final class Plan {
             acc.putAll(m);
             return acc;
         });
-        Plan p = new Plan(this.map, this.stations, lines, this.stationsInfo);
-        return p;
+        return new Plan(this.map, this.stations, linesReset, this.stationsInfo);
     }
 
     /**

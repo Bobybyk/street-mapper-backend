@@ -12,7 +12,7 @@ import server.map.PlanParser;
 import server.map.Section;
 import server.map.Time;
 
-public class SearchPathTest {
+class SearchPathTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
     private static final String MAP_DATA = "map_data";
@@ -28,21 +28,21 @@ public class SearchPathTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullStart() throws Exception {
+    void findPathWithNullStart() throws Exception {
         Plan map = initMap(MAP_DATA);
         illegalArgumentHelper(map, null, "test");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullArrival() throws Exception {
+    void findPathWithNullArrival() throws Exception {
         Plan map = initMap(MAP_DATA);
         illegalArgumentHelper(map, "test", null);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithNullMap() throws Exception {
+    void findPathWithNullMap() throws Exception {
         illegalArgumentHelper(null, "test", "toto");
     }
 
@@ -66,19 +66,19 @@ public class SearchPathTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void notExistingStart() throws Exception {
+    void notExistingStart() throws Exception {
         pathNotFoundHelper("test", "Commerce");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void notExistingArrival() throws Exception {
+    void notExistingArrival() throws Exception {
         pathNotFoundHelper("Lourmel", "test");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void notPathBetween() throws Exception {
+    void notPathBetween() throws Exception {
         pathNotFoundHelper("Commerce", "Lourmel");
     }
 
@@ -125,143 +125,143 @@ public class SearchPathTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathSameLine() throws Exception {
+    void findPathSameLine() throws Exception {
         findPathMapHelper("Lourmel", "Commerce", 3, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPath2Line() throws Exception {
+    void findPath2Line() throws Exception {
         findPathMapHelper("Cité", "Hôtel de Ville", 2, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPath3Line() throws Exception {
+    void findPath3Line() throws Exception {
         findPathMapHelper("Alma - Marceau", "Invalides", 3, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathNordToLyon() throws Exception {
+    void findPathNordToLyon() throws Exception {
         findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathNordToLyonStartTime() throws Exception {
+    void findPathNordToLyonStartTime() throws Exception {
         findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, new Time(9, 34, 23), false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathNordToLyonTimeOpt() throws Exception {
+    void findPathNordToLyonTimeOpt() throws Exception {
         findPathMapHelper("Gare du Nord", "Gare de Lyon", 8, new Time(17, 58, 32), true, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathBercyToParmentier() throws Exception {
+    void findPathBercyToParmentier() throws Exception {
         findPathMapHelper("Bercy", "Parmentier", 7, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathBMaisonBlancheToPigalle() throws Exception {
+    void findPathBMaisonBlancheToPigalle() throws Exception {
         findPathMapHelper("Maison Blanche", "Pigalle", 17, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeNordToLyon() throws Exception {
+    void findPathWithTimeNordToLyon() throws Exception {
         findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 8, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeNordToLyonStartTime() throws Exception {
+    void findPathWithTimeNordToLyonStartTime() throws Exception {
         findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 8, new Time(13, 50, 32), false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeNordToLyonStartTimeOpt() throws Exception {
+    void findPathWithTimeNordToLyonStartTimeOpt() throws Exception {
         findPathMapWithTimeHelper("Gare du Nord", "Gare de Lyon", 15, new Time(13, 50, 32), false,
                 false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeSameLineTimeOpt() throws Exception {
+    void findPathWithTimeSameLineTimeOpt() throws Exception {
         findPathMapWithTimeHelper("Balard", "Félix Faure", 3, new Time(13, 50, 32), false, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeJussieuToOdeonTimeOpt() throws Exception {
+    void findPathWithTimeJussieuToOdeonTimeOpt() throws Exception {
         findPathMapWithTimeHelper("Jussieu", "Odéon", 4, new Time(14, 50), false, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeBastilleToRepubliqueTimeOpt() throws Exception {
+    void findPathWithTimeBastilleToRepubliqueTimeOpt() throws Exception {
         findPathMapWithTimeHelper("Bastille", "République", 4, new Time(8, 40), false, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimePyramidesToBercyTimeOpt() throws Exception {
+    void findPathWithTimePyramidesToBercyTimeOpt() throws Exception {
         findPathMapWithTimeHelper("Pyramides", "Bercy", 18, new Time(8, 3), false, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeBercyToParmentierTimeOpt() throws Exception {
+    void findPathWithTimeBercyToParmentierTimeOpt() throws Exception {
         findPathMapWithTimeHelper("Bercy", "Parmentier", 7, new Time(12, 40), true, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeBercyToParmentierTimeOptFoot() throws Exception {
+    void findPathWithTimeBercyToParmentierTimeOptFoot() throws Exception {
         findPathMapWithTimeHelper("Bercy", "Parmentier", 5, new Time(12, 40), true, true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeMaisonBlancheToPigalleTimeOpt() throws Exception {
+    void findPathWithTimeMaisonBlancheToPigalleTimeOpt() throws Exception {
         findPathMapWithTimeHelper("Maison Blanche", "Pigalle", 17, new Time(12, 32), true, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeMaisonBlancheToPigalleTimeOptFoot() throws Exception {
+    void findPathWithTimeMaisonBlancheToPigalleTimeOptFoot() throws Exception {
         findPathMapWithTimeHelper("Maison Blanche", "Pigalle", 14, new Time(12, 32), true, true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeStartCoord() throws Exception {
+    void findPathWithTimeStartCoord() throws Exception {
         findPathMapWithTimeHelper("(48.83866086365990, 2.2822419598550800)", "Commerce", 4,
                 new Time(12, 32), true, true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeArrivalCoord() throws Exception {
+    void findPathWithTimeArrivalCoord() throws Exception {
         findPathMapWithTimeHelper("Lourmel", "(48.84461151236850,2.293796842192860)", 4,
                 new Time(12, 32), true, true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeStartArrivalCoord() throws Exception {
+    void findPathWithTimeStartArrivalCoord() throws Exception {
         findPathMapWithTimeHelper("(48.83866086365990, 2.2822419598550800)",
                 "(48.84461151236850,2.293796842192860)", 5, new Time(12, 32), true, true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeCoords() throws Exception {
+    void findPathWithTimeCoords() throws Exception {
         findPathMapWithTimeHelper("(48.855402921055045, 2.3443066430543738)",
                 "(48.84718353452897, 2.398076946926344)", 9, new Time(9, 0), true, true);
 
@@ -269,21 +269,21 @@ public class SearchPathTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathWithTimeCoordsMaisonBlancheToPigalleTimeOptFoot() throws Exception {
+    void findPathWithTimeCoordsMaisonBlancheToPigalleTimeOptFoot() throws Exception {
         findPathMapWithTimeHelper("(48.824868685169676, 2.358546268381532)",
                 "(48.88264085646782, 2.3401402839553964)", 15, new Time(12, 32), true, true);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathStartFarFromStation() throws Exception {
+    void findPathStartFarFromStation() throws Exception {
         findPathMapWithTimeHelper("(48.76844682672424,2.3622296824389313)", "Châtelet", 14,
                 new Time(6, 32), true, false);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void findPathArrivalFarFromStation() throws Exception {
+    void findPathArrivalFarFromStation() throws Exception {
         findPathMapWithTimeHelper("Châtelet", "(48.76844682672424,2.3622296824389313)", 14,
                 new Time(6, 32), true, false);
     }

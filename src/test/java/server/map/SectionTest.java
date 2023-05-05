@@ -11,7 +11,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-public class SectionTest {
+class SectionTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
 
@@ -28,51 +28,51 @@ public class SectionTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void sectionWithNullStart() {
+    void sectionWithNullStart() {
         illegalArgumentHelper(null, new Station("test", 0, 0), "");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void sectionWithNullArrival() {
+    void sectionWithNullArrival() {
         illegalArgumentHelper(new Station("test", 0, 0), null, "");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void distanceToNull() {
+    void distanceToNull() {
         assertThrows(IllegalArgumentException.class, () -> s1.distanceTo(null), "Distance to null");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void distanceTo() {
+    void distanceTo() {
         assertEquals(1350, s1.distanceTo(s2), "Distance between two section arrivals");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void durationToNull() {
+    void durationToNull() {
         assertThrows(IllegalArgumentException.class, () -> s1.durationTo(null), "Duration to null");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void durationToS1ArrivalTimeIsNull() {
+    void durationToS1ArrivalTimeIsNull() {
         s1.setTime(new Time(13, 30));
         assertThrows(IllegalArgumentException.class, () -> s1.durationTo(null), "Duration to null");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void durationToS2ArrivalTimeIsNull() {
+    void durationToS2ArrivalTimeIsNull() {
         s2.setTime(new Time(13, 30));
         assertThrows(IllegalArgumentException.class, () -> s1.durationTo(null), "Duration to null");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void durationTo() {
+    void durationTo() {
         s1.setTime(new Time(13, 30));
         s2.setTime(new Time(13, 40));
         assertEquals(930, s1.durationTo(s2), "Distance between two section arrivals");
@@ -80,7 +80,7 @@ public class SectionTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsWithDifferentTime() {
+    void equalsWithDifferentTime() {
         Section s1bis = new Section(a, b, "", 1716, 120);
         s1.setTime(new Time(12, 45));
         s1bis.setTime(new Time(11, 34));
@@ -89,49 +89,49 @@ public class SectionTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsWithDifferentStartStation() {
+    void equalsWithDifferentStartStation() {
         Section s1bis = new Section(c, b, "", 1716, 120);
         assertNotEquals(s1, s1bis, "Sections with different start station");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsWithDifferentArrivalStation() {
+    void equalsWithDifferentArrivalStation() {
         Section s1bis = new Section(a, c, "", 1716, 120);
         assertNotEquals(s1, s1bis, "Sections with different arrival station");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsWithDifferentLineName() {
+    void equalsWithDifferentLineName() {
         Section s1bis = new Section(a, b, "test", 1716, 120);
         assertNotEquals(s1, s1bis, "Sections with different line");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsWithDifferentDistance() {
+    void equalsWithDifferentDistance() {
         Section s1bis = new Section(a, b, "", 0, 120);
         assertNotEquals(s1, s1bis, "Sections with different distance");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsWithDifferentDuration() {
+    void equalsWithDifferentDuration() {
         Section s1bis = new Section(a, b, "", 1716, 0);
         assertNotEquals(s1, s1bis, "Sections with different duration");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsWithOneNullLineName() {
+    void equalsWithOneNullLineName() {
         Section s1bis = new Section(a, b, null, 1716, 120);
         assertNotEquals(s1, s1bis, "Sections comparaison with null line");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsWithOneNullLineNameSwitch() {
+    void equalsWithOneNullLineNameSwitch() {
         Section s1bis = new Section(a, b, null, 1716, 120);
         Section s1biss = new Section(a, b, "", 1716, 120);
         assertNotEquals(s1bis, s1biss, "Sections comparaison with null line");
@@ -139,32 +139,32 @@ public class SectionTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void copieWithoutTime() {
+    void copieWithoutTime() {
         assertEquals(s1, new Section(s1), "Copie section with null time");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void copieWithTime() {
+    void copieWithTime() {
         s1.setTime(new Time(12, 30));
         assertEquals(s1, new Section(a, b, "", 1716, 120), "Copie section with non-null time");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void sectionToRouteNull() {
+    void sectionToRouteNull() {
         assertNull(Section.sectionsToTrajet(null), "null to trajet");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void sectionsToTrajetEmpty() {
+    void sectionsToTrajetEmpty() {
         assertTrue(Section.sectionsToTrajet(new ArrayList<Section>()).isEmpty(), "Empty to trajet");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void sectionToRoute() {
+    void sectionToRoute() {
         Section s3 = new Section(a, b, "toto", 10, 30);
         Section s4 = new Section(b, c, "toto", 40, 20);
         List<Section> sections = Arrays.asList(s1, s2, s3, s4);

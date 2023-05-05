@@ -91,7 +91,7 @@ class ClientHandler implements Runnable {
      * @throws IOException si une erreur arrive lors de la manipulation des entrées/sorties du
      *         socket
      */
-    private Serializable handleLine(String clientLine) throws IOException {
+    private Serializable handleLine(String clientLine) {
         try {
             ServerActionCallback callback = RequestParser.getServerActionCallback(server.getPlan(), clientLine);
             return callback.execute();

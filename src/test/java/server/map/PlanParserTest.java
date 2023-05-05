@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import server.map.PlanParser.InconsistentDataException;
 import server.map.PlanParser.IncorrectFileFormatException;
 
-public class PlanParserTest {
+class PlanParserTest {
 
     private static final int DEFAULT_TIMEOUT = 2000;
 
@@ -34,14 +34,14 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void nullFileName() {
+    void nullFileName() {
         assertThrows(IllegalArgumentException.class, () -> PlanParser.planFromSectionCSV(null),
                 "null file name");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void notFoundFile() {
+    void notFoundFile() {
         assertThrows(FileNotFoundException.class, () -> PlanParser.planFromSectionCSV("test"),
                 "File not found");
     }
@@ -50,14 +50,14 @@ public class PlanParserTest {
     @ValueSource(strings = {"arrival_missing", "bad_coord_format", "bad_time_format",
             "coord_missing", "line_missing"})
     @Timeout(DEFAULT_TIMEOUT)
-    public void incorrectFileFormat(String filename) {
+    void incorrectFileFormat(String filename) {
         assertThrows(IncorrectFileFormatException.class,
                 () -> PlanParser.planFromSectionCSV(getPath(filename)), "Incorrect file format");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void sameSectionInMapAndLines() throws Exception {
+    void sameSectionInMapAndLines() throws Exception {
         Plan map = initMap(MAP_DATA);
         BinaryOperator<ArrayList<Section>> accumulator = (l1, l2) -> {
             l1.addAll(l2);
@@ -73,7 +73,7 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addTimeNullPlanNulFile() {
+    void addTimeNullPlanNulFile() {
         assertThrows(IllegalArgumentException.class, () -> PlanParser.addTimeFromCSV(null, null),
                 "Add time from null file to null plan");
     }
@@ -86,14 +86,14 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void nullFileNameTime() {
+    void nullFileNameTime() {
         assertThrows(IllegalArgumentException.class, () -> addTimeHelper(MAP_DATA, null),
                 "null file name");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void notFoundFileTime() {
+    void notFoundFileTime() {
         assertThrows(FileNotFoundException.class, () -> addTimeHelper(MAP_DATA, "test"),
                 "File not found");
     }
@@ -101,21 +101,21 @@ public class PlanParserTest {
     @ParameterizedTest
     @ValueSource(strings = {"time_station_missing", "time_bad_time_format", "time_line_missing"})
     @Timeout(DEFAULT_TIMEOUT)
-    public void incorrectTimeFileFormat(String filename) {
+    void incorrectTimeFileFormat(String filename) {
         assertThrows(IncorrectFileFormatException.class, () -> addTimeHelper(MAP_DATA, filename),
                 "Incorrect file format");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addUndefinedLine() {
+    void addUndefinedLine() {
         assertThrows(InconsistentDataException.class, () -> addTimeHelper(MAP_DATA, "time_data"),
                 "Add time to a not existing line");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addStartStationNotFound() {
+    void addStartStationNotFound() {
         assertThrows(InconsistentDataException.class,
                 () -> addTimeHelper(MAP_DATA, "time_unknow_station"),
                 "Add time to a not existing station");
@@ -123,7 +123,7 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addDifferentStart() {
+    void addDifferentStart() {
         assertThrows(InconsistentDataException.class,
                 () -> addTimeHelper(MAP_DATA, "time_two_start"),
                 "Add two different start station for same line");
@@ -131,7 +131,7 @@ public class PlanParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void addTimeToLines() throws Exception {
+    void addTimeToLines() throws Exception {
         Plan map = addTimeHelper(MAP_DATA_ALL, "time_data");
         assertEquals(15, map.getLines().get("5 variant 2").getDepartures().size(),
                 "Add time to line");

@@ -20,7 +20,7 @@ class ServerConsole implements Runnable {
     /**
      * Le séparateur des arguments lus
      */
-    static final String argsSplitter = " ";
+    static final String ARGS_SPLITER = " ";
 
 
     static final String PROMPT = "server >>> ";
@@ -107,7 +107,7 @@ class ServerConsole implements Runnable {
      * @param line la ligne lue
      */
     void dispatchFromInput(String line) {
-        String[] args = line.split(argsSplitter);
+        String[] args = line.split(ARGS_SPLITER);
 
         if (args.length == 0) {
             writeln(new StringBuffer("Commande vide").toString());
@@ -133,7 +133,7 @@ class ServerConsole implements Runnable {
         int blankBeforeName = COMMAND_BORDER.length() - SERVER_COMMAND_NAME.length();
         blankBeforeName = Integer.max(blankBeforeName, 0) / 2;
         writeln(COMMAND_BORDER);
-        IntStream.range(0, blankBeforeName).forEach(ignore -> write(" "));;
+        IntStream.range(0, blankBeforeName).forEach(ignore -> write(" "));
         writeln(SERVER_COMMAND_NAME);
         writeln("");
     }
@@ -147,7 +147,7 @@ class ServerConsole implements Runnable {
         commands.entrySet()
             .stream()
             .map( entry -> 
-                String.format("  %s : %s%s%s\n", 
+                String.format("  %s : %s%s%s%n", 
                 entry.getKey(), 
                 entry.getValue().getdescription(),
                 splitter,

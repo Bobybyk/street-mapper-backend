@@ -97,7 +97,7 @@ public final class Line {
      * @return la nouvelle line créée
      */
     public Line resetDeparturesTimeData(){
-        HashMap<Section, Integer> sections = this.sections.entrySet()
+        HashMap<Section, Integer> sectionsNulled = this.sections.entrySet()
         .stream()
         .reduce(new HashMap<>(), (acc, entry) -> {
             acc.put(entry.getKey(), null);
@@ -106,7 +106,7 @@ public final class Line {
             lhs.putAll(rhs);
             return lhs;
         });
-        return new Line(this.name, this.variant, sections);
+        return new Line(this.name, this.variant, sectionsNulled);
     }
 
     /**

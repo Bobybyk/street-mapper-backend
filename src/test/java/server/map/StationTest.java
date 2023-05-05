@@ -5,26 +5,26 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-public class StationTest {
+class StationTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsDifferentCoords() {
+    void equalsDifferentCoords() {
         assertNotEquals(new Station("", 0, 0), new Station("", 1, 0),
                 "Station with different coordinates are not equals");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsDifferentName() {
+    void equalsDifferentName() {
         assertNotEquals(new Station("A", 0, 0), new Station("B", 0, 0),
                 "Station with different name are not equals");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsSameValue() {
+    void equalsSameValue() {
         assertEquals(new Station("A", 0, 0), new Station("A", 0, 0),
                 "Station with same value are equals");
     }
@@ -41,7 +41,7 @@ public class StationTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void distanceChatelet14and1() {
+    void distanceChatelet14and1() {
         Station s1 = new Station("", 48.85955653272677, 2.346411849769497);
         Station s2 = new Station("", 48.85922471342816, 2.3457609541847755);
         distanceBetweenHelper(s1, s2, 60);
@@ -49,7 +49,7 @@ public class StationTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void distanceGareDeLyon14and1() {
+    void distanceGareDeLyon14and1() {
         Station s1 = new Station("", 48.8442498880687, 2.372519782814122);
         Station s2 = new Station("", 48.8456832067358, 2.3731565937892047);
         distanceBetweenHelper(s1, s2, 166);
@@ -58,7 +58,7 @@ public class StationTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void durationChatelet14and1() {
+    void durationChatelet14and1() {
         Station s1 = new Station("", 48.85955653272677, 2.346411849769497);
         Station s2 = new Station("", 48.85922471342816, 2.3457609541847755);
         durationBetweenHelper(s1, s2, 50);
@@ -66,7 +66,7 @@ public class StationTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void durationGareDeLyon14and1() {
+    void durationGareDeLyon14and1() {
         Station s1 = new Station("", 48.8442498880687, 2.372519782814122);
         Station s2 = new Station("", 48.8456832067358, 2.3731565937892047);
         durationBetweenHelper(s1, s2, 138);

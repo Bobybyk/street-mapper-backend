@@ -9,7 +9,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import server.RequestParser.ParsingException;
 import server.map.Plan;
 
-public class RequestParserTest {
+class RequestParserTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
     private ServerActionCallback getServerActionCallbackHelper(String args) throws Exception {
@@ -24,7 +24,7 @@ public class RequestParserTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void handleNullRequest() {
+    void handleNullRequest() {
         parsingExceptionHelper(null);
     }
 
@@ -37,7 +37,7 @@ public class RequestParserTest {
             "SEARCH;test;34", "SEARCH; ;DEPART", "TIME;", "TIME;;", "TIME;test;34", "TIME; ;13:23",
             "TIME;test; "})
     @Timeout(DEFAULT_TIMEOUT)
-    public void parsingException(String args) {
+    void parsingException(String args) {
         parsingExceptionHelper(args);
     }
 
@@ -48,7 +48,7 @@ public class RequestParserTest {
             "ROUTE; Gare de Lyon; Madeleine; 13:30;TIME;FOOT",
             "ROUTE;Gare de Lyon; Madeleine;13:30;TIME;TEST"})
     @Timeout(DEFAULT_TIMEOUT)
-    public void handleRoute(String request) throws Exception {
+    void handleRoute(String request) throws Exception {
         ServerActionCallback callback = getServerActionCallbackHelper(request);
         assertTrue(callback instanceof SearchPath, request);
     }
@@ -56,7 +56,7 @@ public class RequestParserTest {
     @ParameterizedTest
     @ValueSource(strings = {"SEARCH; test; DEPART", "SEARCH; test; ARRIVAL"})
     @Timeout(DEFAULT_TIMEOUT)
-    public void handleStation(String request) throws Exception {
+    void handleStation(String request) throws Exception {
         ServerActionCallback callback = getServerActionCallbackHelper(request);
         assertTrue(callback instanceof SearchStation, request);
     }
@@ -64,7 +64,7 @@ public class RequestParserTest {
     @ParameterizedTest
     @ValueSource(strings = {"TIME; test; 12:20"})
     @Timeout(DEFAULT_TIMEOUT)
-    public void handleTime(String request) throws Exception {
+    void handleTime(String request) throws Exception {
         ServerActionCallback callback = getServerActionCallbackHelper(request);
         assertTrue(callback instanceof SearchTime, request);
     }

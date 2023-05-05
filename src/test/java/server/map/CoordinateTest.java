@@ -5,19 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-public class CoordinateTest {
+class CoordinateTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getLatitude() {
+    void getLatitude() {
         assertEquals(48.85955653272677,
                 new Coordinate(48.85955653272677, 2.346411849769497).getLatitude(), "Get latitude");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void getLongitude() {
+    void getLongitude() {
         assertEquals(2.346411849769497,
                 new Coordinate(48.85955653272677, 2.346411849769497).getLongitude(),
                 "Get longitude");
@@ -25,21 +25,21 @@ public class CoordinateTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsDifferentLat() {
+    void equalsDifferentLat() {
         assertNotEquals(new Coordinate(0, 0), new Coordinate(1, 0),
                 "Different coordinates are not equals");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsDifferentLong() {
+    void equalsDifferentLong() {
         assertNotEquals(new Coordinate(0, 0), new Coordinate(0, 1),
                 "Different coordinates are not equals");
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void equalsSameCoordinate() {
+    void equalsSameCoordinate() {
         assertEquals(new Coordinate(1, 2), new Coordinate(1, 2), "Same coordinates are equals");
     }
 
@@ -53,34 +53,34 @@ public class CoordinateTest {
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testDistance0() {
+    void testDistance0() {
         distanceHelper(0, 0, 0, 0, 0);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testDistanceSameStation() {
+    void testDistanceSameStation() {
         distanceHelper(48.83866086365992, 2.2822419598550767, 48.83866086365992, 2.2822419598550767,
                 0);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testDistanceChatelet14and1() {
+    void testDistanceChatelet14and1() {
         distanceHelper(48.85955653272677, 2.346411849769497, 48.85922471342816, 2.3457609541847755,
                 60);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testDistanceGareDeLyon14and1() {
+    void testDistanceGareDeLyon14and1() {
         distanceHelper(48.8442498880687, 2.372519782814122, 48.8456832067358, 2.3731565937892047,
                 166);
     }
 
     @Test
     @Timeout(DEFAULT_TIMEOUT)
-    public void testDistanceBalardAndLourmel() {
+    void testDistanceBalardAndLourmel() {
         distanceHelper(48.8442498880687, 2.278362661809200, 48.8456832067358, 2.3731565937892047,
                 6939);
     }

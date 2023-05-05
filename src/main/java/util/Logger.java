@@ -1,5 +1,5 @@
 package util;
-import java.io.PrintStream;
+import java.util.logging.Level;
 
 /**
  * Classe permettant d'afficher des messages sur les sorties standards
@@ -7,6 +7,8 @@ import java.io.PrintStream;
 public final class Logger {
 
     private static boolean isEnable = true;
+
+    private static final java.util.logging.Logger shared = java.util.logging.Logger.getGlobal();
 
     public static synchronized void enable() {
         isEnable = true;
@@ -23,7 +25,7 @@ public final class Logger {
     /**
      * Classe descrivant le type de log
      */
-    private static enum Type {
+    private enum Type {
         INFO("\u001B[34m"),
         ERROR("\u001B[31m");
 
@@ -35,35 +37,24 @@ public final class Logger {
         Type(String colorSequence) {
             this.colorSequence = colorSequence;
         }
-
-        /**
-         * Retoune la sortie sortie standard associe au type du log
-         * @return
-         */
-        PrintStream getPrintStream() {
+        
+        public java.util.logging.Level getLevel() {
             return switch (this) {
-                case INFO -> System.out;
-                case ERROR -> System.err;
-            };
-        }
-
-        @Override
-        public String toString() {
-            return switch (this) {
-                case INFO -> "[INFO]";
-                case ERROR -> "[ERREUR]";
+                case INFO -> Level.INFO;
+                case ERROR -> Level.WARNING;
             };
         }
     }
+
+    private Logger() { }
 
     private static final String ASCII_RESET_COLOR = "\u001B[0m";
 
     private static void log(Logger.Type type, String message) {
         if (!isEnable) return;
 
-        PrintStream stream = type.getPrintStream();
-        stream.printf("%s %s : %s %s\n", type.colorSequence, type.toString(), message, ASCII_RESET_COLOR);
-        stream.flush();
+        message = String.format("%s%s %s", type.colorSequence, message, ASCII_RESET_COLOR);
+        shared.log(type.getLevel(), "{0}", message);
     }
 
     public static void info(String message) {

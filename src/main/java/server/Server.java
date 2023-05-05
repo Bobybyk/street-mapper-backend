@@ -106,7 +106,7 @@ public class Server {
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     public Server(String csvMapPath, int port, boolean withConsole, int maxIncommingConnection, int poolSize) throws IOException, 
-        FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
+        IncorrectFileFormatException, IllegalArgumentException {
             this( PlanParser.planFromSectionCSV(csvMapPath), port, withConsole, maxIncommingConnection, poolSize);
     }
 
@@ -119,7 +119,7 @@ public class Server {
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     public Server(String csvMapPath, int port, boolean withConsole, int maxIncommingConnection) throws IOException, 
-    FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
+        IncorrectFileFormatException, IllegalArgumentException {
         this(csvMapPath, port, withConsole, maxIncommingConnection, DEFAULT_POOL_SIZE);
     }
 
@@ -131,7 +131,7 @@ public class Server {
      * @throws IOException           si une erreur arrive lors de la manipulation des entrées/sorties du socket
      */
     public Server(String csvMapPath, int port, boolean withConsole) throws IOException, 
-    FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
+        IncorrectFileFormatException, IllegalArgumentException {
         this(csvMapPath, port, withConsole, MAX_INCOMMING_CONNECTION);
     }
 
@@ -144,7 +144,7 @@ public class Server {
      *         socket
      */
     public Server(String csvMapPath, int port) throws IOException, 
-    FileNotFoundException, IncorrectFileFormatException, IllegalArgumentException {
+        IncorrectFileFormatException, IllegalArgumentException {
         this(csvMapPath, port, false, MAX_INCOMMING_CONNECTION);
     }
 

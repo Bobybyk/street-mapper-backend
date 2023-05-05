@@ -13,7 +13,7 @@ import server.data.SuggestionStations.SuggestionKind;
 import server.map.PlanParser;
 import server.map.StationInfo;
 
-public class SearchStationTest {
+class SearchStationTest {
     private static final int DEFAULT_TIMEOUT = 2000;
 
     private static final String MAP_DATA_ALL = "map_data_all";
@@ -24,11 +24,11 @@ public class SearchStationTest {
         return "src/test/resources/" + filename + ".csv";
     }
 
-    public static SearchStation createSearchStation(String prefix) throws Exception {
+    static SearchStation createSearchStation(String prefix) throws Exception {
         return new SearchStation(stations, prefix, SuggestionKind.DEPART);
     }
 
-    public static StationInfo createStationInfo(String stationName, String... lines) {
+    static StationInfo createStationInfo(String stationName, String... lines) {
         return new StationInfo(stationName, Arrays.asList(lines));
     }
 
@@ -40,7 +40,7 @@ public class SearchStationTest {
     @ParameterizedTest
     @Timeout(value = DEFAULT_TIMEOUT)
     @ValueSource(strings = {"cret", "CRÉt", "CrÉt"})
-    public void testMultipleStationWithPrefixIgnoreCaseSpecialChar(String prefix) throws Exception {
+    void testMultipleStationWithPrefixIgnoreCaseSpecialChar(String prefix) throws Exception {
         SearchStation s = createSearchStation(prefix);
         Set<StationInfo> set = ((SuggestionStations) s.execute()).getStations();
         StationInfo creteilPref = createStationInfo("Créteil - Préfecture", "8");
@@ -55,7 +55,7 @@ public class SearchStationTest {
     @ParameterizedTest
     @Timeout(value = DEFAULT_TIMEOUT)
     @ValueSource(strings = {"Châtelet", "Chatelet", "chatEl"})
-    public void testChatelet(String prefix) throws Exception {
+    void testChatelet(String prefix) throws Exception {
         SearchStation s = createSearchStation(prefix);
         Set<StationInfo> set = ((SuggestionStations) s.execute()).getStations();
         StationInfo chatelet = createStationInfo("Châtelet", "1", "4", "7", "11", "14");
@@ -66,7 +66,7 @@ public class SearchStationTest {
     @ParameterizedTest
     @Timeout(value = DEFAULT_TIMEOUT)
     @ValueSource(strings = {"Gare de", "GARE DE", "GaRE De"})
-    public void testGareDe(String prefix) throws Exception {
+    void testGareDe(String prefix) throws Exception {
         SearchStation s = createSearchStation(prefix);
         Set<StationInfo> set = ((SuggestionStations) s.execute()).getStations();
 
