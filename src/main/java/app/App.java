@@ -7,7 +7,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.json.*;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import server.Server;
 import server.map.PlanParser;
 import server.map.PlanParser.InconsistentDataException;
@@ -18,12 +20,12 @@ public class App {
     /**
      * Port sur lequel le server écoutera
      */
-    private static int PORT;
+    private static int port;
 
     /**
      * Nombre de connexions simultanées que le serveur peut gérer
      */
-    private static int BACKLOG;
+    private static int backlog;
 
     /**
      * Chemin du ficher de configuration
@@ -51,20 +53,17 @@ public class App {
             "Fichier des horaires est introuvable ou est un repertoire";
     private static final String ERROR_INCORRECT_FILE = "Le fichier est incorrect ";
     private static final String ERROR_SERVER_START = "Le serveur n'a pas demarré";
-    private static final String JSON_MISS_FORMED = 
-            "Le ficher de configuration est mal formé";
-    private static final String MISSING_PORT_KEY = 
+    private static final String JSON_MISS_FORMED = "Le ficher de configuration est mal formé";
+    private static final String MISSING_PORT_KEY =
             "le champ \"port\" n'est pas présent dans le ficher de configuration";
-    private static final String WRONG_TYPE_PORT_KEY = 
-            "le champ \"port\" n'est pas un entier";
-    private static final String WRONG_TYPE_BACKLOG_KEY = 
+    private static final String WRONG_TYPE_PORT_KEY = "le champ \"port\" n'est pas un entier";
+    private static final String WRONG_TYPE_BACKLOG_KEY =
             "le champs \"backlog\" n'est pas un entier";
-    private static final String PORT_NEGATIVE_VALUE = 
+    private static final String PORT_NEGATIVE_VALUE =
             "Le champ \"port\" ne peut pas être une valeur negative";
-    private static final String BACKLOG_NEGATIVE_VALUE = 
+    private static final String BACKLOG_NEGATIVE_VALUE =
             "Le champ \"backlog\" ne peut pas être une valeur negative";
-    private static final String CONFIG_FILE_NOT_FOUND = 
-            "Le ficher ne configuration n'existe pas";
+    private static final String CONFIG_FILE_NOT_FOUND = "Le ficher ne configuration n'existe pas";
 
     public static void main(String[] args) {
         if (!argsIsOk(args)) {
@@ -80,7 +79,7 @@ public class App {
 
         try {
             config();
-            final Server server = new Server(mapFile.getPath(), PORT, true, BACKLOG);
+            final Server server = new Server(mapFile.getPath(), port, true, backlog);
             if (hasCsvTimeFile(args)) {
                 final File timeFile = new File(args[1]);
                 if (!isFile(timeFile)) {
@@ -96,19 +95,18 @@ public class App {
             Logger.error(ERROR_INCORRECT_FILE);
         } catch (IOException e) {
             Logger.error(ERROR_SERVER_START);
-        } catch (InconsistentDataException e) {
-            Logger.error(e.getMessage());
-        } catch (IllegalArgumentException e) {
+        } catch (InconsistentDataException | IllegalArgumentException e) {
             Logger.error(e.getMessage());
         }
     }
 
     /**
      * Initialise les champs {@code PORT} et {@code BACKLOG} selon le ficher de configuration
-     * @throws IllegalArgumentException le ficher est mal configuré, ne contient pas le champ 
-     * {@code port} ou que les champs {@code port} et {@code backlog} ne sont pas des entiers, 
-     * ou qu'ils sont négatifs
-     * 
+     *
+     * @throws IllegalArgumentException le ficher est mal configuré, ne contient pas le champ
+     *         {@code port} ou que les champs {@code port} et {@code backlog} ne sont pas des
+     *         entiers, ou qu'ils sont négatifs
+     *
      * @see App#affectPortValue
      * @see App#affectBacklogValue
      */
@@ -127,7 +125,7 @@ public class App {
             affectPortValue(jsonObject);
 
             affectBacklogValue(jsonObject);
-            
+
         } catch (IOException e) {
             throw new IllegalAccessError(e.getMessage());
         } catch (javax.json.stream.JsonParsingException e) {
@@ -137,16 +135,16 @@ public class App {
 
     /**
      * Affecte la value du port déclarée dans le ficher de configuration
-     * 
+     *
      * @param jsonObject json représentant le ficher de configuration
-     * @throws IllegalArgumentException si le champ {@code port} est absent du ficher de configuration,
-     * si ce n'est pas un entier, ou un entier negatif
+     * @throws IllegalArgumentException si le champ {@code port} est absent du ficher de
+     *         configuration, si ce n'est pas un entier, ou un entier negatif
      */
     private static void affectPortValue(JsonObject jsonObject) throws IllegalArgumentException {
         try {
-            PORT = jsonObject.getInt(PORT_KEY);
+            port = jsonObject.getInt(PORT_KEY);
 
-            if (PORT < 0)
+            if (port < 0)
                 throw new IllegalArgumentException(PORT_NEGATIVE_VALUE);
 
         } catch (NullPointerException e) {
@@ -158,24 +156,25 @@ public class App {
 
     /**
      * Affecte la value du backlog déclarée dans le ficher de configuration si présente
-     * 
+     *
      * @param jsonObject json représentant le ficher de configuration
-     * @throws IllegalArgumentException si le champ {@code backlog} n'est pas entier ou 
-     * un entier negatif
+     * @throws IllegalArgumentException si le champ {@code backlog} n'est pas entier ou un entier
+     *         negatif
      */
     private static void affectBacklogValue(JsonObject jsonObject) throws IllegalArgumentException {
         try {
-            BACKLOG = jsonObject.getInt(BACKLOG_KEY);
+            backlog = jsonObject.getInt(BACKLOG_KEY);
 
-            if (BACKLOG < 0)
+            if (backlog < 0)
                 throw new IllegalArgumentException(BACKLOG_NEGATIVE_VALUE);
 
         } catch (NullPointerException e) {
-            BACKLOG = Server.DEFAULT_BACKLOG;
+            backlog = Server.DEFAULT_BACKLOG;
         } catch (ClassCastException e) {
             throw new IllegalArgumentException(WRONG_TYPE_BACKLOG_KEY);
         }
     }
+
     /**
      * Cette fonction renvoie un vrai si les arguments sont correctes s'ils respectent le formatage
      * ou faux si les arguments ne respectent pas le formatage
